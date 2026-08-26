@@ -1,0 +1,69 @@
+.playing-card {
+  border-radius: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.playing-card--sm {
+  width: 2.1rem;
+  height: 2.9rem;
+}
+
+.playing-card--md {
+  width: 2.8rem;
+  height: 3.9rem;
+}
+
+.playing-card--lg {
+  width: 3.8rem;
+  height: 5.3rem;
+}
+
+.playing-card--red,
+.playing-card--black {
+  background: rgba(250, 249, 246, 0.97);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.playing-card--red {
+  color: #d81e3f;
+}
+
+.playing-card--black {
+  color: #1a1a1a;
+}
+
+.playing-card__rank {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.3rem;
+  font-size: 0.7em;
+  font-weight: 800;
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.playing-card--lg .playing-card__rank {
+  font-size: 0.75em;
+}
+
+.playing-card__suit {
+  font-size: 1.3em;
+  line-height: 1;
+}
+
+.playing-card--back {
+  background: linear-gradient(135deg, #1b2f28 0%, #14201b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.playing-card--back::after {
+  content: '♠';
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 1.1em;
+}

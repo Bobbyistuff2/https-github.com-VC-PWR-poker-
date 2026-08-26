@@ -1,0 +1,133 @@
+.hand-rankings-toggle {
+  position: fixed;
+  top: 5.5rem;
+  right: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 2rem;
+  border: none;
+  background: #ffffff;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.hand-rankings-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.hand-rankings-toggle--open {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.hand-rankings-panel {
+  position: fixed;
+  top: 8.5rem;
+  right: 1rem;
+  z-index: 39;
+  width: 19rem;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  background: rgba(14, 16, 22, 0.92);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  border-radius: 1.1rem;
+  padding: 1.1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+  transform: translateX(calc(100% + 2rem));
+  transition: transform 0.25s ease;
+}
+
+.hand-rankings-panel--open {
+  transform: translateX(0);
+}
+
+.hand-rankings-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.hand-rankings-panel__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f2f2f2;
+}
+
+.hand-rankings-panel__hint {
+  font-size: 0.7rem;
+  color: #5b93ff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hand-rankings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.hand-rankings-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.hand-rankings-list__num {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.15);
+  color: #5b93ff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hand-rankings-list__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f2f2f2;
+}
+
+.hand-rankings-list__desc {
+  font-size: 0.75rem;
+  color: #9a9a9a;
+  margin-top: 0.1rem;
+}
+
+@media (max-width: 480px) {
+  .hand-rankings-toggle span {
+    display: none;
+  }
+
+  .hand-rankings-toggle {
+    padding: 0.6rem;
+    top: 4.25rem;
+    right: 0.75rem;
+  }
+
+  .hand-rankings-panel {
+    top: 7.25rem;
+    right: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+}

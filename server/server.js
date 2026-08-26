@@ -1,0 +1,119 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const {
+  getDiscordAuthUrl,
+  exchangeDiscordCode,
+  getDiscordUser,
+  findOrCreateDiscordUser,
+  createGuestUser,
+  updateDisplayName,
+} = require('./auth');
+const db = require('./db');
+const { registerPokerHandlers } = require('./poker/sockets');
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: process.env.CLIENT_URL, credentials: true },
+});
+
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: IS_PROD ? 'none' : 'lax',
+    secure: IS_PROD,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  },
+});
+
+app.set('trust proxy', 1);
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(express.json());
+app.use(sessionMiddleware);
+
+function requireAuth(req, res, next) {
+  if (!req.session.userId) return res.status(401).json({ error: 'Not signed in' });
+  next();
+}
+
+app.get('/auth/discord', (req, res) => {
+  res.redirect(getDiscordAuthUrl());
+});
+
+app.get('/auth/discord/callback', async (req, res) => {
+  try {
+    const { code } = req.query;
+    if (!code) throw new Error('Missing code');
+    const tokens = await exchangeDiscordCode(code);
+    const discordUser = await getDiscordUser(tokens.access_token);
+    const user = findOrCreateDiscordUser(discordUser);
+    req.session.userId = user.id;
+    res.redirect(`${process.env.CLIENT_URL}/${user.profile_complete ? 'lobby' : 'profile'}`);
+  } catch (err) {
+    console.error(err);
+    res.redirect(`${process.env.CLIENT_URL}/?error=discord`);
+  }
+});
+
+app.post('/api/guest', (req, res) => {
+  const { name, phone } = req.body;
+  if (!name || !name.trim() || name.length > 24) {
+    return res.status(400).json({ error: 'Name must be 1-24 characters' });
+  }
+  const trimmedPhone = typeof phone === 'string' ? phone.trim() : '';
+  if (trimmedPhone && !/^[0-9+()\-.\s]{7,20}$/.test(trimmedPhone)) {
+    return res.status(400).json({ error: 'Phone number looks invalid' });
+  }
+  const user = createGuestUser(name.trim(), trimmedPhone || null);
+  req.session.userId = user.id;
+  res.json({ user: toPublicUser(user) });
+});
+
+app.get('/api/me', requireAuth, (req, res) => {
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  res.json({ user: toPublicUser(user) });
+});
+
+app.post('/api/profile', requireAuth, (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim() || name.length > 24) {
+    return res.status(400).json({ error: 'Name must be 1-24 characters' });
+  }
+  const user = updateDisplayName(req.session.userId, name.trim());
+  res.json({ user: toPublicUser(user) });
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => res.json({ ok: true }));
+});
+
+function toPublicUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    picture: user.picture,
+    chips: user.chips,
+    profileComplete: !!user.profile_complete,
+  };
+}
+
+const wrapMiddleware = (middleware) => (socket, next) => middleware(socket.request, {}, next);
+io.use(wrapMiddleware(sessionMiddleware));
+
+io.on('connection', (socket) => {
+  registerPokerHandlers(io, socket);
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

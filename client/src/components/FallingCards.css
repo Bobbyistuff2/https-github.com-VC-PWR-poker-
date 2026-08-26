@@ -1,0 +1,88 @@
+.falling-cards {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.falling-card {
+  position: absolute;
+  top: -12%;
+  opacity: 0;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.mini-card {
+  width: 2.3rem;
+  height: 3.2rem;
+  transform: scale(var(--scale));
+  background: rgba(250, 249, 246, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.35rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.mini-card__rank {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.28rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.mini-card__suit {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.mini-card {
+  position: relative;
+}
+
+.mini-card--red {
+  color: #d81e3f;
+}
+
+.mini-card--black {
+  color: #1a1a1a;
+}
+
+@keyframes fall {
+  0% {
+    transform: translate(0, -12vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.95;
+  }
+  92% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(var(--drift), 112vh) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falling-card {
+    animation: none;
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .falling-card:nth-child(n + 13) {
+    display: none;
+  }
+}
