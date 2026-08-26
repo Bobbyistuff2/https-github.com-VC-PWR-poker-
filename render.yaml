@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: pwr-poker-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node --experimental-sqlite server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: DISCORD_REDIRECT_URI
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: PORT
+        value: 3000
