@@ -5,7 +5,8 @@ const WORDS = ['Flush!', 'Straight!', 'Full House!', 'Quads!', 'Trips!', 'Royal 
 const COLORS = ['#5b93ff', '#ff3d81', '#ffe135', '#22d3ee', '#f2f1ec'];
 
 function randomWord(i) {
-  const duration = 12 + Math.random() * 14;
+  // wide spread so some words drift lazily while others rush past
+  const duration = 8 + Math.random() * 24;
   return {
     key: i,
     text: WORDS[Math.floor(Math.random() * WORDS.length)],

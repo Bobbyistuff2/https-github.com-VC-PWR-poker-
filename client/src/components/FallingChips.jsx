@@ -4,7 +4,8 @@ import './FallingChips.css';
 
 function randomChip(i) {
   const denom = DENOMINATIONS[Math.floor(Math.random() * DENOMINATIONS.length)];
-  const duration = 11 + Math.random() * 13;
+  // wide spread so some chips drift lazily while others rush past
+  const duration = 7 + Math.random() * 23;
   return {
     key: i,
     color: denom.color,

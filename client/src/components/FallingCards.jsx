@@ -12,7 +12,8 @@ const SUITS = [
 function randomCard(i) {
   const rank = RANKS[Math.floor(Math.random() * RANKS.length)];
   const suit = SUITS[Math.floor(Math.random() * SUITS.length)];
-  const duration = 11 + Math.random() * 13;
+  // wide spread so some cards drift lazily while others rush past
+  const duration = 7 + Math.random() * 23;
   return {
     key: i,
     rank,
