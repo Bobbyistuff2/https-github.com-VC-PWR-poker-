@@ -85,11 +85,13 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
       </header>
 
       <main className="lobby__main">
-        <p className="lobby__eyebrow">Welcome back</p>
-        <h1 className="lobby__heading">Ready to play, {user.name}?</h1>
-        <p className="lobby__subheading">
-          Start a new table for your friends, or jump into one with a code.
-        </p>
+        <div className="lobby__hero">
+          <p className="lobby__eyebrow">Welcome back</p>
+          <h1 className="lobby__heading">Ready to play, {user.name}?</h1>
+          <p className="lobby__subheading">
+            Start a new table for your friends, or jump into one with a code.
+          </p>
+        </div>
 
         <div className="lobby__cards">
           <div className="lobby__card-float lobby__card-float--a">
