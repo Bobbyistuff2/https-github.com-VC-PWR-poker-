@@ -16,6 +16,8 @@ const {
 } = require('./auth');
 const db = require('./db');
 const { registerPokerHandlers } = require('./poker/sockets');
+const achievements = require('./achievements');
+const wheel = require('./wheel');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -120,6 +122,29 @@ app.post('/api/profile', requireAuth, (req, res) => {
 
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
+});
+
+app.get('/api/achievements', requireAuth, (req, res) => {
+  res.json({ achievements: achievements.listForUser(req.session.userId) });
+});
+
+app.get('/api/wheel', requireAuth, (req, res) => {
+  res.json({ tiers: wheel.publicTiers() });
+});
+
+app.post('/api/wheel/spin', requireAuth, (req, res) => {
+  const { tier } = req.body;
+  const config = wheel.TIERS[tier];
+  if (!config) return res.status(400).json({ error: 'Unknown wheel' });
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  if (user.chips < config.cost) return res.status(400).json({ error: 'Not enough chips for this wheel' });
+
+  const result = wheel.spin(tier);
+  const chips = user.chips - config.cost + result.prize;
+  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+  res.json({ index: result.index, prize: result.prize, chips, segments: config.segments });
 });
 
 function toPublicUser(user) {

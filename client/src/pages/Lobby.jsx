@@ -7,11 +7,20 @@ import { api } from '../api.js';
 import { getSocket } from '../socket.js';
 import './Lobby.css';
 
+const SUBHEADINGS = {
+  main: 'Choose how you want to play.',
+  cash: 'Real-money tables — coming soon.',
+  tournaments: 'Open to everyone. Jump into a table or start your own.',
+  quick: 'Fill the table with the AI and jump right in.',
+};
+
 export default function Lobby({ user, onSignedOut, onUserUpdate }) {
   const navigate = useNavigate();
-  const [joinCode, setJoinCode] = useState('');
+  const [view, setView] = useState('main');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [tournaments, setTournaments] = useState([]);
+  const [quickBots, setQuickBots] = useState(1);
 
   useEffect(() => {
     if (!user) navigate('/');
@@ -25,6 +34,18 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (view !== 'tournaments') return;
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    function refresh() {
+      socket.emit('room:listTournaments', {}, (list) => setTournaments(list || []));
+    }
+    refresh();
+    const interval = setInterval(refresh, 5000);
+    return () => clearInterval(interval);
+  }, [view]);
+
   if (!user) return null;
 
   async function handleLogout() {
@@ -33,26 +54,41 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
     navigate('/');
   }
 
-  function handleCreateTable() {
+  function goToView(next) {
+    setError('');
+    setView(next);
+  }
+
+  function handleCreateTournament() {
     setError('');
     setBusy(true);
     const socket = getSocket();
     if (!socket.connected) socket.connect();
-    socket.emit('room:create', {}, (res) => {
+    socket.emit('room:create', { type: 'tournament' }, (res) => {
       setBusy(false);
       if (res?.error) return setError(res.error);
       navigate(`/table/${res.code}`);
     });
   }
 
-  function handleJoinTable(e) {
-    e.preventDefault();
-    if (!joinCode.trim()) return;
+  function handleJoinTournament(code) {
     setError('');
     setBusy(true);
     const socket = getSocket();
     if (!socket.connected) socket.connect();
-    socket.emit('room:join', { code: joinCode.trim().toUpperCase() }, (res) => {
+    socket.emit('room:join', { code }, (res) => {
+      setBusy(false);
+      if (res?.error) return setError(res.error);
+      navigate(`/table/${res.code}`);
+    });
+  }
+
+  function handleQuickGame() {
+    setError('');
+    setBusy(true);
+    const socket = getSocket();
+    if (!socket.connected) socket.connect();
+    socket.emit('room:create', { type: 'quick', botCount: quickBots }, (res) => {
       setBusy(false);
       if (res?.error) return setError(res.error);
       navigate(`/table/${res.code}`);
@@ -78,6 +114,12 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
             <div className="lobby__name">{user.name}</div>
             <div className="lobby__chips">{user.chips.toLocaleString()} chips</div>
           </div>
+          <button className="lobby__icon-btn" onClick={() => navigate('/rewards')} aria-label="Rewards">
+            <TrophyIcon />
+          </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/wheel')} aria-label="Spin the Wheel">
+            <WheelIcon />
+          </button>
         </div>
         <button className="lobby__logout" onClick={handleLogout}>
           Sign out
@@ -88,47 +130,118 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
         <div className="lobby__hero">
           <p className="lobby__eyebrow">Welcome back</p>
           <h1 className="lobby__heading">Ready to play, {user.name}?</h1>
-          <p className="lobby__subheading">
-            Start a new table for your friends, or jump into one with a code.
-          </p>
+          <p className="lobby__subheading">{SUBHEADINGS[view]}</p>
         </div>
 
-        <div className="lobby__cards">
-          <div className="lobby__card-float lobby__card-float--a">
-            <div className="lobby__card">
-              <div className="lobby__card-icon">
-                <CreateIcon />
+        {view === 'main' && (
+          <div className="lobby__modes">
+            <button className="lobby__mode lobby__mode--side" onClick={() => goToView('cash')}>
+              <div className="lobby__mode-icon">
+                <CashIcon />
               </div>
-              <h2 className="lobby__card-title">Create a Table</h2>
-              <p className="lobby__card-text">Start a new game and share the code with friends.</p>
-              <button className="lobby__cta" onClick={handleCreateTable} disabled={busy}>
-                Create Table
+              <h2 className="lobby__mode-title">Cash Games</h2>
+              <p className="lobby__mode-text">Play for real stakes.</p>
+            </button>
+
+            <button className="lobby__mode lobby__mode--main" onClick={() => goToView('tournaments')}>
+              <div className="lobby__mode-icon">
+                <TrophyIcon />
+              </div>
+              <h2 className="lobby__mode-title">Tournaments</h2>
+              <p className="lobby__mode-text">Open tables anyone can join — or start your own.</p>
+            </button>
+
+            <button className="lobby__mode lobby__mode--side" onClick={() => goToView('quick')}>
+              <div className="lobby__mode-icon">
+                <BoltIcon />
+              </div>
+              <h2 className="lobby__mode-title">Quick Game</h2>
+              <p className="lobby__mode-text">You vs. the AI.</p>
+            </button>
+          </div>
+        )}
+
+        {view === 'cash' && (
+          <div className="lobby__panel">
+            <h2 className="lobby__panel-title">Cash Games</h2>
+            <p className="lobby__panel-text">There are no cash games going on right now.</p>
+            <button className="lobby__back-btn" onClick={() => goToView('main')}>
+              <span className="lobby__back-btn__arrow">←</span> Back
+            </button>
+          </div>
+        )}
+
+        {view === 'tournaments' && (
+          <div className="lobby__panel">
+            <h2 className="lobby__panel-title">Tournaments</h2>
+            {tournaments.length === 0 ? (
+              <>
+                <p className="lobby__panel-text">No tournaments are open right now.</p>
+                <button className="lobby__cta" onClick={handleCreateTournament} disabled={busy}>
+                  Create a Tournament
+                </button>
+                <button className="lobby__link" onClick={() => goToView('quick')}>
+                  Or play a Quick Game instead →
+                </button>
+              </>
+            ) : (
+              <>
+                <ul className="lobby__tourney-list">
+                  {tournaments.map((t) => (
+                    <li key={t.code} className="lobby__tourney-row">
+                      <div>
+                        <div className="lobby__tourney-host">{t.hostName}&rsquo;s table</div>
+                        <div className="lobby__tourney-count">
+                          {t.playerCount}/{t.maxSeats} players
+                        </div>
+                      </div>
+                      <button
+                        className="lobby__cta lobby__cta--sm"
+                        onClick={() => handleJoinTournament(t.code)}
+                        disabled={busy}
+                      >
+                        Join
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <button className="lobby__cta" onClick={handleCreateTournament} disabled={busy}>
+                  Create a Tournament
+                </button>
+              </>
+            )}
+            <button className="lobby__back-btn" onClick={() => goToView('main')}>
+              <span className="lobby__back-btn__arrow">←</span> Back
+            </button>
+          </div>
+        )}
+
+        {view === 'quick' && (
+          <div className="lobby__panel">
+            <h2 className="lobby__panel-title">Quick Game</h2>
+            <p className="lobby__panel-text">Choose how many bots to play against.</p>
+            <div className="lobby__bot-choice">
+              <button
+                className={`lobby__bot-option ${quickBots === 1 ? 'lobby__bot-option--active' : ''}`}
+                onClick={() => setQuickBots(1)}
+              >
+                1 Bot
+              </button>
+              <button
+                className={`lobby__bot-option ${quickBots === 2 ? 'lobby__bot-option--active' : ''}`}
+                onClick={() => setQuickBots(2)}
+              >
+                2 Bots
               </button>
             </div>
+            <button className="lobby__cta" onClick={handleQuickGame} disabled={busy}>
+              Start Quick Game
+            </button>
+            <button className="lobby__back-btn" onClick={() => goToView('main')}>
+              <span className="lobby__back-btn__arrow">←</span> Back
+            </button>
           </div>
-
-          <div className="lobby__card-float lobby__card-float--b">
-            <div className="lobby__card">
-              <div className="lobby__card-icon">
-                <JoinIcon />
-              </div>
-              <h2 className="lobby__card-title">Join a Table</h2>
-              <p className="lobby__card-text">Enter a code a friend sent you.</p>
-              <form className="lobby__join-form" onSubmit={handleJoinTable}>
-                <input
-                  className="lobby__join-input"
-                  placeholder="CODE"
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value)}
-                  maxLength={5}
-                />
-                <button className="lobby__cta" type="submit" disabled={busy}>
-                  Join Table
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+        )}
 
         {error && <p className="lobby__error">{error}</p>}
       </main>
@@ -136,21 +249,43 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
   );
 }
 
-function CreateIcon() {
+function CashIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="7" width="14" height="14" rx="2" transform="rotate(-8 10 14)" />
-      <path d="M12 3v0a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1" opacity="0.5" />
-      <path d="M12 3h6a2 2 0 0 1 2 2v9" opacity="0.5" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v10" />
+      <path d="M15 9.5c0-1.1-1.34-2-3-2s-3 .9-3 2 1.34 1.6 3 2 3 .9 3 2-1.34 2-3 2-3-.9-3-2" />
     </svg>
   );
 }
 
-function JoinIcon() {
+function TrophyIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 12h13" />
-      <path d="M12 5l7 7-7 7" />
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" />
+      <path d="M8 5H5a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3" />
+      <path d="M16 5h3a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3" />
+      <path d="M12 13v3" />
+      <path d="M9 20h6" />
+      <path d="M10 17h4v3h-4z" />
+    </svg>
+  );
+}
+
+function WheelIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M12 3v4M12 17v4M21 12h-4M7 12H3M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8M18.4 18.4l-2.8-2.8M8.4 8.4 5.6 5.6" />
+    </svg>
+  );
+}
+
+function BoltIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z" />
     </svg>
   );
 }

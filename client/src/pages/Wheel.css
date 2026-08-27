@@ -1,0 +1,229 @@
+.wheel-page {
+  min-height: 100vh;
+  background: #050506;
+  color: #f2f2f2;
+}
+
+.wheel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+}
+
+.wheel-header__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9b871;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wheel-header__back:hover {
+  border-color: rgba(201, 169, 97, 0.6);
+  background: rgba(201, 169, 97, 0.12);
+  transform: translateY(-1px);
+}
+
+.wheel-header__back:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.wheel-header__back__arrow {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.wheel-header__back:hover .wheel-header__back__arrow {
+  transform: translateX(-3px);
+}
+
+.wheel-header__title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(180deg, #f3e4b8 0%, #c9a961 55%, #9c7c3b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.wheel-header__chips {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-width: 4.5rem;
+  justify-content: flex-end;
+}
+
+.wheel-header__chip-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f3e4b8, #9c7c3b 70%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+}
+
+.wheel-error {
+  max-width: 30rem;
+  margin: 1rem auto 0;
+  text-align: center;
+  color: #e6394a;
+  font-size: 0.9rem;
+  padding: 0 1rem;
+}
+
+.wheel-loading {
+  text-align: center;
+  color: #9a9a9a;
+  padding: 3rem 0;
+}
+
+.wheel-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 62rem;
+  margin: 2rem auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.wheel-card {
+  flex: 1;
+  min-width: 16rem;
+  max-width: 19rem;
+  background: rgba(20, 22, 28, 0.7);
+  border: 1px solid var(--tier-border, rgba(201, 169, 97, 0.25));
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.wheel-card__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.3rem;
+}
+
+.wheel-card__sub {
+  color: #9a9a9a;
+  font-size: 0.8rem;
+  margin: 0 0 1.25rem;
+}
+
+.wheel-dial-wrap {
+  position: relative;
+  width: 11rem;
+  height: 11rem;
+  margin-bottom: 1rem;
+}
+
+.wheel-dial-pointer {
+  position: absolute;
+  top: -0.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.6rem solid transparent;
+  border-right: 0.6rem solid transparent;
+  border-top: 1rem solid #d9b871;
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.wheel-dial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(201, 169, 97, 0.5);
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  transition: transform 3.2s cubic-bezier(0.15, 0.72, 0.18, 1);
+}
+
+.wheel-dial__label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-weight: 800;
+  font-size: 0.85rem;
+  transform-origin: 0 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.wheel-card__result-slot {
+  min-height: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.wheel-card__result {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #d9b871;
+  animation: wheel-result-pop 0.3s ease-out;
+}
+
+@keyframes wheel-result-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.wheel-card__spin {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 0.7rem;
+  border: none;
+  background: #ffffff;
+  color: #9c7c3b;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.wheel-card__spin:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.35);
+}
+
+.wheel-card__spin:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+@media (max-width: 480px) {
+  .wheel-dial-wrap {
+    width: 9.5rem;
+    height: 9.5rem;
+  }
+
+  .wheel-dial__label {
+    transform-origin: 0 0;
+  }
+}

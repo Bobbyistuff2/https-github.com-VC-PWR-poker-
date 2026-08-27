@@ -6,9 +6,18 @@ const MAX_SEATS = 4;
 const MIN_BET = 1;
 const MAX_BOTS = 3;
 
+// Flavorful stand-ins for "Bot 1" / "Bot 2" so AI opponents feel a bit more
+// like players. Falls back to reuse only if every name is already taken at
+// the table (never happens in practice — MAX_BOTS is well under the pool).
+const BOT_NAMES = [
+  'Ace', 'Duke', 'Slick', 'Maverick', 'Reno', 'Jett', 'Diesel', 'Foxy',
+  'Cassius', 'Wolf', 'Blaze', 'Duchess', 'Knox', 'Vegas', 'Cash', 'Shark',
+];
+
 class Room {
-  constructor(code) {
+  constructor(code, type = 'private') {
     this.code = code;
+    this.type = type;
     this.seats = new Array(MAX_SEATS).fill(null);
     this.stage = 'waiting';
     this.deck = [];
@@ -65,14 +74,15 @@ class Room {
     if (bots.length >= MAX_BOTS) throw new Error(`This table already has the max of ${MAX_BOTS} bots`);
     if (this.occupiedSeats.length >= MAX_SEATS) throw new Error('Table is full');
 
-    const usedNames = new Set(bots.map((s) => s.name));
-    let n = 1;
-    while (usedNames.has(`Bot ${n}`)) n += 1;
+    const usedNames = new Set(this.occupiedSeats.map((s) => s.name));
+    const available = BOT_NAMES.filter((n) => !usedNames.has(n));
+    const pool = available.length > 0 ? available : BOT_NAMES;
+    const name = pool[Math.floor(Math.random() * pool.length)];
 
     // Each bot needs a distinct userId — addPlayer no-ops if one already
     // exists for the given id, which a shared fixed id would trigger.
     this.addPlayer(
-      { id: `bot-${crypto.randomUUID()}`, name: `Bot ${n}`, picture: null, chips: 1000 },
+      { id: `bot-${crypto.randomUUID()}`, name, picture: null, chips: 1000 },
       { isBot: true }
     );
   }
@@ -90,12 +100,10 @@ class Room {
   removeBot() {
     const bots = this.botSeats();
     if (bots.length === 0) return;
-    // Remove the highest-numbered ("most recently added") bot for a clean
+    // Bots fill seats in increasing seat order, so the highest seat index
+    // among them is the most recently added — remove that one for a clean
     // LIFO feel when the button is clicked repeatedly.
-    const target = bots.reduce((highest, s) => {
-      const num = (n) => parseInt(n.name.replace('Bot ', ''), 10) || 0;
-      return num(s) > num(highest) ? s : highest;
-    });
+    const target = bots.reduce((last, s) => (s.seatIndex > last.seatIndex ? s : last));
     this.seats[target.seatIndex] = null;
   }
 
@@ -369,7 +377,11 @@ class Room {
             const amount = share + (remainder > 0 ? 1 : 0);
             if (remainder > 0) remainder -= 1;
             w.seat.chips += amount;
-            payouts.push({ seatIndex: w.seat.seatIndex, amount, hand: w.score.name });
+            // rank 9 with an Ace-high tiebreak is specifically a Royal Flush —
+            // handEval only names it "Straight Flush", so callers that care
+            // about the royal case (achievements) need this flagged here.
+            const isRoyal = w.score.rank === 9 && w.score.tiebreak[0] === 14;
+            payouts.push({ seatIndex: w.seat.seatIndex, amount, hand: w.score.name, royalFlush: isRoyal });
           }
         }
         prevLevel = level;
@@ -392,6 +404,7 @@ class Room {
   publicState(viewerUserId) {
     return {
       code: this.code,
+      type: this.type,
       stage: this.stage,
       communityCards: this.communityCards,
       pot: this.pot,

@@ -1,6 +1,62 @@
 const db = require('../db');
-const { createRoom, getRoom, deleteRoomIfEmpty } = require('./rooms');
+const { createRoom, getRoom, deleteRoomIfEmpty, listOpenTournaments } = require('./rooms');
 const { decideBotAction } = require('./bot');
+const achievements = require('../achievements');
+
+const ROOM_TYPES = new Set(['tournament', 'quick', 'private']);
+
+// Real players only get credit for hands they were actually dealt into —
+// bots and spectators (joined mid-hand, inHand still false) are skipped.
+function checkDealtAchievements(room) {
+  const unlocked = [];
+  for (const seat of room.occupiedSeats) {
+    if (seat.isBot || !seat.inHand) continue;
+    for (const a of achievements.checkHandDealt(seat.userId, seat.holeCards)) {
+      unlocked.push({ userId: seat.userId, achievement: a });
+    }
+  }
+  return unlocked;
+}
+
+// Call once, right after a hand resolves (room.stage newly 'waiting' with a
+// fresh lastResult) — checks win-streaks, specific-hand wins, and lifetime
+// win milestones for every real player who was dealt into that hand.
+function checkResultAchievements(room) {
+  if (!room.lastResult) return [];
+  const winners = new Map(room.lastResult.payouts.filter((p) => p.amount > 0).map((p) => [p.seatIndex, p]));
+  const unlocked = [];
+  for (const seat of room.occupiedSeats) {
+    if (seat.isBot || !seat.inHand) continue;
+    const payout = winners.get(seat.seatIndex);
+    const list = achievements.checkHandResult(seat.userId, {
+      won: !!payout,
+      handName: payout?.hand,
+      isRoyal: !!payout?.royalFlush,
+      wasAllIn: seat.allIn,
+    });
+    for (const a of list) {
+      // achievements.unlock() already applied the reward in the DB — mirror
+      // it onto the in-memory seat too so the client's next broadcast (and
+      // any later syncSeatChipsToDb call) reflect the same balance.
+      seat.chips += a.reward;
+      unlocked.push({ userId: seat.userId, achievement: a });
+    }
+  }
+  return unlocked;
+}
+
+function notifyAchievements(io, room, unlockedList) {
+  if (!unlockedList.length) return;
+  const socketIds = io.sockets.adapter.rooms.get(room.code);
+  if (!socketIds) return;
+  for (const socketId of socketIds) {
+    const target = io.sockets.sockets.get(socketId);
+    const uid = target?.request.session?.userId;
+    if (!uid) continue;
+    const mine = unlockedList.filter((u) => u.userId === uid).map((u) => u.achievement);
+    if (mine.length) target.emit('achievement:unlocked', mine);
+  }
+}
 
 const userRoomMap = new Map();
 
@@ -44,7 +100,10 @@ function maybeScheduleBotMove(io, room) {
       return;
     }
 
-    if (liveRoom.stage === 'waiting') syncSeatChipsToDb(liveRoom);
+    if (liveRoom.stage === 'waiting') {
+      syncSeatChipsToDb(liveRoom);
+      notifyAchievements(io, liveRoom, checkResultAchievements(liveRoom));
+    }
     broadcastRoomState(io, liveRoom);
     maybeScheduleBotMove(io, liveRoom);
   }, 900 + Math.random() * 700);
@@ -53,17 +112,46 @@ function maybeScheduleBotMove(io, room) {
 function registerPokerHandlers(io, socket) {
   const userId = socket.request.session?.userId;
 
-  socket.on('room:create', (_payload, callback) => {
+  socket.on('room:create', (payload, callback) => {
     if (!userId) return callback?.({ error: 'Not signed in' });
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!user) return callback?.({ error: 'Not signed in' });
 
-    const room = createRoom();
+    const type = ROOM_TYPES.has(payload?.type) ? payload.type : 'private';
+    const room = createRoom(type);
     room.addPlayer({ id: user.id, name: user.name, picture: user.picture, chips: user.chips });
     userRoomMap.set(userId, room.code);
     socket.join(room.code);
+
+    if (type === 'quick') {
+      // Quick Games are always just you vs. the AI — cap at 2 bots
+      // regardless of what the client sends, then jump straight into a hand.
+      const botCount = Math.max(1, Math.min(2, parseInt(payload?.botCount, 10) || 1));
+      for (let i = 0; i < botCount; i += 1) {
+        try {
+          room.addBot();
+        } catch (err) {
+          break;
+        }
+      }
+      if (room.canStartHand()) {
+        try {
+          room.startHand();
+          notifyAchievements(io, room, checkDealtAchievements(room));
+        } catch (err) {
+          // If somehow not startable, leave it in "waiting" — the player
+          // still lands at the table and can hit Start Hand themselves.
+        }
+      }
+    }
+
     callback?.({ code: room.code });
     broadcastRoomState(io, room);
+    if (type === 'quick') maybeScheduleBotMove(io, room);
+  });
+
+  socket.on('room:listTournaments', (_payload, callback) => {
+    callback?.(listOpenTournaments());
   });
 
   socket.on('room:join', (payload, callback) => {
@@ -133,6 +221,7 @@ function registerPokerHandlers(io, socket) {
     } catch (err) {
       return callback?.({ error: err.message });
     }
+    notifyAchievements(io, room, checkDealtAchievements(room));
     callback?.();
     broadcastRoomState(io, room);
     maybeScheduleBotMove(io, room);
@@ -146,7 +235,10 @@ function registerPokerHandlers(io, socket) {
     } catch (err) {
       return callback?.({ error: err.message });
     }
-    if (room.stage === 'waiting') syncSeatChipsToDb(room);
+    if (room.stage === 'waiting') {
+      syncSeatChipsToDb(room);
+      notifyAchievements(io, room, checkResultAchievements(room));
+    }
     callback?.();
     broadcastRoomState(io, room);
     maybeScheduleBotMove(io, room);
@@ -158,7 +250,10 @@ function registerPokerHandlers(io, socket) {
     if (!room) return;
     room.foldOnDisconnect(userId);
     userRoomMap.delete(userId);
-    if (room.stage === 'waiting') syncSeatChipsToDb(room);
+    if (room.stage === 'waiting') {
+      syncSeatChipsToDb(room);
+      notifyAchievements(io, room, checkResultAchievements(room));
+    }
     broadcastRoomState(io, room);
     deleteRoomIfEmpty(code);
   });

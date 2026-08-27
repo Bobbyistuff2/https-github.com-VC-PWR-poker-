@@ -24,4 +24,7 @@ export const api = {
   saveProfile: (name) =>
     request('/api/profile', { method: 'POST', body: JSON.stringify({ name }) }),
   logout: () => request('/api/logout', { method: 'POST' }),
+  getAchievements: () => request('/api/achievements'),
+  getWheelTiers: () => request('/api/wheel'),
+  spinWheel: (tier) => request('/api/wheel/spin', { method: 'POST', body: JSON.stringify({ tier }) }),
 };

@@ -32,6 +32,7 @@ export default function Table({ user, onUserUpdate }) {
   const [exclamation, setExclamation] = useState('');
   const [chipPop, setChipPop] = useState(null);
   const [actionToasts, setActionToasts] = useState([]);
+  const [achievementToasts, setAchievementToasts] = useState([]);
   const lastSeenResultRef = useRef(null);
   const lastSeenActionRef = useRef(null);
 
@@ -55,13 +56,25 @@ export default function Table({ user, onUserUpdate }) {
       }
       setRoom(state);
     }
+    function handleAchievements(list) {
+      for (const achievement of list) {
+        const toast = { id: `${Date.now()}-${Math.random()}`, achievement };
+        setAchievementToasts((prev) => [...prev, toast]);
+        setTimeout(() => {
+          setAchievementToasts((prev) => prev.filter((t) => t.id !== toast.id));
+        }, 4500);
+      }
+    }
+
     socket.on('room:state', handleState);
+    socket.on('achievement:unlocked', handleAchievements);
     socket.emit('room:join', { code }, (res) => {
       if (res?.error) setJoinError(res.error);
     });
 
     return () => {
       socket.off('room:state', handleState);
+      socket.off('achievement:unlocked', handleAchievements);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
@@ -202,11 +215,30 @@ export default function Table({ user, onUserUpdate }) {
 
   return (
     <div className="table-page">
+      {achievementToasts.length > 0 && (
+        <div className="achievement-toasts">
+          {achievementToasts.map((t) => (
+            <div key={t.id} className="achievement-toast">
+              <span className="achievement-toast__icon">🏆</span>
+              <div className="achievement-toast__text">
+                <div className="achievement-toast__title">{t.achievement.title}</div>
+                <div className="achievement-toast__desc">{t.achievement.description}</div>
+              </div>
+              <div className="achievement-toast__reward">+{t.achievement.reward}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <header className="table-header">
         <button className="table-header__back" onClick={() => navigate('/lobby')}>
-          ← Lobby
+          <span className="table-header__back__arrow">←</span> Lobby
         </button>
-        <div className="table-header__code">Table {room.code}</div>
+        <div className="table-header__title">
+          <span className="table-header__code">Table {room.code}</span>
+          {room.type === 'tournament' && <span className="table-header__badge">Tournament</span>}
+          {room.type === 'quick' && <span className="table-header__badge">Quick Game</span>}
+        </div>
         {room.stage === 'waiting' && mySeat && (
           <button className="table-header__leave" onClick={handleLeave}>
             Leave Table

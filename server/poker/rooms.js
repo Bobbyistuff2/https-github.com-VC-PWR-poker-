@@ -1,4 +1,4 @@
-const { Room } = require('./Room');
+const { Room, MAX_SEATS } = require('./Room');
 
 const rooms = new Map();
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -11,9 +11,9 @@ function generateCode() {
   return code;
 }
 
-function createRoom() {
+function createRoom(type = 'private') {
   const code = generateCode();
-  const room = new Room(code);
+  const room = new Room(code, type);
   rooms.set(code, room);
   return room;
 }
@@ -29,4 +29,23 @@ function deleteRoomIfEmpty(code) {
   if (room && !room.occupiedSeats.some((s) => !s.isBot)) rooms.delete(code);
 }
 
-module.exports = { createRoom, getRoom, deleteRoomIfEmpty };
+// Tournaments are the only room type meant to be publicly discoverable —
+// cash games are a stub for now and quick games are private, bot-filled
+// tables. Anyone can see and join an open (non-full) tournament table.
+function listOpenTournaments() {
+  const list = [];
+  for (const room of rooms.values()) {
+    if (room.type !== 'tournament') continue;
+    if (room.occupiedSeats.length >= MAX_SEATS) continue;
+    const host = room.occupiedSeats.find((s) => !s.isBot) || room.occupiedSeats[0];
+    list.push({
+      code: room.code,
+      hostName: host?.name || 'Player',
+      playerCount: room.occupiedSeats.length,
+      maxSeats: MAX_SEATS,
+    });
+  }
+  return list;
+}
+
+module.exports = { createRoom, getRoom, deleteRoomIfEmpty, listOpenTournaments };

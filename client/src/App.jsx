@@ -4,6 +4,8 @@ import Landing from './pages/Landing.jsx';
 import Profile from './pages/Profile.jsx';
 import Lobby from './pages/Lobby.jsx';
 import Table from './pages/Table.jsx';
+import Rewards from './pages/Rewards.jsx';
+import Wheel from './pages/Wheel.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
 import { SettingsProvider } from './SettingsContext.jsx';
@@ -47,6 +49,8 @@ export default function App() {
           element={<Lobby user={user} onSignedOut={() => setUser(null)} onUserUpdate={setUser} />}
         />
         <Route path="/table/:code" element={<Table user={user} onUserUpdate={setUser} />} />
+        <Route path="/rewards" element={<Rewards user={user} />} />
+        <Route path="/wheel" element={<Wheel user={user} onUserUpdate={setUser} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <SettingsPanel />

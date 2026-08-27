@@ -22,21 +22,65 @@
   justify-content: space-between;
   padding: 0.85rem 1.25rem;
   background: #050506;
-  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+  border-bottom: 1px solid rgba(201, 169, 97, 0.2);
 }
 
 .table-header__back {
-  background: transparent;
-  border: none;
-  color: #9a9a9a;
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 169, 97, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9b871;
+  font-weight: 700;
+  font-size: 0.8rem;
   cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.table-header__back:hover {
+  border-color: rgba(201, 169, 97, 0.55);
+  background: rgba(201, 169, 97, 0.12);
+  transform: translateY(-1px);
+}
+
+.table-header__back:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.table-header__back__arrow {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.table-header__back:hover .table-header__back__arrow {
+  transform: translateX(-3px);
+}
+
+.table-header__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .table-header__code {
   font-weight: 700;
   letter-spacing: 0.08em;
   font-size: 0.9rem;
+}
+
+.table-header__badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #d9b871;
+  background: rgba(201, 169, 97, 0.14);
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
 }
 
 .table-header__leave {
@@ -47,6 +91,79 @@
   border-radius: 0.5rem;
   font-size: 0.8rem;
   cursor: pointer;
+}
+
+.achievement-toasts {
+  position: fixed;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  pointer-events: none;
+}
+
+.achievement-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(14, 16, 22, 0.95);
+  border: 1px solid rgba(201, 169, 97, 0.45);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 169, 97, 0.08) inset;
+  animation: achievement-toast-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2), achievement-toast-out 0.4s ease-in 4.1s forwards;
+}
+
+.achievement-toast__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.achievement-toast__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-toast__title {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #f3e4b8;
+}
+
+.achievement-toast__desc {
+  font-size: 0.72rem;
+  color: #9a9a9a;
+  margin-top: 0.1rem;
+}
+
+.achievement-toast__reward {
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #d9b871;
+}
+
+@keyframes achievement-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes achievement-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
 }
 
 .table-inline-error {

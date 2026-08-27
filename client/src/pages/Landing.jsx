@@ -90,7 +90,7 @@ export default function Landing({ onSignedIn }) {
             </div>
 
             <button className="landing__guest-btn" type="button" onClick={() => setStep('guestForm')}>
-              Log in as Guest
+              Create Account
             </button>
             <button className="landing__login-btn" type="button" onClick={() => setStep('login')}>
               Log In to Your Account
@@ -130,7 +130,7 @@ export default function Landing({ onSignedIn }) {
               {submitting ? 'Joining…' : 'Continue'}
             </button>
             <button className="landing__back-btn" type="button" onClick={backToChoose}>
-              ← Back
+              <span className="landing__back-btn__arrow">←</span> Back
             </button>
           </form>
         ) : (
@@ -158,7 +158,7 @@ export default function Landing({ onSignedIn }) {
               {submitting ? 'Logging in…' : 'Log In'}
             </button>
             <button className="landing__back-btn" type="button" onClick={backToChoose}>
-              ← Back
+              <span className="landing__back-btn__arrow">←</span> Back
             </button>
           </form>
         )}

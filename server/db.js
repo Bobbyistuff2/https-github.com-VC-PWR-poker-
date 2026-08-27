@@ -25,6 +25,21 @@ if (!existingColumns.some((c) => c.name === 'phone')) {
 if (!existingColumns.some((c) => c.name === 'password_hash')) {
   db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
 }
+if (!existingColumns.some((c) => c.name === 'win_streak')) {
+  db.exec('ALTER TABLE users ADD COLUMN win_streak INTEGER NOT NULL DEFAULT 0');
+}
+if (!existingColumns.some((c) => c.name === 'hands_won')) {
+  db.exec('ALTER TABLE users ADD COLUMN hands_won INTEGER NOT NULL DEFAULT 0');
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS achievements (
+    user_id TEXT NOT NULL,
+    achievement_id TEXT NOT NULL,
+    unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, achievement_id)
+  );
+`);
 
 // account names must be unique among password-protected (guest) accounts so
 // they can be looked up again at login time. Wrapped because older
