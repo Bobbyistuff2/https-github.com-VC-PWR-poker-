@@ -8,7 +8,7 @@ import Confetti from '../components/Confetti.jsx';
 import ComicBurst from '../components/ComicBurst.jsx';
 import { getSocket } from '../socket.js';
 import { api } from '../api.js';
-import { DENOMINATIONS, formatChips } from '../chips.js';
+import { DENOMINATIONS, formatChips, decomposeChips } from '../chips.js';
 import './Table.css';
 
 const SEAT_COUNT = 4;
@@ -216,8 +216,16 @@ export default function Table({ user, onUserUpdate }) {
           </div>
           {room.pot > 0 && (
             <div className="pot-display">
-              <Chip value="" color="#d4af37" text="#1a1a1a" size="sm" />
-              <span>Pot {formatChips(room.pot)}</span>
+              <div className="pot-display__chips">
+                {decomposeChips(room.pot)
+                  .slice(0, 5)
+                  .map((d) => (
+                    <div key={d.value} className="pot-display__chip">
+                      <Chip value="" color={d.color} text={d.text} size="sm" />
+                    </div>
+                  ))}
+              </div>
+              <span className="pot-display__total">Pot {formatChips(room.pot)}</span>
             </div>
           )}
         </div>
