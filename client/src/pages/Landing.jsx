@@ -36,7 +36,12 @@ export default function Landing({ onSignedIn }) {
     <div className="landing">
       <FallingCards />
       <div className="landing__content">
-        <div className="landing__suits">♠ ♥ ♣ ♦</div>
+        <div className="landing__suits">
+          <span className="landing__suit landing__suit--1">♠</span>
+          <span className="landing__suit landing__suit--2">♥</span>
+          <span className="landing__suit landing__suit--3">♣</span>
+          <span className="landing__suit landing__suit--4">♦</span>
+        </div>
         <h1 className="landing__title">PWR Poker</h1>
         <p className="landing__subtitle">Deal yourself in. Play with friends or a bot, anywhere.</p>
 

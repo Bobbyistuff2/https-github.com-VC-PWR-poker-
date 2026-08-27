@@ -12,14 +12,17 @@ const SUITS = [
 function randomCard(i) {
   const rank = RANKS[Math.floor(Math.random() * RANKS.length)];
   const suit = SUITS[Math.floor(Math.random() * SUITS.length)];
+  const duration = 11 + Math.random() * 13;
   return {
     key: i,
     rank,
     suit: suit.symbol,
     color: suit.color,
     left: Math.random() * 100,
-    delay: Math.random() * 15,
-    duration: 11 + Math.random() * 13,
+    // negative delay starts the animation already in progress, so cards
+    // are mid-fall the instant the page loads instead of an empty sky
+    delay: -Math.random() * duration,
+    duration,
     scale: 1 + Math.random() * 0.4,
     spin: (Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 360),
     drift: (Math.random() - 0.5) * 220,

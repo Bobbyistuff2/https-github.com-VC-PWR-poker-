@@ -64,9 +64,9 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
       <header className="lobby__header">
         <div className="lobby__user">
           {user.picture ? (
-            <img className="lobby__avatar" src={user.picture} alt="" />
+            <img className="lobby__avatar lobby__avatar--bob" src={user.picture} alt="" />
           ) : (
-            <div className="lobby__avatar lobby__avatar--fallback">
+            <div className="lobby__avatar lobby__avatar--fallback lobby__avatar--bob">
               {user.name.charAt(0).toUpperCase()}
             </div>
           )}
@@ -88,35 +88,39 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
         </p>
 
         <div className="lobby__cards">
-          <div className="lobby__card">
-            <div className="lobby__card-icon">
-              <CreateIcon />
+          <div className="lobby__card-float lobby__card-float--a">
+            <div className="lobby__card">
+              <div className="lobby__card-icon">
+                <CreateIcon />
+              </div>
+              <h2 className="lobby__card-title">Create a Table</h2>
+              <p className="lobby__card-text">Start a new game and share the code with friends.</p>
+              <button className="lobby__cta" onClick={handleCreateTable} disabled={busy}>
+                Create Table
+              </button>
             </div>
-            <h2 className="lobby__card-title">Create a Table</h2>
-            <p className="lobby__card-text">Start a new game and share the code with friends.</p>
-            <button className="lobby__cta" onClick={handleCreateTable} disabled={busy}>
-              Create Table
-            </button>
           </div>
 
-          <div className="lobby__card">
-            <div className="lobby__card-icon">
-              <JoinIcon />
+          <div className="lobby__card-float lobby__card-float--b">
+            <div className="lobby__card">
+              <div className="lobby__card-icon">
+                <JoinIcon />
+              </div>
+              <h2 className="lobby__card-title">Join a Table</h2>
+              <p className="lobby__card-text">Enter a code a friend sent you.</p>
+              <form className="lobby__join-form" onSubmit={handleJoinTable}>
+                <input
+                  className="lobby__join-input"
+                  placeholder="CODE"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value)}
+                  maxLength={5}
+                />
+                <button className="lobby__cta" type="submit" disabled={busy}>
+                  Join Table
+                </button>
+              </form>
             </div>
-            <h2 className="lobby__card-title">Join a Table</h2>
-            <p className="lobby__card-text">Enter a code a friend sent you.</p>
-            <form className="lobby__join-form" onSubmit={handleJoinTable}>
-              <input
-                className="lobby__join-input"
-                placeholder="CODE"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value)}
-                maxLength={5}
-              />
-              <button className="lobby__cta" type="submit" disabled={busy}>
-                Join Table
-              </button>
-            </form>
           </div>
         </div>
 
