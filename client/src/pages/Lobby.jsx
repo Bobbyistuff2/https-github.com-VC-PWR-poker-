@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DealTransition from '../components/DealTransition.jsx';
 import FallingChips from '../components/FallingChips.jsx';
+import FallingWords from '../components/FallingWords.jsx';
 import { api } from '../api.js';
 import { getSocket } from '../socket.js';
 import './Lobby.css';
@@ -62,6 +63,7 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
     <div className="lobby">
       <DealTransition />
       <FallingChips />
+      <FallingWords />
       <div className="lobby__glow" aria-hidden="true" />
       <header className="lobby__header">
         <div className="lobby__user">

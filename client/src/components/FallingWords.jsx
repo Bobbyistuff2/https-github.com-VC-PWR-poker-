@@ -1,0 +1,48 @@
+import { useMemo } from 'react';
+import './FallingWords.css';
+
+const WORDS = ['Flush!', 'Straight!', 'Full House!', 'Quads!', 'Trips!', 'Royal Flush!', 'All In!', 'Ya!', 'Boom!', 'Nice!', 'Jackpot!', 'Two Pair!'];
+const COLORS = ['#5b93ff', '#ff3d81', '#ffe135', '#22d3ee', '#f2f1ec'];
+
+function randomWord(i) {
+  const duration = 12 + Math.random() * 14;
+  return {
+    key: i,
+    text: WORDS[Math.floor(Math.random() * WORDS.length)],
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    left: Math.random() * 100,
+    // negative delay starts the animation already in progress, so words
+    // are mid-fall the instant the page loads instead of an empty sky
+    delay: -Math.random() * duration,
+    duration,
+    scale: 0.75 + Math.random() * 0.5,
+    tilt: (Math.random() - 0.5) * 30,
+    drift: (Math.random() - 0.5) * 180,
+  };
+}
+
+export default function FallingWords({ count = 14 }) {
+  const words = useMemo(() => Array.from({ length: count }, (_, i) => randomWord(i)), [count]);
+
+  return (
+    <div className="falling-words" aria-hidden="true">
+      {words.map((w) => (
+        <div
+          key={w.key}
+          className="falling-word"
+          style={{
+            left: `${w.left}%`,
+            color: w.color,
+            animationDelay: `${w.delay}s`,
+            animationDuration: `${w.duration}s`,
+            '--scale': w.scale,
+            '--tilt': `${w.tilt}deg`,
+            '--drift': `${w.drift}px`,
+          }}
+        >
+          {w.text}
+        </div>
+      ))}
+    </div>
+  );
+}
