@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import './FallingWords.css';
 
-const WORDS = ['Flush!', 'Straight!', 'Full House!', 'Quads!', 'Trips!', 'Royal Flush!', 'All In!', 'Ya!', 'Boom!', 'Nice!', 'Jackpot!', 'Two Pair!'];
-const COLORS = ['#5b93ff', '#ff3d81', '#ffe135', '#22d3ee', '#f2f1ec'];
+const WORDS = ['Flush', 'Straight', 'Full House', 'Quads', 'Trips', 'Royal Flush', 'All In', 'Two Pair'];
+const COLORS = ['#c9a961', '#f3e4b8', '#9c7c3b', '#f2f1ec'];
 
 function randomWord(i) {
   // wide spread so some words drift lazily while others rush past

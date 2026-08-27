@@ -8,7 +8,7 @@
   padding: 0.65rem 0.5rem 0.55rem;
   border-radius: 1.1rem;
   background: rgba(13, 16, 40, 0.55);
-  border: 1px solid rgba(124, 58, 237, 0.28);
+  border: 1px solid rgba(201, 169, 97, 0.22);
   backdrop-filter: blur(6px);
   transition: opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -66,7 +66,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  background: linear-gradient(180deg, #3f4560, #262a42);
   color: white;
   font-weight: 700;
   font-size: 1.3rem;
@@ -128,7 +128,7 @@
   font-weight: 800;
   color: #f2f2f2;
   background: rgba(13, 16, 40, 0.94);
-  border: 1px solid rgba(124, 58, 237, 0.55);
+  border: 1px solid rgba(201, 169, 97, 0.45);
   padding: 0.3rem 0.65rem;
   border-radius: 0.9rem;
   pointer-events: none;
@@ -196,26 +196,22 @@
 
 .seat__tag--allin {
   color: #1a1108;
-  background: linear-gradient(135deg, #ffe135, #ff8a3d);
-  font-weight: 900;
-  font-style: italic;
-  transform: rotate(-3deg);
-  clip-path: polygon(
-    4% 12%, 14% 0%, 26% 10%, 38% 0%, 50% 10%, 62% 0%, 74% 10%, 86% 0%, 96% 12%,
-    100% 30%, 92% 50%, 100% 70%, 96% 88%, 86% 100%, 74% 90%, 62% 100%, 50% 90%,
-    38% 100%, 26% 90%, 14% 100%, 4% 88%, 0% 70%, 8% 50%, 0% 30%
-  );
-  padding: 0.25rem 0.65rem;
-  animation: allin-pop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  background: linear-gradient(135deg, #f3e4b8, #c9a961);
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  animation: allin-pop 0.3s ease-out both;
 }
 
 @keyframes allin-pop {
   0% {
-    transform: rotate(-3deg) scale(0.4);
+    transform: scale(0.6);
     opacity: 0;
   }
   100% {
-    transform: rotate(-3deg) scale(1);
+    transform: scale(1);
     opacity: 1;
   }
 }

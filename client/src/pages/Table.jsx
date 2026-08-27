@@ -5,7 +5,6 @@ import PlayingCard from '../components/PlayingCard.jsx';
 import Chip from '../components/Chip.jsx';
 import HandRankings from '../components/HandRankings.jsx';
 import Confetti from '../components/Confetti.jsx';
-import ComicBurst from '../components/ComicBurst.jsx';
 import { getSocket } from '../socket.js';
 import { api } from '../api.js';
 import { DENOMINATIONS, formatChips, decomposeChips } from '../chips.js';
@@ -14,14 +13,12 @@ import './Table.css';
 const SEAT_COUNT = 4;
 const MAX_BOTS = 3;
 const WIN_EXCLAMATIONS = [
-  'BOOM!',
-  'CHA-CHING!',
-  'JACKPOT!',
-  'CRUSHED IT!',
-  'POW!',
-  'TAKE IT DOWN!',
-  'NICE HAND!',
-  'BAM!',
+  'Well Played',
+  'Hand Won',
+  'Victory',
+  'The Pot Is Claimed',
+  'A Fine Hand',
+  'Well Earned',
 ];
 
 export default function Table({ user, onUserUpdate }) {
@@ -265,7 +262,6 @@ export default function Table({ user, onUserUpdate }) {
 
       {showResult && room.lastResult && (
         <div className="round-result-overlay">
-          {!isEmptyFoldWin && <ComicBurst className="round-result-overlay__burst" />}
           {!isEmptyFoldWin && <Confetti />}
           <div className="round-result-overlay__text">
             {isEmptyFoldWin ? (

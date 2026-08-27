@@ -6,8 +6,8 @@
   justify-content: center;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20, 90, 60, 0.25), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(120, 20, 30, 0.15), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120, 96, 40, 0.18), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(20, 20, 24, 0.4), transparent 60%),
     #050506;
 }
 
@@ -69,16 +69,17 @@
 }
 
 .landing__title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   font-size: clamp(2.25rem, 7vw, 3.75rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   margin: 0 0 0.5rem;
   white-space: nowrap;
-  background: linear-gradient(180deg, #ffffff 0%, #b8b8b8 100%);
+  background: linear-gradient(180deg, #f3e4b8 0%, #c9a961 55%, #9c7c3b 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 0 60px rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 50px rgba(201, 169, 97, 0.15);
   filter: drop-shadow(0 2px 18px rgba(0, 0, 0, 0.85));
 }
 
