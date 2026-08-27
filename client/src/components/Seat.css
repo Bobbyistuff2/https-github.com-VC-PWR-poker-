@@ -1,16 +1,11 @@
 .seat {
   position: absolute;
-  width: 8.5rem;
+  width: 7.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.15rem;
-  padding: 0.65rem 0.5rem 0.55rem;
-  border-radius: 1.1rem;
-  background: rgba(13, 16, 40, 0.55);
-  border: 1px solid rgba(201, 169, 97, 0.22);
-  backdrop-filter: blur(6px);
-  transition: opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .seat--folded {
@@ -43,13 +38,13 @@
 .seat__dealer {
   position: absolute;
   top: -0.4rem;
-  right: 0.6rem;
-  width: 1.5rem;
-  height: 1.5rem;
+  right: 1.4rem;
+  width: 1.4rem;
+  height: 1.4rem;
   border-radius: 50%;
   background: #f2f1ec;
   color: #1a1a1a;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -58,9 +53,29 @@
   z-index: 2;
 }
 
+/* avatar + hole cards, side by side and facing the table center — the
+   west seat's cards sit to its right, the east seat's to its left. North
+   and south keep cards centered below, since there's no natural inward
+   side for a seat sitting on the vertical axis. */
+.seat__cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.seat--pos1 .seat__cluster {
+  flex-direction: row;
+}
+
+.seat--pos3 .seat__cluster {
+  flex-direction: row-reverse;
+}
+
 .seat__avatar {
-  width: 4rem;
-  height: 4rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
@@ -69,7 +84,7 @@
   background: linear-gradient(180deg, #3f4560, #262a42);
   color: white;
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   border: 2px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -77,11 +92,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.seat--turn {
-  border-color: rgba(255, 206, 84, 0.6);
-  box-shadow: 0 0 24px rgba(255, 206, 84, 0.22);
 }
 
 .seat--turn .seat__avatar {
@@ -98,38 +108,44 @@
   background: linear-gradient(180deg, #3b82f6, #2563eb);
 }
 
+.seat__cards {
+  display: flex;
+  gap: 0.15rem;
+}
+
 .seat__name-wrap {
   position: relative;
 }
 
 .seat__name {
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #f2f2f2;
-  max-width: 8.5rem;
+  max-width: 7.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
 }
 
-/* transient "Checked" / "Bet 20" / "Folded" toast — starts right over the
-   name, then drifts up and fades over a few seconds. Wraps instead of
-   growing wider so a long label (e.g. "Raised to 1000") can't push into a
-   neighboring seat. */
+/* transient "Checked" / "Called 8" toast — starts right over the name,
+   then drifts up and fades over a few seconds. Wraps instead of growing
+   wider so a long label can't push into a neighboring seat. Persistent
+   states (folded/bet/all-in) show as a .seat__tag instead, see below. */
 .seat__action-toast {
   position: absolute;
   top: 50%;
   left: 50%;
   white-space: normal;
-  max-width: 7.5rem;
+  max-width: 6.5rem;
   text-align: center;
   line-height: 1.15;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: #f2f2f2;
   background: rgba(13, 16, 40, 0.94);
   border: 1px solid rgba(201, 169, 97, 0.45);
-  padding: 0.3rem 0.65rem;
+  padding: 0.28rem 0.6rem;
   border-radius: 0.9rem;
   pointer-events: none;
   z-index: 4;
@@ -163,45 +179,33 @@
   }
 }
 
-@media (max-width: 560px) {
-  .seat__action-toast {
-    font-size: 0.74rem;
-    max-width: 4.6rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.7rem;
-  }
-}
-
 .seat__chips {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: #9a9a9a;
 }
 
-.seat__cards {
-  display: flex;
-  gap: 0.2rem;
-  margin-top: 0.15rem;
-}
-
+/* persistent status pill — mirrors the reference's "FOLD" / "BET 1,350"
+   badges shown under each player */
 .seat__tag {
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #e6394a;
   background: rgba(230, 57, 74, 0.12);
-  border-radius: 0.3rem;
-  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+}
+
+.seat__tag--bet {
+  color: #ffce54;
+  background: rgba(255, 206, 84, 0.14);
 }
 
 .seat__tag--allin {
   color: #1a1108;
   background: linear-gradient(135deg, #f3e4b8, #c9a961);
   font-weight: 800;
-  font-style: normal;
-  letter-spacing: 0.03em;
-  border-radius: 999px;
-  padding: 0.2rem 0.7rem;
   animation: allin-pop 0.3s ease-out both;
 }
 
@@ -216,36 +220,11 @@
   }
 }
 
-.seat__bet {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  margin-top: 0.25rem;
-}
-
-.seat__bet-total {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: #ffce54;
-}
-
-.seat__bet-stacks {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.seat__bet-group {
-  display: flex;
-}
-
-.seat__bet-chip {
-  position: relative;
-}
-
-.seat__bet-chip + .seat__bet-chip {
-  margin-left: -1.05rem;
+@media (max-width: 560px) {
+  .seat__action-toast {
+    font-size: 0.7rem;
+    max-width: 4.6rem;
+    padding: 0.22rem 0.45rem;
+    border-radius: 0.7rem;
+  }
 }

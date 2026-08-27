@@ -236,12 +236,25 @@ export default function Table({ user, onUserUpdate }) {
 
         <div className="table-center">
           <div className="community-cards">
-            {room.communityCards.map((c, i) => (
-              <PlayingCard key={i} card={c} size="md" />
-            ))}
-            {Array.from({ length: 5 - room.communityCards.length }).map((_, i) => (
-              <div key={`ph${i}`} className="card-placeholder card-placeholder--md" />
-            ))}
+            <div className="community-cards__row community-cards__row--top">
+              {Array.from({ length: 3 }).map((_, i) =>
+                room.communityCards[i] ? (
+                  <PlayingCard key={i} card={room.communityCards[i]} size="md" />
+                ) : (
+                  <div key={`ph${i}`} className="card-placeholder card-placeholder--md" />
+                )
+              )}
+            </div>
+            <div className="community-cards__row community-cards__row--bottom">
+              {Array.from({ length: 2 }).map((_, j) => {
+                const i = j + 3;
+                return room.communityCards[i] ? (
+                  <PlayingCard key={i} card={room.communityCards[i]} size="md" />
+                ) : (
+                  <div key={`ph${i}`} className="card-placeholder card-placeholder--md" />
+                );
+              })}
+            </div>
           </div>
           {room.pot > 0 && (
             <div className="pot-display">
@@ -321,25 +334,39 @@ export default function Table({ user, onUserUpdate }) {
           </div>
         ) : isMyTurn ? (
           <div className="action-bar">
-            <div className="action-bar__buttons">
-              <button className="action-btn action-btn--fold" onClick={() => emitAction('fold')}>
-                Fold
-              </button>
-              <button
-                className="action-btn action-btn--call"
-                onClick={() =>
-                  raiseExtra > 0 ? emitAction('raise', raiseToAmount) : emitAction('call')
-                }
-              >
-                {raiseExtra > 0
-                  ? `Raise to ${formatChips(raiseToAmount)}`
-                  : toCall > 0
-                    ? `Call ${formatChips(toCall)}`
-                    : 'Check'}
-              </button>
-              <button className="action-btn action-btn--allin" onClick={() => emitAction('allin')}>
-                All In
-              </button>
+            <div className="action-bar__panel">
+              <div className="action-bar__info">
+                <span className="action-bar__name">
+                  {room.dealerSeat === mySeatIndex && <span className="action-bar__dealer">D</span>}
+                  {mySeat?.name}
+                </span>
+                <span className="action-bar__chips">
+                  <span className="action-bar__chip-dot" />
+                  {formatChips(mySeat?.chips ?? 0)}
+                </span>
+              </div>
+
+              <div className="action-bar__buttons">
+                <button className="action-btn action-btn--fold" onClick={() => emitAction('fold')}>
+                  Fold <span className="action-btn__arrow">↘</span>
+                </button>
+                <button
+                  className="action-btn action-btn--call"
+                  onClick={() =>
+                    raiseExtra > 0 ? emitAction('raise', raiseToAmount) : emitAction('call')
+                  }
+                >
+                  {raiseExtra > 0
+                    ? `Raise to ${formatChips(raiseToAmount)}`
+                    : toCall > 0
+                      ? `Call ${formatChips(toCall)}`
+                      : 'Check'}
+                  <span className="action-btn__arrow">→</span>
+                </button>
+                <button className="action-btn action-btn--allin" onClick={() => emitAction('allin')}>
+                  <span className="action-btn__arrow">↗</span> All In
+                </button>
+              </div>
             </div>
 
             <div className="chip-tray">
