@@ -33,7 +33,9 @@ export default function Table({ user, onUserUpdate }) {
   const [showResult, setShowResult] = useState(false);
   const [exclamation, setExclamation] = useState('');
   const [chipPop, setChipPop] = useState(null);
+  const [actionToasts, setActionToasts] = useState([]);
   const lastSeenResultRef = useRef(null);
+  const lastSeenActionRef = useRef(null);
 
   useEffect(() => {
     if (!user) {
@@ -47,9 +49,11 @@ export default function Table({ user, onUserUpdate }) {
     function handleState(state) {
       if (!receivedFirstState) {
         receivedFirstState = true;
-        // Don't replay the "X wins" overlay for a result that happened
-        // before we joined/reconnected — only for one that happens live.
+        // Don't replay the "X wins" overlay or an action toast for
+        // something that happened before we joined/reconnected — only for
+        // ones that happen live.
         lastSeenResultRef.current = state.lastResult;
+        lastSeenActionRef.current = state.lastAction;
       }
       setRoom(state);
     }
@@ -73,6 +77,24 @@ export default function Table({ user, onUserUpdate }) {
     const t = setTimeout(() => setActionError(''), 4000);
     return () => clearTimeout(t);
   }, [actionError]);
+
+  useEffect(() => {
+    if (!room?.lastAction) return;
+    if (room.lastAction === lastSeenActionRef.current) return;
+    lastSeenActionRef.current = room.lastAction;
+
+    const toast = {
+      id: `${Date.now()}-${Math.random()}`,
+      seatIndex: room.lastAction.seatIndex,
+      label: room.lastAction.label,
+    };
+    setActionToasts((prev) => [...prev, toast]);
+    // Each toast times its own removal independently, so a fast run of
+    // actions (e.g. bot turns) doesn't cut an earlier toast's 2s short.
+    setTimeout(() => {
+      setActionToasts((prev) => prev.filter((t) => t.id !== toast.id));
+    }, 2000);
+  }, [room?.lastAction]);
 
   useEffect(() => {
     if (room?.stage !== 'waiting' || !room.lastResult) return;
@@ -127,6 +149,12 @@ export default function Table({ user, onUserUpdate }) {
   const turnPlayer = room.seats.find((s) => s && s.seatIndex === room.turnSeat);
   const hasBot = room.seats.some((s) => s && s.isBot);
   const hasEmptySeat = room.seats.some((s) => s === null);
+  // Everyone else folded before any chips were actually bet — not really a
+  // "win" worth celebrating, just say so instead of "X wins 0".
+  const isEmptyFoldWin =
+    room.lastResult?.payouts.length === 1 &&
+    room.lastResult.payouts[0].hand === null &&
+    room.lastResult.payouts[0].amount === 0;
 
   function positionOf(seatIndex) {
     const base = mySeatIndex != null ? mySeatIndex : 0;
@@ -201,6 +229,7 @@ export default function Table({ user, onUserUpdate }) {
                 isDealer={i === room.dealerSeat}
                 isTurn={i === room.turnSeat}
                 isMe={seat.userId === user.id}
+                actionToast={[...actionToasts].reverse().find((t) => t.seatIndex === i)}
               />
             )
         )}
@@ -233,22 +262,24 @@ export default function Table({ user, onUserUpdate }) {
 
       {showResult && room.lastResult && (
         <div className="round-result-overlay">
-          <ComicBurst className="round-result-overlay__burst" />
-          <Confetti />
+          {!isEmptyFoldWin && <ComicBurst className="round-result-overlay__burst" />}
+          {!isEmptyFoldWin && <Confetti />}
           <div className="round-result-overlay__text">
-            {room.lastResult.payouts.length > 0 && (
-              <div className="round-result-overlay__exclaim">{exclamation}</div>
-            )}
-            {room.lastResult.payouts.length > 0 ? (
-              room.lastResult.payouts.map((p, i) => {
-                const seat = room.seats.find((s) => s && s.seatIndex === p.seatIndex);
-                return (
-                  <div key={i} className="round-result-overlay__line">
-                    {seat?.name || 'Player'} wins {formatChips(p.amount)}
-                    {p.hand ? ` with ${p.hand}` : ''}
-                  </div>
-                );
-              })
+            {isEmptyFoldWin ? (
+              <div className="round-result-overlay__line">Everyone folded</div>
+            ) : room.lastResult.payouts.length > 0 ? (
+              <>
+                <div className="round-result-overlay__exclaim">{exclamation}</div>
+                {room.lastResult.payouts.map((p, i) => {
+                  const seat = room.seats.find((s) => s && s.seatIndex === p.seatIndex);
+                  return (
+                    <div key={i} className="round-result-overlay__line">
+                      {seat?.name || 'Player'} wins {formatChips(p.amount)}
+                      {p.hand ? ` with ${p.hand}` : ''}
+                    </div>
+                  );
+                })}
+              </>
             ) : (
               <div className="round-result-overlay__line">Round over</div>
             )}

@@ -3,7 +3,7 @@ import Chip from './Chip.jsx';
 import { formatChips, decomposeChips } from '../chips.js';
 import './Seat.css';
 
-export default function Seat({ seat, position, isDealer, isTurn, isMe }) {
+export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToast }) {
   return (
     <div className={`seat seat--pos${position} ${seat.folded ? 'seat--folded' : ''} ${isTurn ? 'seat--turn' : ''}`}>
       {isDealer && <div className="seat__dealer">D</div>}
@@ -16,7 +16,14 @@ export default function Seat({ seat, position, isDealer, isTurn, isMe }) {
           <span>{seat.name.charAt(0).toUpperCase()}</span>
         )}
       </div>
-      <div className="seat__name">{seat.name}</div>
+      <div className="seat__name-wrap">
+        <div className="seat__name">{seat.name}</div>
+        {actionToast && (
+          <div key={actionToast.id} className="seat__action-toast">
+            {actionToast.label}
+          </div>
+        )}
+      </div>
       <div className="seat__chips">{formatChips(seat.chips)}</div>
 
       {seat.hasCards && (

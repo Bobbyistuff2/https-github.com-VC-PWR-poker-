@@ -18,6 +18,7 @@ class Room {
     this.turnSeat = -1;
     this.toAct = new Set();
     this.lastResult = null;
+    this.lastAction = null;
     this.handNumber = 0;
   }
 
@@ -159,6 +160,9 @@ class Room {
     if (this.turnSeat !== seat.seatIndex) throw new Error('Not your turn');
     if (!seat.inHand || seat.folded) throw new Error('Not in hand');
 
+    const currentBetBefore = this.currentBet;
+    const betBefore = seat.betThisRound;
+
     if (action === 'fold') this._fold(seat);
     else if (action === 'check') this._checkOrCall(seat);
     else if (action === 'call') this._checkOrCall(seat);
@@ -166,8 +170,29 @@ class Room {
     else if (action === 'allin') this._betOrRaise(seat, seat.betThisRound + seat.chips);
     else throw new Error('Unknown action');
 
+    // A short-lived label describing what just happened, so clients can show
+    // a transient "Checked" / "Bet 20" / "Folded" toast near the seat.
+    this.lastAction = this._describeAction(seat, action, currentBetBefore, betBefore);
+
     this.toAct.delete(seat.seatIndex);
     this._advanceAfterAction();
+  }
+
+  _describeAction(seat, action, currentBetBefore, betBefore) {
+    const seatIndex = seat.seatIndex;
+    if (action === 'fold') return { seatIndex, label: 'Folded' };
+    if (seat.allIn) return { seatIndex, label: 'All In!' };
+
+    if (action === 'check' || action === 'call') {
+      const called = seat.betThisRound - betBefore;
+      return { seatIndex, label: called > 0 ? `Called ${called}` : 'Checked' };
+    }
+
+    // raise/allin actions both land here via _betOrRaise
+    return {
+      seatIndex,
+      label: currentBetBefore === 0 ? `Bet ${seat.betThisRound}` : `Raised to ${seat.betThisRound}`,
+    };
   }
 
   _fold(seat) {
@@ -353,6 +378,7 @@ class Room {
       turnSeat: this.turnSeat,
       handNumber: this.handNumber,
       lastResult: this.lastResult,
+      lastAction: this.lastAction,
       canStart: this.canStartHand(),
       seats: this.seats.map((seat) => {
         if (!seat) return null;
