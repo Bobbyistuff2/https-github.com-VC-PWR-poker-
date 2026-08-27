@@ -5,6 +5,8 @@ import Profile from './pages/Profile.jsx';
 import Lobby from './pages/Lobby.jsx';
 import Table from './pages/Table.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
+import SettingsPanel from './components/SettingsPanel.jsx';
+import { SettingsProvider } from './SettingsContext.jsx';
 import { api } from './api.js';
 
 export default function App() {
@@ -27,24 +29,27 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          user ? (
-            <Navigate to={user.profileComplete ? '/lobby' : '/profile'} replace />
-          ) : (
-            <Landing onSignedIn={setUser} />
-          )
-        }
-      />
-      <Route path="/profile" element={<Profile user={user} onSignedIn={setUser} />} />
-      <Route
-        path="/lobby"
-        element={<Lobby user={user} onSignedOut={() => setUser(null)} onUserUpdate={setUser} />}
-      />
-      <Route path="/table/:code" element={<Table user={user} onUserUpdate={setUser} />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <SettingsProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Navigate to={user.profileComplete ? '/lobby' : '/profile'} replace />
+            ) : (
+              <Landing onSignedIn={setUser} />
+            )
+          }
+        />
+        <Route path="/profile" element={<Profile user={user} onSignedIn={setUser} />} />
+        <Route
+          path="/lobby"
+          element={<Lobby user={user} onSignedOut={() => setUser(null)} onUserUpdate={setUser} />}
+        />
+        <Route path="/table/:code" element={<Table user={user} onUserUpdate={setUser} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <SettingsPanel />
+    </SettingsProvider>
   );
 }

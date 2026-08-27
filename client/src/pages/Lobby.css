@@ -94,7 +94,9 @@
 .lobby__main {
   position: relative;
   z-index: 1;
-  padding: 3.5rem 1.5rem 3rem;
+  /* extra bottom padding so the fixed settings button (bottom-left) always
+     has clear space below the last card, even scrolled all the way down */
+  padding: 3.5rem 1.5rem 6rem;
   text-align: center;
 }
 

@@ -113,22 +113,27 @@
 }
 
 /* transient "Checked" / "Bet 20" / "Folded" toast — starts right over the
-   name, then drifts up and fades over ~2s */
+   name, then drifts up and fades over a few seconds. Wraps instead of
+   growing wider so a long label (e.g. "Raised to 1000") can't push into a
+   neighboring seat. */
 .seat__action-toast {
   position: absolute;
   top: 50%;
   left: 50%;
-  white-space: nowrap;
-  font-size: 0.68rem;
-  font-weight: 700;
+  white-space: normal;
+  max-width: 7.5rem;
+  text-align: center;
+  line-height: 1.15;
+  font-size: 0.85rem;
+  font-weight: 800;
   color: #f2f2f2;
-  background: rgba(13, 16, 40, 0.92);
-  border: 1px solid rgba(124, 58, 237, 0.5);
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
+  background: rgba(13, 16, 40, 0.94);
+  border: 1px solid rgba(124, 58, 237, 0.55);
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.9rem;
   pointer-events: none;
   z-index: 4;
-  animation: seat-action-float 2s ease-out forwards;
+  animation: seat-action-float 3.2s ease-out forwards;
 }
 
 @keyframes seat-action-float {
@@ -136,11 +141,11 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.85);
   }
-  15% {
+  10% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
-  70% {
+  78% {
     opacity: 1;
     transform: translate(-50%, -160%) scale(1);
   }
@@ -155,6 +160,15 @@
     animation: none;
     opacity: 1;
     transform: translate(-50%, -140%);
+  }
+}
+
+@media (max-width: 560px) {
+  .seat__action-toast {
+    font-size: 0.74rem;
+    max-width: 4.6rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.7rem;
   }
 }
 

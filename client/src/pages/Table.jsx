@@ -12,6 +12,7 @@ import { DENOMINATIONS, formatChips, decomposeChips } from '../chips.js';
 import './Table.css';
 
 const SEAT_COUNT = 4;
+const MAX_BOTS = 3;
 const WIN_EXCLAMATIONS = [
   'BOOM!',
   'CHA-CHING!',
@@ -90,10 +91,11 @@ export default function Table({ user, onUserUpdate }) {
     };
     setActionToasts((prev) => [...prev, toast]);
     // Each toast times its own removal independently, so a fast run of
-    // actions (e.g. bot turns) doesn't cut an earlier toast's 2s short.
+    // actions (e.g. bot turns) doesn't cut an earlier toast short. Keep in
+    // sync with the seat-action-float animation duration in Seat.css.
     setTimeout(() => {
       setActionToasts((prev) => prev.filter((t) => t.id !== toast.id));
-    }, 2000);
+    }, 3200);
   }, [room?.lastAction]);
 
   useEffect(() => {
@@ -147,8 +149,9 @@ export default function Table({ user, onUserUpdate }) {
   const maxAvailable = mySeat ? mySeat.chips : 0;
   const committedBeyondCall = toCall + raiseExtra;
   const turnPlayer = room.seats.find((s) => s && s.seatIndex === room.turnSeat);
-  const hasBot = room.seats.some((s) => s && s.isBot);
+  const botCount = room.seats.filter((s) => s && s.isBot).length;
   const hasEmptySeat = room.seats.some((s) => s === null);
+  const canAddBot = botCount < MAX_BOTS && hasEmptySeat;
   // Everyone else folded before any chips were actually bet — not really a
   // "win" worth celebrating, just say so instead of "X wins 0".
   const isEmptyFoldWin =
@@ -303,15 +306,18 @@ export default function Table({ user, onUserUpdate }) {
                 <button className="primary-btn" disabled={!room.canStart} onClick={handleStart}>
                   {room.canStart ? 'Start Hand' : 'Waiting for more players…'}
                 </button>
-                {hasBot ? (
-                  <button className="bot-btn" onClick={handleRemoveBot}>
-                    Remove Bot
-                  </button>
-                ) : hasEmptySeat ? (
-                  <button className="bot-btn" onClick={handleAddBot}>
-                    🤖 Add Bot
-                  </button>
-                ) : null}
+                <div className="bot-controls">
+                  {canAddBot && (
+                    <button className="bot-btn" onClick={handleAddBot}>
+                      🤖 Add Bot ({botCount}/{MAX_BOTS})
+                    </button>
+                  )}
+                  {botCount > 0 && (
+                    <button className="bot-btn" onClick={handleRemoveBot}>
+                      Remove Bot
+                    </button>
+                  )}
+                </div>
               </>
             ) : (
               <p>Spectating — table is full or a hand is in progress.</p>

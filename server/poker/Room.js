@@ -1,8 +1,10 @@
+const crypto = require('crypto');
 const { createDeck, shuffle } = require('./deck');
 const { evaluateBest, compareScores } = require('./handEval');
 
 const MAX_SEATS = 4;
 const MIN_BET = 1;
+const MAX_BOTS = 3;
 
 class Room {
   constructor(code) {
@@ -54,10 +56,25 @@ class Room {
     return this.occupiedSeats.some((s) => s.isBot);
   }
 
+  botSeats() {
+    return this.occupiedSeats.filter((s) => s.isBot);
+  }
+
   addBot() {
-    if (this.hasBot()) throw new Error('This table already has a bot');
+    const bots = this.botSeats();
+    if (bots.length >= MAX_BOTS) throw new Error(`This table already has the max of ${MAX_BOTS} bots`);
     if (this.occupiedSeats.length >= MAX_SEATS) throw new Error('Table is full');
-    this.addPlayer({ id: 'bot', name: 'Bot', picture: null, chips: 1000 }, { isBot: true });
+
+    const usedNames = new Set(bots.map((s) => s.name));
+    let n = 1;
+    while (usedNames.has(`Bot ${n}`)) n += 1;
+
+    // Each bot needs a distinct userId — addPlayer no-ops if one already
+    // exists for the given id, which a shared fixed id would trigger.
+    this.addPlayer(
+      { id: `bot-${crypto.randomUUID()}`, name: `Bot ${n}`, picture: null, chips: 1000 },
+      { isBot: true }
+    );
   }
 
   // Only safe to call while stage === 'waiting' (pot is empty, no in-progress
@@ -71,9 +88,15 @@ class Room {
   }
 
   removeBot() {
-    const seat = this.occupiedSeats.find((s) => s.isBot);
-    if (!seat) return;
-    this.seats[seat.seatIndex] = null;
+    const bots = this.botSeats();
+    if (bots.length === 0) return;
+    // Remove the highest-numbered ("most recently added") bot for a clean
+    // LIFO feel when the button is clicked repeatedly.
+    const target = bots.reduce((highest, s) => {
+      const num = (n) => parseInt(n.name.replace('Bot ', ''), 10) || 0;
+      return num(s) > num(highest) ? s : highest;
+    });
+    this.seats[target.seatIndex] = null;
   }
 
   foldOnDisconnect(userId) {

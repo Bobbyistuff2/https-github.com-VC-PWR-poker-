@@ -1,0 +1,172 @@
+.settings-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  z-index: 60;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.12s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.settings-toggle:hover {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.settings-toggle--open {
+  background: #2563eb;
+  color: #ffffff;
+  transform: rotate(50deg);
+}
+
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: transparent;
+}
+
+.settings-panel {
+  position: fixed;
+  bottom: 5rem;
+  left: 1.25rem;
+  z-index: 60;
+  width: 19rem;
+  max-width: calc(100vw - 2rem);
+  background: rgba(14, 16, 22, 0.94);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  border-radius: 1.1rem;
+  padding: 1.1rem 1.25rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+  transform: translateY(1rem) scale(0.96);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.settings-panel--open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.settings-panel__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f2f2f2;
+}
+
+.settings-panel__close {
+  background: transparent;
+  border: none;
+  color: #9a9a9a;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  line-height: 1;
+}
+
+.settings-panel__close:hover {
+  color: #f2f2f2;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row__label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f2f2f2;
+}
+
+.settings-row__desc {
+  font-size: 0.72rem;
+  color: #9a9a9a;
+  margin-top: 0.15rem;
+}
+
+.settings-switch {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.settings-switch--on {
+  background: #2563eb;
+}
+
+.settings-switch__knob {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.settings-switch--on .settings-switch__knob {
+  transform: translateX(1.25rem);
+}
+
+.settings-slider {
+  width: 8rem;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.settings-slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  .settings-toggle {
+    bottom: 1rem;
+    left: 1rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .settings-panel {
+    bottom: 4.5rem;
+    left: 1rem;
+    width: calc(100vw - 2rem);
+  }
+}
