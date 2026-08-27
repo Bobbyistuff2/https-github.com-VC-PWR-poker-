@@ -5,7 +5,9 @@ import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import { api } from '../api.js';
 import './Landing.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Empty when unset, so the link is relative to the current origin — used in
+// production where Vercel proxies /auth through to the Render backend.
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function Landing({ onSignedIn }) {
   const [step, setStep] = useState('choose');

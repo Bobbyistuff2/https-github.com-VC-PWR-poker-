@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://pwr-poker-server.onrender.com/api/:path*" },
+    { "source": "/auth/:path*", "destination": "https://pwr-poker-server.onrender.com/auth/:path*" },
+    { "source": "/socket.io/:path*", "destination": "https://pwr-poker-server.onrender.com/socket.io/:path*" }
+  ]
+}

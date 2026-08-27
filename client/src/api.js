@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL;
+// Empty when unset, so requests are relative to the current origin — used in
+// production where Vercel proxies /api, /auth, and /socket.io through to the
+// Render backend, keeping the session cookie first-party (mobile Safari and
+// other browsers block third-party cookies, which broke auth on the phone).
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
