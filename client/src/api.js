@@ -13,8 +13,10 @@ async function request(path, options = {}) {
 
 export const api = {
   me: () => request('/api/me'),
-  guestLogin: (name, phone) =>
-    request('/api/guest', { method: 'POST', body: JSON.stringify({ name, phone }) }),
+  guestLogin: (name, phone, password) =>
+    request('/api/guest', { method: 'POST', body: JSON.stringify({ name, phone, password }) }),
+  login: (name, password) =>
+    request('/api/login', { method: 'POST', body: JSON.stringify({ name, password }) }),
   saveProfile: (name) =>
     request('/api/profile', { method: 'POST', body: JSON.stringify({ name }) }),
   logout: () => request('/api/logout', { method: 'POST' }),

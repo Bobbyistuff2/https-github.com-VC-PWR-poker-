@@ -178,6 +178,25 @@
   transform: none;
 }
 
+.landing__login-btn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-top: 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #f2f2f2;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.landing__login-btn:hover {
+  border-color: rgba(37, 99, 235, 0.6);
+  background: rgba(37, 99, 235, 0.1);
+}
+
 .landing__back-btn {
   background: transparent;
   border: none;

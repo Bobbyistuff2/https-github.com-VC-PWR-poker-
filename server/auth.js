@@ -60,12 +60,44 @@ function findOrCreateDiscordUser(discordUser) {
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
 }
 
-function createGuestUser(name, phone) {
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, stored) {
+  const [salt, hash] = stored.split(':');
+  const candidate = crypto.scryptSync(password, salt, 64);
+  const expected = Buffer.from(hash, 'hex');
+  return candidate.length === expected.length && crypto.timingSafeEqual(candidate, expected);
+}
+
+function findGuestByName(name) {
+  return db.prepare("SELECT * FROM users WHERE auth_type = 'guest' AND name = ? COLLATE NOCASE").get(name);
+}
+
+function createGuestUser(name, password, phone) {
+  if (findGuestByName(name)) {
+    const err = new Error('That name is already taken');
+    err.code = 'NAME_TAKEN';
+    throw err;
+  }
   const id = crypto.randomUUID();
   db.prepare(
-    'INSERT INTO users (id, auth_type, name, phone, profile_complete) VALUES (?, ?, ?, ?, 1)'
-  ).run(id, 'guest', name, phone || null);
+    'INSERT INTO users (id, auth_type, name, phone, password_hash, profile_complete) VALUES (?, ?, ?, ?, ?, 1)'
+  ).run(id, 'guest', name, phone || null, hashPassword(password));
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+}
+
+function loginGuestUser(name, password) {
+  const user = findGuestByName(name);
+  if (!user || !user.password_hash || !verifyPassword(password, user.password_hash)) {
+    const err = new Error('Invalid name or password');
+    err.code = 'INVALID_CREDENTIALS';
+    throw err;
+  }
+  return user;
 }
 
 function updateDisplayName(userId, name) {
@@ -79,5 +111,6 @@ module.exports = {
   getDiscordUser,
   findOrCreateDiscordUser,
   createGuestUser,
+  loginGuestUser,
   updateDisplayName,
 };

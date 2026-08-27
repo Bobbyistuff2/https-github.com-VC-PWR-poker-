@@ -11,6 +11,9 @@ export default function Landing({ onSignedIn }) {
   const [step, setStep] = useState('choose');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginName, setLoginName] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -23,13 +26,33 @@ export default function Landing({ onSignedIn }) {
     setSubmitting(true);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1800));
     try {
-      const [{ user }] = await Promise.all([api.guestLogin(name, phone), minDelay]);
+      const [{ user }] = await Promise.all([api.guestLogin(name, phone, password), minDelay]);
       onSignedIn(user);
       navigate('/lobby');
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
     }
+  }
+
+  async function handleLoginSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setSubmitting(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1800));
+    try {
+      const [{ user }] = await Promise.all([api.login(loginName, loginPassword), minDelay]);
+      onSignedIn(user);
+      navigate('/lobby');
+    } catch (err) {
+      setError(err.message);
+      setSubmitting(false);
+    }
+  }
+
+  function backToChoose() {
+    setStep('choose');
+    setError('');
   }
 
   return (
@@ -67,8 +90,11 @@ export default function Landing({ onSignedIn }) {
             <button className="landing__guest-btn" type="button" onClick={() => setStep('guestForm')}>
               Log in as Guest
             </button>
+            <button className="landing__login-btn" type="button" onClick={() => setStep('login')}>
+              Log In to Your Account
+            </button>
           </>
-        ) : (
+        ) : step === 'guestForm' ? (
           <form className="landing__guest" onSubmit={handleGuestSubmit}>
             <input
               className="landing__input"
@@ -77,6 +103,16 @@ export default function Landing({ onSignedIn }) {
               onChange={(e) => setName(e.target.value)}
               maxLength={24}
               autoFocus
+              required
+            />
+            <input
+              className="landing__input"
+              placeholder="Make a password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              maxLength={72}
               required
             />
             <input
@@ -91,14 +127,35 @@ export default function Landing({ onSignedIn }) {
             <button className="landing__guest-btn" type="submit" disabled={submitting}>
               {submitting ? 'Joining…' : 'Continue'}
             </button>
-            <button
-              className="landing__back-btn"
-              type="button"
-              onClick={() => {
-                setStep('choose');
-                setError('');
-              }}
-            >
+            <button className="landing__back-btn" type="button" onClick={backToChoose}>
+              ← Back
+            </button>
+          </form>
+        ) : (
+          <form className="landing__guest" onSubmit={handleLoginSubmit}>
+            <input
+              className="landing__input"
+              placeholder="Enter your name"
+              value={loginName}
+              onChange={(e) => setLoginName(e.target.value)}
+              maxLength={24}
+              autoFocus
+              required
+            />
+            <input
+              className="landing__input"
+              placeholder="Password"
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              maxLength={72}
+              required
+            />
+            {error && <p className="landing__error">{error}</p>}
+            <button className="landing__guest-btn" type="submit" disabled={submitting}>
+              {submitting ? 'Logging in…' : 'Log In'}
+            </button>
+            <button className="landing__back-btn" type="button" onClick={backToChoose}>
               ← Back
             </button>
           </form>

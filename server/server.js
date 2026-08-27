@@ -11,6 +11,7 @@ const {
   getDiscordUser,
   findOrCreateDiscordUser,
   createGuestUser,
+  loginGuestUser,
   updateDisplayName,
 } = require('./auth');
 const db = require('./db');
@@ -66,17 +67,40 @@ app.get('/auth/discord/callback', async (req, res) => {
 });
 
 app.post('/api/guest', (req, res) => {
-  const { name, phone } = req.body;
+  const { name, phone, password } = req.body;
   if (!name || !name.trim() || name.length > 24) {
     return res.status(400).json({ error: 'Name must be 1-24 characters' });
+  }
+  if (!password || password.length < 6 || password.length > 72) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
   }
   const trimmedPhone = typeof phone === 'string' ? phone.trim() : '';
   if (trimmedPhone && !/^[0-9+()\-.\s]{7,20}$/.test(trimmedPhone)) {
     return res.status(400).json({ error: 'Phone number looks invalid' });
   }
-  const user = createGuestUser(name.trim(), trimmedPhone || null);
-  req.session.userId = user.id;
-  res.json({ user: toPublicUser(user) });
+  try {
+    const user = createGuestUser(name.trim(), password, trimmedPhone || null);
+    req.session.userId = user.id;
+    res.json({ user: toPublicUser(user) });
+  } catch (err) {
+    if (err.code === 'NAME_TAKEN') return res.status(409).json({ error: err.message });
+    throw err;
+  }
+});
+
+app.post('/api/login', (req, res) => {
+  const { name, password } = req.body;
+  if (!name || !name.trim() || !password) {
+    return res.status(400).json({ error: 'Name and password are required' });
+  }
+  try {
+    const user = loginGuestUser(name.trim(), password);
+    req.session.userId = user.id;
+    res.json({ user: toPublicUser(user) });
+  } catch (err) {
+    if (err.code === 'INVALID_CREDENTIALS') return res.status(401).json({ error: err.message });
+    throw err;
+  }
 });
 
 app.get('/api/me', requireAuth, (req, res) => {

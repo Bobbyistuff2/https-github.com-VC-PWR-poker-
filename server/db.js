@@ -11,6 +11,7 @@ db.exec(`
     name TEXT NOT NULL,
     picture TEXT,
     phone TEXT,
+    password_hash TEXT,
     chips INTEGER NOT NULL DEFAULT 1000,
     profile_complete INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -20,6 +21,21 @@ db.exec(`
 const existingColumns = db.prepare("PRAGMA table_info(users)").all();
 if (!existingColumns.some((c) => c.name === 'phone')) {
   db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+}
+if (!existingColumns.some((c) => c.name === 'password_hash')) {
+  db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT');
+}
+
+// account names must be unique among password-protected (guest) accounts so
+// they can be looked up again at login time. Wrapped because older
+// databases may already contain duplicate guest names from before
+// passwords existed, which would otherwise prevent the server from booting.
+try {
+  db.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_guest_name ON users(name COLLATE NOCASE) WHERE auth_type = 'guest'"
+  );
+} catch (err) {
+  console.warn('Could not create unique guest-name index (likely pre-existing duplicate names):', err.message);
 }
 
 module.exports = db;
