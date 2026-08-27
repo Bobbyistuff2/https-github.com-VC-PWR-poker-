@@ -130,33 +130,100 @@
 
 .wheel-dial-wrap {
   position: relative;
-  width: 11rem;
-  height: 11rem;
-  margin-bottom: 1rem;
+  width: 13.5rem;
+  height: 13.5rem;
+  margin-bottom: 1.1rem;
 }
 
 .wheel-dial-pointer {
   position: absolute;
-  top: -0.4rem;
+  top: -0.7rem;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 0.6rem solid transparent;
-  border-right: 0.6rem solid transparent;
-  border-top: 1rem solid #d9b871;
+  border-left: 0.75rem solid transparent;
+  border-right: 0.75rem solid transparent;
+  border-top: 1.3rem solid #f3e4b8;
+  z-index: 4;
+  animation: wheel-pointer-bob 1.6s ease-in-out infinite;
+}
+
+@keyframes wheel-pointer-bob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(0.15rem);
+  }
+}
+
+.wheel-dial-bezel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 0.5rem;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.wheel-dial-bulbs {
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.wheel-dial-bulb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  margin: -0.17rem 0 0 -0.17rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffbe8, #d9b871 75%);
+  box-shadow: 0 0 6px rgba(255, 244, 214, 0.85);
+  transform-origin: 0 0;
 }
 
 .wheel-dial {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 3px solid rgba(201, 169, 97, 0.5);
-  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 3px solid rgba(0, 0, 0, 0.55);
   position: relative;
-  transition: transform 3.2s cubic-bezier(0.15, 0.72, 0.18, 1);
+  overflow: hidden;
+  transition: transform 3.4s cubic-bezier(0.11, 0.7, 0.15, 1);
+}
+
+.wheel-dial__spokes {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(
+    rgba(0, 0, 0, 0.45) 0deg 1.2deg,
+    transparent 1.2deg calc(360deg / var(--segs, 7))
+  );
+  pointer-events: none;
+}
+
+.wheel-dial__sheen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.32), transparent 55%);
+  pointer-events: none;
+}
+
+.wheel-dial-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.3rem;
+  height: 2.3rem;
+  margin: -1.15rem 0 0 -1.15rem;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(255, 255, 255, 0.1) inset;
+  z-index: 3;
 }
 
 .wheel-dial__label {
@@ -164,9 +231,38 @@
   top: 50%;
   left: 50%;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   transform-origin: 0 0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.wheel-cost-pop {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ff6b81;
+  text-shadow: 0 0 12px rgba(255, 107, 129, 0.55);
+  pointer-events: none;
+  z-index: 5;
+  animation: wheel-cost-pop-float 0.9s ease-out both;
+}
+
+@keyframes wheel-cost-pop-float {
+  0% {
+    transform: translate(-50%, 0) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    transform: translate(-50%, -0.6rem) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -2.4rem) scale(1);
+    opacity: 0;
+  }
 }
 
 .wheel-card__result-slot {
@@ -219,11 +315,13 @@
 
 @media (max-width: 480px) {
   .wheel-dial-wrap {
-    width: 9.5rem;
-    height: 9.5rem;
-  }
-
-  .wheel-dial__label {
-    transform-origin: 0 0;
+    /* Scale the whole assembly down uniformly rather than resizing the box
+       directly — the bulbs/labels/pointer are positioned with rem-based
+       transforms sized for the desktop dial, so shrinking the wrapper alone
+       would leave them spilling outside a smaller circle. The negative
+       margin pulls the freed-up layout space back in. */
+    transform: scale(0.72);
+    transform-origin: top center;
+    margin-bottom: -3rem;
   }
 }
