@@ -1,0 +1,64 @@
+.falling-chips {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.falling-chip {
+  position: absolute;
+  top: -12%;
+  opacity: 0;
+  animation-name: chip-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.mini-chip {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  transform: scale(var(--scale));
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+
+.mini-chip__ring {
+  position: absolute;
+  inset: 0.28rem;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+}
+
+@keyframes chip-fall {
+  0% {
+    transform: translate(0, -12vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.95;
+  }
+  92% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(var(--drift), 112vh) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falling-chip {
+    animation: none;
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .falling-chip:nth-child(n + 13) {
+    display: none;
+  }
+}

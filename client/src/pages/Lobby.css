@@ -138,11 +138,11 @@
 }
 
 .lobby__card-float--a {
-  animation: lobby-bob-a 4.4s ease-in-out infinite;
+  animation: lobby-bob-a 4.6s ease-in-out infinite;
 }
 
 .lobby__card-float--b {
-  animation: lobby-bob-b 5.2s ease-in-out infinite;
+  animation: lobby-bob-b 4.6s ease-in-out infinite;
 }
 
 @keyframes lobby-bob-a {
