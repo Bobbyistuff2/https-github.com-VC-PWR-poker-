@@ -100,12 +100,12 @@
 }
 
 .seat__avatar--me {
-  border-color: #22d3ee;
-  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .seat__avatar--bot {
-  background: linear-gradient(180deg, #3b82f6, #2563eb);
+  background: linear-gradient(180deg, #4a4438, #2e2a22);
 }
 
 .seat__cards {

@@ -41,16 +41,9 @@
 
 .playing-card--red,
 .playing-card--black {
-  background: rgba(250, 249, 246, 0.97);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.playing-card--red {
-  color: #d81e3f;
-}
-
-.playing-card--black {
-  color: #1a1a1a;
+  background: linear-gradient(165deg, #17140b 0%, #0a0904 100%);
+  border: 1px solid rgba(201, 169, 97, 0.4);
+  color: #d9b871;
 }
 
 .playing-card__rank {
@@ -73,12 +66,12 @@
 }
 
 .playing-card--back {
-  background: linear-gradient(135deg, #1b2f28 0%, #14201b 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(150deg, #17140b 0%, #0a0904 100%);
+  border: 1px solid rgba(201, 169, 97, 0.3);
 }
 
 .playing-card--back::after {
   content: '♠';
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(201, 169, 97, 0.35);
   font-size: 1.1em;
 }

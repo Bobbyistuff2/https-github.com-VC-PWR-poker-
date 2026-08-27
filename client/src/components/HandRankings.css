@@ -10,21 +10,21 @@
   border-radius: 2rem;
   border: none;
   background: #ffffff;
-  color: #2563eb;
+  color: #9c7c3b;
   font-weight: 700;
   font-size: 0.8rem;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.3);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .hand-rankings-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.4);
 }
 
 .hand-rankings-toggle--open {
-  background: #2563eb;
+  background: #9c7c3b;
   color: #ffffff;
 }
 
@@ -38,7 +38,7 @@
   max-height: calc(100vh - 10rem);
   overflow-y: auto;
   background: rgba(14, 16, 22, 0.92);
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  border: 1px solid rgba(201, 169, 97, 0.3);
   border-radius: 1.1rem;
   padding: 1.1rem;
   backdrop-filter: blur(10px);
@@ -67,7 +67,7 @@
 
 .hand-rankings-panel__hint {
   font-size: 0.7rem;
-  color: #5b93ff;
+  color: #d9b871;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -93,8 +93,8 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.15);
-  color: #5b93ff;
+  background: rgba(201, 169, 97, 0.15);
+  color: #d9b871;
   font-size: 0.75rem;
   font-weight: 800;
   display: flex;

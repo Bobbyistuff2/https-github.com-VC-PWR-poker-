@@ -151,7 +151,7 @@
 
 .landing__input:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: #c9a961;
 }
 
 .landing__guest-btn {
@@ -160,17 +160,17 @@
   border-radius: 0.7rem;
   border: none;
   background: #ffffff;
-  color: #2563eb;
+  color: #9c7c3b;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.25);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .landing__guest-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.35);
 }
 
 .landing__guest-btn:disabled {
@@ -194,8 +194,8 @@
 }
 
 .landing__login-btn:hover {
-  border-color: rgba(37, 99, 235, 0.6);
-  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(201, 169, 97, 0.6);
+  background: rgba(201, 169, 97, 0.1);
 }
 
 .landing__back-btn {

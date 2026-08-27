@@ -8,21 +8,21 @@
   border-radius: 50%;
   border: none;
   background: #ffffff;
-  color: #2563eb;
+  color: #9c7c3b;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.3);
   transition: transform 0.2s ease, box-shadow 0.12s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .settings-toggle:hover {
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.4);
 }
 
 .settings-toggle--open {
-  background: #2563eb;
+  background: #9c7c3b;
   color: #ffffff;
   transform: rotate(50deg);
 }
@@ -42,7 +42,7 @@
   width: 19rem;
   max-width: calc(100vw - 2rem);
   background: rgba(14, 16, 22, 0.94);
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  border: 1px solid rgba(201, 169, 97, 0.3);
   border-radius: 1.1rem;
   padding: 1.1rem 1.25rem;
   backdrop-filter: blur(10px);
@@ -126,7 +126,7 @@
 }
 
 .settings-switch--on {
-  background: #2563eb;
+  background: #9c7c3b;
 }
 
 .settings-switch__knob {
@@ -147,7 +147,7 @@
 
 .settings-slider {
   width: 8rem;
-  accent-color: #2563eb;
+  accent-color: #c9a961;
   cursor: pointer;
 }
 
