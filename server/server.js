@@ -18,6 +18,7 @@ const db = require('./db');
 const { registerPokerHandlers } = require('./poker/sockets');
 const achievements = require('./achievements');
 const wheel = require('./wheel');
+const SqliteSessionStore = require('./sessionStore');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -28,6 +29,13 @@ const io = new Server(server, {
 });
 
 const sessionMiddleware = session({
+  // Render's free tier stops the whole process after ~15 min of no traffic
+  // and spins up a fresh one on the next request. Without an explicit store
+  // here, express-session keeps sessions in that process's RAM (its default
+  // MemoryStore) — so every spin-down silently logs everyone out, even
+  // though their cookie is still valid. Storing sessions in the same SQLite
+  // file as everything else survives that restart.
+  store: new SqliteSessionStore(),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
