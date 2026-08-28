@@ -1,0 +1,235 @@
+/* Deliberately plain: this is styled like an actual document, not like the
+   rest of the app's dark/gold game chrome, so it reads as a serious legal
+   notice rather than another flashy piece of the poker UI. */
+
+.terms-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(10, 10, 10, 0.8);
+  animation: terms-backdrop-in 0.12s ease-out;
+}
+
+.terms-backdrop--gate {
+  z-index: 300;
+  background: #1c1c1c;
+}
+
+@keyframes terms-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.terms-modal {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7f6f3;
+  border: 1px solid #c9c6bd;
+  border-radius: 0.35rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  animation: terms-modal-in 0.15s ease-out;
+  overflow: hidden;
+}
+
+@keyframes terms-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.terms-modal__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #6b6a65;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 1;
+  z-index: 1;
+}
+
+.terms-modal__close:hover {
+  color: #1a1a18;
+}
+
+.terms-modal__header {
+  flex-shrink: 0;
+  padding: 1.75rem 2rem 1.1rem;
+  border-bottom: 1px solid #c9c6bd;
+  background: #efece5;
+}
+
+.terms-modal__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b6a65;
+}
+
+.terms-modal__header h1 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #17170f;
+}
+
+.terms-modal__meta {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: #6b6a65;
+}
+
+.terms-modal__meta--accepted {
+  color: #3d5a3a;
+  font-weight: 600;
+}
+
+.terms-modal__body {
+  overflow-y: auto;
+  padding: 1.4rem 2rem;
+  flex: 1;
+}
+
+.terms-modal__intro {
+  margin: 0 0 1.3rem;
+  font-size: 0.83rem;
+  line-height: 1.6;
+  color: #4a4941;
+  font-style: italic;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid #ddd9cf;
+}
+
+.terms-section {
+  margin-bottom: 1.15rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid #e3dfd4;
+}
+
+.terms-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.terms-section h2 {
+  margin: 0 0 0.35rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #17170f;
+}
+
+.terms-section p {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.65;
+  color: #33322c;
+}
+
+.terms-modal__footer {
+  flex-shrink: 0;
+  padding: 1.1rem 2rem 1.4rem;
+  border-top: 1px solid #c9c6bd;
+  background: #efece5;
+}
+
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #33322c;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.terms-checkbox input {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: #17170f;
+  cursor: pointer;
+}
+
+.terms-modal__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.terms-btn {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.terms-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.terms-btn--decline {
+  background: #f7f6f3;
+  border: 1px solid #8a8880;
+  color: #33322c;
+}
+
+.terms-btn--decline:hover:not(:disabled) {
+  background: #e8e5dc;
+}
+
+.terms-btn--accept {
+  background: #17170f;
+  border: 1px solid #17170f;
+  color: #f7f6f3;
+}
+
+.terms-btn--accept:hover:not(:disabled) {
+  background: #33322c;
+}
+
+@media (max-width: 480px) {
+  .terms-modal {
+    max-height: 92vh;
+  }
+
+  .terms-modal__header,
+  .terms-modal__body,
+  .terms-modal__footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .terms-modal__actions {
+    flex-direction: column-reverse;
+  }
+}

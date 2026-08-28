@@ -117,6 +117,12 @@ app.post('/api/logout', (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
 
+app.post('/api/terms/accept', requireAuth, (req, res) => {
+  db.prepare("UPDATE users SET terms_accepted_at = datetime('now') WHERE id = ?").run(req.session.userId);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  res.json({ user: toPublicUser(user) });
+});
+
 app.get('/api/achievements', requireAuth, (req, res) => {
   res.json({ achievements: achievements.listForUser(req.session.userId) });
 });
@@ -198,6 +204,8 @@ function toPublicUser(user) {
     picture: user.picture,
     chips: user.chips,
     profileComplete: !!user.profile_complete,
+    termsAccepted: !!user.terms_accepted_at,
+    termsAcceptedAt: user.terms_accepted_at,
     rank: ranks.getRank({ chips: user.chips, handsWon: user.hands_won }),
   };
 }

@@ -156,6 +156,27 @@
   cursor: default;
 }
 
+.settings-row__link {
+  flex-shrink: 0;
+  background: rgba(201, 169, 97, 0.1);
+  border: 1px solid rgba(201, 169, 97, 0.35);
+  color: #d9b871;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.settings-row__link:hover {
+  background: rgba(201, 169, 97, 0.2);
+}
+
+.settings-row__link:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 480px) {
   .settings-toggle {
     bottom: 1rem;

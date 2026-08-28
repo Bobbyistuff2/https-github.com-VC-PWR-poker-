@@ -25,4 +25,5 @@ export const api = {
   spinWheel: (tier) => request('/api/wheel/spin', { method: 'POST', body: JSON.stringify({ tier }) }),
   getLeaderboard: () => request('/api/leaderboard'),
   getStats: (userId) => request(`/api/stats/${userId}`),
+  acceptTerms: () => request('/api/terms/accept', { method: 'POST' }),
 };

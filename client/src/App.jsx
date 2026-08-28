@@ -9,6 +9,7 @@ import Wheel from './pages/Wheel.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
+import TermsModal from './components/TermsModal.jsx';
 import { SettingsProvider } from './SettingsContext.jsx';
 import { api } from './api.js';
 
@@ -28,6 +29,20 @@ export default function App() {
       <div className="app-loading">
         <LoadingSpinner size={88} label="Dealing you in…" />
       </div>
+    );
+  }
+
+  // Gate everyone — fresh signups and returning accounts alike — behind
+  // accepting the terms once, right after they land from the Google/Discord
+  // callback. Profile setup happens first for new accounts, so this only
+  // ever blocks someone who already has a name and is otherwise ready to
+  // play. Once terms_accepted_at is set server-side it stays set, so this
+  // never shows again except via the read-only copy in Settings.
+  if (user && user.profileComplete && !user.termsAccepted) {
+    return (
+      <SettingsProvider>
+        <TermsModal variant="gate" onAccept={setUser} onDecline={() => setUser(null)} />
+      </SettingsProvider>
     );
   }
 
@@ -55,7 +70,7 @@ export default function App() {
         <Route path="/leaderboard" element={<Leaderboard user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <SettingsPanel />
+      <SettingsPanel user={user} />
     </SettingsProvider>
   );
 }

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useSettings } from '../SettingsContext.jsx';
+import TermsModal from './TermsModal.jsx';
 import './SettingsPanel.css';
 
-export default function SettingsPanel() {
+export default function SettingsPanel({ user }) {
   const [open, setOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const { settings, update } = useSettings();
 
   return (
@@ -55,9 +57,22 @@ export default function SettingsPanel() {
             onChange={(e) => update({ musicVolume: Number(e.target.value) })}
           />
         </div>
+
+        <div className="settings-row">
+          <div className="settings-row__text">
+            <div className="settings-row__label">Terms of Service</div>
+            <div className="settings-row__desc">Review what you agreed to when you signed in.</div>
+          </div>
+          <button className="settings-row__link" onClick={() => setTermsOpen(true)}>
+            View
+          </button>
+        </div>
       </div>
 
       {open && <div className="settings-backdrop" onClick={() => setOpen(false)} />}
+      {termsOpen && (
+        <TermsModal variant="view" acceptedAt={user?.termsAcceptedAt} onClose={() => setTermsOpen(false)} />
+      )}
     </>
   );
 }
