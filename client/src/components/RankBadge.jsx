@@ -7,8 +7,14 @@ const TIER_META = {
   Gold: { from: '#f3e4b8', to: '#9c7c3b', stroke: '#6b5527' },
   Platinum: { from: '#8ff0e6', to: '#1f8f86', stroke: '#14615b' },
   Diamond: { from: '#a9c3ff', to: '#4a63d6', stroke: '#33449c' },
+  Elite: { from: '#d9f2ff', to: '#3d8fc4', stroke: '#256a95' },
   Master: { from: '#e3b3ff', to: '#8a2fb0', stroke: '#5f1f79' },
+  Champion: { from: '#ffb3ec', to: '#c41ea3', stroke: '#8a1372' },
   Grandmaster: { from: '#ffb28a', to: '#c4361f', stroke: '#8a2513' },
+  // The top of the ladder gets a third gradient stop (white → gold → pink)
+  // instead of a plain two-color fade, so it reads as a step up in kind,
+  // not just another color.
+  Unreal: { from: '#ffffff', mid: '#ffe066', to: '#ff8ad8', stroke: '#b8860b' },
 };
 
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
@@ -29,6 +35,7 @@ export default function RankBadge({ rank, size = 'compact' }) {
         <defs>
           <linearGradient id={`rankgrad-${gradId}`} x1="0" y1="0" x2="0.3" y2="1">
             <stop offset="0%" stopColor={meta.from} />
+            {meta.mid && <stop offset="50%" stopColor={meta.mid} />}
             <stop offset="100%" stopColor={meta.to} />
           </linearGradient>
         </defs>

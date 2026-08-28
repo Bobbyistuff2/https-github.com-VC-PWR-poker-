@@ -101,8 +101,11 @@ const TIER_GLOW = {
   Gold: 'rgba(243, 228, 184, 0.4)',
   Platinum: 'rgba(143, 240, 230, 0.35)',
   Diamond: 'rgba(169, 195, 255, 0.35)',
+  Elite: 'rgba(61, 143, 196, 0.4)',
   Master: 'rgba(227, 179, 255, 0.4)',
+  Champion: 'rgba(255, 100, 220, 0.4)',
   Grandmaster: 'rgba(255, 178, 138, 0.45)',
+  Unreal: 'rgba(255, 224, 150, 0.5)',
 };
 
 function PodiumCard({ entry, isMe, onClick }) {

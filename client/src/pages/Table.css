@@ -203,8 +203,11 @@
 .table-surface[data-tier='Gold'] { --tier-accent: rgba(243, 228, 184, 1); }
 .table-surface[data-tier='Platinum'] { --tier-accent: rgba(143, 240, 230, 1); }
 .table-surface[data-tier='Diamond'] { --tier-accent: rgba(169, 195, 255, 1); }
+.table-surface[data-tier='Elite'] { --tier-accent: rgba(61, 143, 196, 1); }
 .table-surface[data-tier='Master'] { --tier-accent: rgba(227, 179, 255, 1); }
+.table-surface[data-tier='Champion'] { --tier-accent: rgba(255, 100, 220, 1); }
 .table-surface[data-tier='Grandmaster'] { --tier-accent: rgba(255, 178, 138, 1); }
+.table-surface[data-tier='Unreal'] { --tier-accent: rgba(255, 224, 150, 1); }
 
 /* Purchased table felts (see server/shop.js) — a [data-bg] attribute is
    only ever set once a non-default background is equipped (Table.jsx), and
@@ -225,6 +228,26 @@
 .table-surface[data-bg='bg-royal'] {
   --tier-accent: rgba(180, 110, 235, 1);
   --top-wash: rgba(180, 110, 235, 0.3);
+}
+.table-surface[data-bg='bg-obsidian'] {
+  --tier-accent: rgba(210, 212, 218, 1);
+  --top-wash: rgba(210, 212, 218, 0.22);
+}
+.table-surface[data-bg='bg-teal'] {
+  --tier-accent: rgba(45, 200, 190, 1);
+  --top-wash: rgba(45, 200, 190, 0.28);
+}
+.table-surface[data-bg='bg-sunset'] {
+  --tier-accent: rgba(255, 140, 60, 1);
+  --top-wash: rgba(255, 140, 60, 0.3);
+}
+.table-surface[data-bg='bg-rose'] {
+  --tier-accent: rgba(240, 130, 160, 1);
+  --top-wash: rgba(240, 130, 160, 0.3);
+}
+.table-surface[data-bg='bg-unreal'] {
+  --tier-accent: rgba(255, 224, 150, 1);
+  --top-wash: rgba(255, 200, 120, 0.35);
 }
 
 /* soft-edged arch/doorway glow, echoing the reference screenshot's portal

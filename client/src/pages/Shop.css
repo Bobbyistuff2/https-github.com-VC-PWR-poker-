@@ -207,6 +207,43 @@
   --swatch-accent: rgba(180, 110, 235, 0.7);
 }
 
+.shop-swatch--bg-obsidian {
+  --swatch-accent: rgba(210, 212, 218, 0.6);
+}
+
+.shop-swatch--bg-teal {
+  --swatch-accent: rgba(45, 200, 190, 0.7);
+}
+
+.shop-swatch--bg-sunset {
+  --swatch-accent: rgba(255, 140, 60, 0.7);
+}
+
+.shop-swatch--bg-rose {
+  --swatch-accent: rgba(240, 130, 160, 0.7);
+}
+
+.shop-swatch--bg-unreal {
+  --swatch-accent: rgba(255, 224, 150, 0.8);
+  animation: shop-swatch-shimmer 2.4s ease-in-out infinite;
+}
+
+@keyframes shop-swatch-shimmer {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 224, 102, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 138, 216, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-swatch--bg-unreal {
+    animation: none;
+  }
+}
+
 .shop-card-preview {
   display: flex;
   gap: 0.4rem;

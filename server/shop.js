@@ -10,6 +10,14 @@ const BACKGROUNDS = [
   { id: 'bg-emerald', slot: 'background', name: 'Emerald', price: 400 },
   { id: 'bg-midnight', slot: 'background', name: 'Midnight Blue', price: 500 },
   { id: 'bg-royal', slot: 'background', name: 'Royal Purple', price: 600 },
+  { id: 'bg-obsidian', slot: 'background', name: 'Obsidian', price: 500 },
+  { id: 'bg-teal', slot: 'background', name: 'Teal Dream', price: 550 },
+  { id: 'bg-sunset', slot: 'background', name: 'Sunset Blaze', price: 550 },
+  { id: 'bg-rose', slot: 'background', name: 'Rose Gold', price: 650 },
+  // A prestige-priced flex item, matching the new Unreal rank in name only —
+  // buying it has no bearing on rank and vice versa, same as every other
+  // item here.
+  { id: 'bg-unreal', slot: 'background', name: 'Unreal Prestige', price: 3000 },
 ];
 
 const CARD_SKINS = [
@@ -17,6 +25,10 @@ const CARD_SKINS = [
   { id: 'cards-neon', slot: 'cardSkin', name: 'Neon Nights', price: 350 },
   { id: 'cards-ice', slot: 'cardSkin', name: 'Ice', price: 350 },
   { id: 'cards-sunset', slot: 'cardSkin', name: 'Sunset', price: 450 },
+  { id: 'cards-obsidian', slot: 'cardSkin', name: 'Obsidian', price: 400 },
+  { id: 'cards-teal', slot: 'cardSkin', name: 'Teal Dream', price: 400 },
+  { id: 'cards-rose', slot: 'cardSkin', name: 'Rose Gold', price: 450 },
+  { id: 'cards-unreal', slot: 'cardSkin', name: 'Unreal Prestige', price: 2500 },
 ];
 
 const ALL_ITEMS = [...BACKGROUNDS, ...CARD_SKINS];

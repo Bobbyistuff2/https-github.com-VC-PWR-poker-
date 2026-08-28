@@ -19,8 +19,13 @@ const RANKS = [
   { key: 'diamond1', tier: 'Diamond', division: 1, label: 'Diamond I', minScore: 24000 },
   { key: 'diamond2', tier: 'Diamond', division: 2, label: 'Diamond II', minScore: 30000 },
   { key: 'diamond3', tier: 'Diamond', division: 3, label: 'Diamond III', minScore: 38000 },
-  { key: 'master', tier: 'Master', division: null, label: 'Master', minScore: 50000 },
-  { key: 'grandmaster', tier: 'Grandmaster', division: null, label: 'Grandmaster', minScore: 75000 },
+  { key: 'elite', tier: 'Elite', division: null, label: 'Elite', minScore: 48000 },
+  { key: 'master', tier: 'Master', division: null, label: 'Master', minScore: 62000 },
+  { key: 'champion', tier: 'Champion', division: null, label: 'Champion', minScore: 80000 },
+  { key: 'grandmaster', tier: 'Grandmaster', division: null, label: 'Grandmaster', minScore: 105000 },
+  // The top of the ladder — no division, nothing above it, same idea as
+  // Fortnite's Unreal rank.
+  { key: 'unreal', tier: 'Unreal', division: null, label: 'Unreal', minScore: 150000 },
 ];
 
 function getRank({ xp = 0 }) {
