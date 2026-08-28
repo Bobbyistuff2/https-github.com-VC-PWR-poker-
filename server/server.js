@@ -23,6 +23,7 @@ const wheel = require('./wheel');
 const ranks = require('./ranks');
 const hilo = require('./hilo');
 const shop = require('./shop');
+const codes = require('./codes');
 const SqliteSessionStore = require('./sessionStore');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -371,6 +372,37 @@ app.post('/api/shop/equip', requireAuth, (req, res) => {
   const column = item.slot === 'background' ? 'equipped_background' : 'equipped_card_skin';
   db.prepare(`UPDATE users SET ${column} = ? WHERE id = ?`).run(itemId, req.session.userId);
   res.json({ itemId, slot: item.slot });
+});
+
+app.post('/api/codes/redeem', requireAuth, (req, res) => {
+  const raw = (req.body.code || '').trim();
+  if (!raw) return res.status(400).json({ error: 'Enter a code' });
+
+  const def = codes.getCode(raw);
+  if (!def) return res.status(400).json({ error: "That code isn't valid" });
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+
+  const normalized = raw.toUpperCase();
+  if (!def.repeatable) {
+    const already = db
+      .prepare('SELECT 1 FROM redeemed_codes WHERE user_id = ? AND code = ?')
+      .get(user.id, normalized);
+    if (already) return res.status(400).json({ error: "You've already redeemed that code" });
+  }
+
+  const chips = user.chips + (def.money || 0);
+  const xp = user.xp + (def.xp || 0);
+  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
+  db.prepare('INSERT INTO redeemed_codes (user_id, code) VALUES (?, ?)').run(user.id, normalized);
+
+  res.json({
+    chips,
+    moneyGained: def.money || 0,
+    xpGained: def.xp || 0,
+    rank: ranks.getRank({ xp }),
+  });
 });
 
 app.get('/api/leaderboard', requireAuth, (req, res) => {

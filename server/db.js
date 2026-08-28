@@ -122,6 +122,19 @@ db.exec(`
   );
 `);
 
+// A row per redemption, not per (user, code) — a repeatable code (see
+// server/codes.js) is redeemed many times and gets a row each time; a
+// one-time code just gets checked for any existing row before allowing
+// another.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS redeemed_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    code TEXT NOT NULL,
+    redeemed_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
 // account names must be unique among password-protected (guest) accounts so
 // they can be looked up again at login time. Wrapped because older
 // databases may already contain duplicate guest names from before

@@ -136,6 +136,9 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
           <button className="lobby__icon-btn" onClick={() => navigate('/shop')} aria-label="Shop">
             <ShopIcon />
           </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/codes')} aria-label="Redeem Code">
+            <CodesIcon />
+          </button>
           <button className="lobby__icon-btn" onClick={() => navigate('/leaderboard')} aria-label="Leaderboard">
             <LeaderboardIcon />
           </button>
@@ -301,6 +304,15 @@ function ShopIcon() {
       <path d="M3 9l1.5-5h15L21 9" />
       <path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9Z" />
       <path d="M9 13a3 3 0 0 0 6 0" />
+    </svg>
+  );
+}
+
+function CodesIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Z" />
+      <path d="M10 7v10" strokeDasharray="1.6 1.8" />
     </svg>
   );
 }

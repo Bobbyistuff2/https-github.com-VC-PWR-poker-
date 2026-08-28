@@ -33,4 +33,5 @@ export const api = {
   getShop: () => request('/api/shop'),
   buyItem: (itemId) => request('/api/shop/buy', { method: 'POST', body: JSON.stringify({ itemId }) }),
   equipItem: (itemId) => request('/api/shop/equip', { method: 'POST', body: JSON.stringify({ itemId }) }),
+  redeemCode: (code) => request('/api/codes/redeem', { method: 'POST', body: JSON.stringify({ code }) }),
 };
