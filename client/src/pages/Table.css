@@ -256,7 +256,7 @@
 }
 
 .community-cards__row--bottom {
-  margin-top: -0.85rem;
+  margin-top: -1.05rem;
   z-index: 0;
 }
 
@@ -301,8 +301,8 @@
 }
 
 .card-placeholder--md {
-  width: 2.8rem;
-  height: 3.9rem;
+  width: 3.6rem;
+  height: 5rem;
 }
 
 .pot-display {
@@ -673,13 +673,13 @@
   }
 
   .community-cards__row--bottom {
-    margin-top: -0.55rem;
+    margin-top: -0.7rem;
   }
 
   .community-cards .playing-card,
   .community-cards .card-placeholder {
-    width: 1.55rem;
-    height: 2.15rem;
+    width: 2rem;
+    height: 2.75rem;
   }
 
   .seat {
