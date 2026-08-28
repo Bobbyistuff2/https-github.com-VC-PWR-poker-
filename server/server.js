@@ -21,6 +21,7 @@ const { registerPokerHandlers } = require('./poker/sockets');
 const achievements = require('./achievements');
 const wheel = require('./wheel');
 const ranks = require('./ranks');
+const hilo = require('./hilo');
 const SqliteSessionStore = require('./sessionStore');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -208,6 +209,107 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
     segments: config.segments,
     rank: ranks.getRank({ chips, handsWon: user.hands_won }),
   });
+});
+
+app.get('/api/hilo/state', requireAuth, (req, res) => {
+  const round = req.session.hilo;
+  if (!round) return res.json({ round: null });
+  const odds = hilo.multipliers(round.card.value);
+  res.json({
+    round: {
+      card: round.card,
+      wager: round.wager,
+      cumulativeMultiplier: round.cumulativeMultiplier,
+      potentialPayout: Math.floor(round.wager * round.cumulativeMultiplier),
+      higherMultiplier: odds.higher,
+      lowerMultiplier: odds.lower,
+    },
+  });
+});
+
+app.post('/api/hilo/start', requireAuth, (req, res) => {
+  const { wager } = req.body;
+  if (!Number.isInteger(wager) || wager <= 0) return res.status(400).json({ error: 'Invalid wager' });
+  if (req.session.hilo) return res.status(400).json({ error: 'A round is already in progress' });
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  if (user.chips < wager) return res.status(400).json({ error: 'Not enough chips for that wager' });
+
+  const chips = user.chips - wager;
+  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+
+  const card = hilo.drawCard();
+  req.session.hilo = { wager, card, cumulativeMultiplier: 1 };
+  const odds = hilo.multipliers(card.value);
+
+  res.json({
+    card,
+    wager,
+    cumulativeMultiplier: 1,
+    potentialPayout: wager,
+    higherMultiplier: odds.higher,
+    lowerMultiplier: odds.lower,
+    chips,
+  });
+});
+
+app.post('/api/hilo/guess', requireAuth, (req, res) => {
+  const { direction } = req.body;
+  if (direction !== 'higher' && direction !== 'lower') {
+    return res.status(400).json({ error: 'Invalid guess' });
+  }
+  const round = req.session.hilo;
+  if (!round) return res.status(400).json({ error: 'No round in progress' });
+
+  const odds = hilo.multipliers(round.card.value);
+  const stepMultiplier = direction === 'higher' ? odds.higher : odds.lower;
+  if (stepMultiplier == null) {
+    return res.status(400).json({ error: `Can't guess ${direction} on that card` });
+  }
+
+  const nextCard = hilo.drawCard();
+  // A tie counts as a loss either way — you called strictly higher or
+  // strictly lower, and the next card was neither.
+  const correct =
+    nextCard.value !== round.card.value &&
+    (direction === 'higher' ? nextCard.value > round.card.value : nextCard.value < round.card.value);
+
+  if (!correct) {
+    delete req.session.hilo;
+    return res.json({ correct: false, busted: true, card: nextCard, wager: round.wager });
+  }
+
+  const cumulativeMultiplier = hilo.round2(round.cumulativeMultiplier * stepMultiplier);
+  req.session.hilo = { wager: round.wager, card: nextCard, cumulativeMultiplier };
+  const nextOdds = hilo.multipliers(nextCard.value);
+
+  res.json({
+    correct: true,
+    card: nextCard,
+    cumulativeMultiplier,
+    potentialPayout: Math.floor(round.wager * cumulativeMultiplier),
+    higherMultiplier: nextOdds.higher,
+    lowerMultiplier: nextOdds.lower,
+  });
+});
+
+app.post('/api/hilo/cashout', requireAuth, (req, res) => {
+  const round = req.session.hilo;
+  if (!round) return res.status(400).json({ error: 'No round in progress' });
+  if (round.cumulativeMultiplier <= 1) {
+    return res.status(400).json({ error: 'Make at least one correct guess before cashing out' });
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+
+  const payout = Math.floor(round.wager * round.cumulativeMultiplier);
+  const chips = user.chips + payout;
+  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+  delete req.session.hilo;
+
+  res.json({ chips, payout, rank: ranks.getRank({ chips, handsWon: user.hands_won }) });
 });
 
 app.get('/api/leaderboard', requireAuth, (req, res) => {

@@ -1,0 +1,294 @@
+.hilo-page {
+  min-height: 100vh;
+  background: #050506;
+  color: #f2f2f2;
+}
+
+.hilo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+}
+
+.hilo-header__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9b871;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.hilo-header__back:hover {
+  border-color: rgba(201, 169, 97, 0.6);
+  background: rgba(201, 169, 97, 0.12);
+  transform: translateY(-1px);
+}
+
+.hilo-header__back__arrow {
+  display: inline-block;
+}
+
+.hilo-header__title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  color: #d9b871;
+}
+
+.hilo-header__chips {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 800;
+  color: #d9b871;
+}
+
+.hilo-header__chip-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f3e4b8, #9c7c3b 70%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+}
+
+.hilo-error {
+  max-width: 30rem;
+  margin: 1rem auto 0;
+  text-align: center;
+  color: #e6394a;
+  font-size: 0.9rem;
+  padding: 0 1rem;
+}
+
+.hilo-loading {
+  text-align: center;
+  color: #9a9a9a;
+  padding: 3rem 0;
+}
+
+.hilo-main {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.hilo-panel {
+  width: 100%;
+  max-width: 26rem;
+  background: rgba(20, 22, 28, 0.7);
+  border: 1px solid rgba(201, 169, 97, 0.25);
+  border-radius: 1.25rem;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 169, 97, 0.05) inset;
+}
+
+.hilo-panel__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.3rem;
+}
+
+.hilo-panel__sub {
+  color: #9a9a9a;
+  font-size: 0.82rem;
+  margin: 0 0 1.5rem;
+}
+
+.hilo-result {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hilo-result__text {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.hilo-result--lose .hilo-result__text {
+  color: #e6394a;
+}
+
+.hilo-result--win .hilo-result__text {
+  color: #d9b871;
+}
+
+.hilo-wager-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.hilo-wager-btn {
+  padding: 0.6rem 0.3rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  background: rgba(255, 255, 255, 0.03);
+  color: #f2f2f2;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.hilo-wager-btn:hover:not(:disabled) {
+  border-color: rgba(201, 169, 97, 0.6);
+}
+
+.hilo-wager-btn--active {
+  background: rgba(201, 169, 97, 0.18);
+  border-color: rgba(201, 169, 97, 0.7);
+  color: #d9b871;
+}
+
+.hilo-wager-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hilo-deal-btn,
+.hilo-cashout-btn {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  border: none;
+  background: linear-gradient(180deg, #f3e4b8, #c9a961);
+  color: #1a1108;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+
+.hilo-deal-btn:hover:not(:disabled),
+.hilo-cashout-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.hilo-deal-btn:active:not(:disabled),
+.hilo-cashout-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.hilo-deal-btn:disabled,
+.hilo-cashout-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hilo-stats {
+  display: flex;
+  width: 100%;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.hilo-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.8rem;
+  padding: 0.65rem 0.5rem;
+}
+
+.hilo-stat__label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9a9a9a;
+  margin-bottom: 0.2rem;
+}
+
+.hilo-stat__value {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f2f2f2;
+}
+
+.hilo-stat__value--accent {
+  color: #d9b871;
+}
+
+.hilo-card-slot {
+  margin: 0.5rem 0 1.5rem;
+}
+
+.hilo-guess-row {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.hilo-guess-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.85rem 0.5rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: #f2f2f2;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+.hilo-guess-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.hilo-guess-btn--higher:hover:not(:disabled) {
+  border-color: rgba(74, 222, 176, 0.6);
+  background: rgba(74, 222, 176, 0.1);
+}
+
+.hilo-guess-btn--lower:hover:not(:disabled) {
+  border-color: rgba(230, 57, 74, 0.5);
+  background: rgba(230, 57, 74, 0.1);
+}
+
+.hilo-guess-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.hilo-guess-btn__mult {
+  font-size: 0.72rem;
+  color: #d9b871;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .hilo-wager-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

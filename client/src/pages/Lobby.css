@@ -314,6 +314,18 @@
   border-width: 3px;
 }
 
+/* The other three mode icons are custom badge art; this one has no
+   uploaded artwork, so it gets a designed circle of its own instead of
+   just an empty ring. */
+.lobby__mode-icon--hilo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #3a2a52, #1c1430);
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #cbb6ff;
+}
+
 .lobby__mode-title {
   font-size: 1.15rem;
   font-weight: 700;

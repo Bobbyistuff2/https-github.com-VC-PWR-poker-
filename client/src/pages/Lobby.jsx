@@ -162,6 +162,14 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
               <h2 className="lobby__mode-title">Quick Game</h2>
               <p className="lobby__mode-text">You vs. the AI.</p>
             </button>
+
+            <button className="lobby__mode lobby__mode--side" onClick={() => navigate('/hilo')}>
+              <div className="lobby__mode-icon lobby__mode-icon--hilo">
+                <HiLoIcon />
+              </div>
+              <h2 className="lobby__mode-title">Higher / Lower</h2>
+              <p className="lobby__mode-text">Guess the next card, cash out anytime.</p>
+            </button>
           </div>
         )}
 
@@ -282,6 +290,17 @@ function LeaderboardIcon() {
       <path d="M6 20V10" />
       <path d="M12 20V4" />
       <path d="M18 20v-7" />
+    </svg>
+  );
+}
+
+function HiLoIcon() {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="6" width="7" height="10" rx="1.4" />
+      <rect x="14" y="8" width="7" height="10" rx="1.4" />
+      <path d="M6.5 12.5V9M5 10.5l1.5-1.5L8 10.5" />
+      <path d="M17.5 13.5V17M16 15.5l1.5 1.5 1.5-1.5" />
     </svg>
   );
 }

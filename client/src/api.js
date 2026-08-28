@@ -26,4 +26,8 @@ export const api = {
   getLeaderboard: () => request('/api/leaderboard'),
   getStats: (userId) => request(`/api/stats/${userId}`),
   acceptTerms: () => request('/api/terms/accept', { method: 'POST' }),
+  getHiLoState: () => request('/api/hilo/state'),
+  startHiLo: (wager) => request('/api/hilo/start', { method: 'POST', body: JSON.stringify({ wager }) }),
+  guessHiLo: (direction) => request('/api/hilo/guess', { method: 'POST', body: JSON.stringify({ direction }) }),
+  cashOutHiLo: () => request('/api/hilo/cashout', { method: 'POST' }),
 };

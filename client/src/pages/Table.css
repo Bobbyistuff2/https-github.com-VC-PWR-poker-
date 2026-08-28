@@ -268,7 +268,7 @@
 }
 
 .community-cards__row--bottom {
-  margin-top: -1.05rem;
+  margin-top: 0.4rem;
   z-index: 0;
 }
 
@@ -685,7 +685,7 @@
   }
 
   .community-cards__row--bottom {
-    margin-top: -0.7rem;
+    margin-top: 0.18rem;
   }
 
   .community-cards .playing-card,
