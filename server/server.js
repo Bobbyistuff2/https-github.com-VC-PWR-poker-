@@ -141,7 +141,11 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
 });
 
 app.get('/api/leaderboard', requireAuth, (req, res) => {
-  const rows = db.prepare('SELECT id, name, picture, chips, hands_won FROM users').all();
+  // Bots are never written to the users table in the first place (they only
+  // ever exist as in-memory seats inside a live Room, with a synthetic
+  // `bot-<uuid>` id) — this WHERE clause is just a second, explicit
+  // guarantee that one can never appear here, not a fix for a real leak.
+  const rows = db.prepare("SELECT id, name, picture, chips, hands_won FROM users WHERE id NOT LIKE 'bot-%'").all();
   const ranked = rows
     .map((u) => ({
       id: u.id,

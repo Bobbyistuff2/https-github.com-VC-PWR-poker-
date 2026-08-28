@@ -1,16 +1,31 @@
 .leaderboard-page {
+  position: relative;
   min-height: 100vh;
   background: #050506;
   color: #f2f2f2;
+  overflow: hidden;
+}
+
+.leaderboard-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(201, 169, 97, 0.16), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 15%, rgba(201, 169, 97, 0.08), transparent 60%);
 }
 
 .leaderboard-header {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+  background: #050506;
 }
 
 .leaderboard-header__back {
@@ -48,14 +63,19 @@
 }
 
 .leaderboard-header__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(180deg, #f3e4b8 0%, #c9a961 55%, #9c7c3b 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #d9b871;
+}
+
+.leaderboard-header__title svg {
+  color: #d9b871;
+  filter: drop-shadow(0 0 6px rgba(201, 169, 97, 0.5));
 }
 
 .leaderboard-header__spacer {
@@ -63,9 +83,11 @@
 }
 
 .leaderboard-main {
-  max-width: 36rem;
+  position: relative;
+  z-index: 1;
+  max-width: 40rem;
   margin: 0 auto;
-  padding: 1.75rem 1.25rem 4rem;
+  padding: 2rem 1.25rem 4rem;
 }
 
 .leaderboard-loading,
@@ -77,6 +99,146 @@
 .leaderboard-error {
   color: #e6394a;
 }
+
+/* --- Podium (top 3) --- */
+
+.leaderboard-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.leaderboard-podium__card {
+  position: relative;
+  flex: 1;
+  max-width: 11rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+  background: rgba(20, 22, 28, 0.75);
+  border: 1px solid var(--tier-glow, rgba(201, 169, 97, 0.3));
+  border-radius: 1.1rem 1.1rem 0 0;
+  padding: 1.1rem 0.75rem 0;
+  box-shadow: 0 0 24px var(--tier-glow, transparent), 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: podium-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.leaderboard-podium--count1 .leaderboard-podium__card {
+  max-width: 13rem;
+}
+
+.leaderboard-podium__card--p1 {
+  order: 2;
+  padding-top: 1.4rem;
+  z-index: 2;
+}
+
+.leaderboard-podium__card--p2 {
+  order: 1;
+  animation-delay: 0.08s;
+}
+
+.leaderboard-podium__card--p3 {
+  order: 3;
+  animation-delay: 0.16s;
+}
+
+@keyframes podium-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.leaderboard-podium__card--me {
+  outline: 2px solid #d9b871;
+  outline-offset: 2px;
+}
+
+.leaderboard-podium__avatar {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.leaderboard-podium__card--p1 .leaderboard-podium__avatar {
+  width: 4rem;
+  height: 4rem;
+  border-color: rgba(243, 228, 184, 0.6);
+}
+
+.leaderboard-podium__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #d9b871, #9c7c3b);
+  color: #1a1108;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.leaderboard-podium__name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-podium__chips {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #d9b871;
+  margin-bottom: 0.5rem;
+}
+
+.leaderboard-podium__stand {
+  width: 100%;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, rgba(201, 169, 97, 0.28), rgba(201, 169, 97, 0.12));
+  border-top: 1px solid var(--tier-glow, rgba(201, 169, 97, 0.3));
+}
+
+.leaderboard-podium__card--p1 .leaderboard-podium__stand {
+  height: 3.5rem;
+  font-size: 1.9rem;
+  background: linear-gradient(180deg, rgba(243, 228, 184, 0.4), rgba(201, 169, 97, 0.16));
+}
+
+.leaderboard-podium__card--p2 .leaderboard-podium__stand {
+  height: 2.5rem;
+}
+
+.leaderboard-podium__card--p3 .leaderboard-podium__stand {
+  height: 1.8rem;
+}
+
+.leaderboard-medal {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* --- Rest of the list --- */
 
 .leaderboard-list {
   list-style: none;
@@ -103,12 +265,20 @@
   gap: 0.85rem;
   background: rgba(20, 22, 28, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
+  border-left: 3px solid var(--tier-glow, rgba(255, 255, 255, 0.08));
+  border-radius: 0.85rem;
   padding: 0.7rem 1rem;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+
+.leaderboard-row:hover {
+  transform: translateX(2px);
 }
 
 .leaderboard-row--me {
   border-color: rgba(201, 169, 97, 0.5);
+  border-left-color: var(--tier-glow, #d9b871);
+  border-left-width: 4px;
   background: rgba(201, 169, 97, 0.08);
   box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.1) inset;
 }
@@ -120,9 +290,6 @@
   font-weight: 800;
   font-size: 0.9rem;
   color: #9a9a9a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .leaderboard-row__avatar {
@@ -192,6 +359,32 @@
 @media (max-width: 480px) {
   .leaderboard-header__spacer {
     display: none;
+  }
+
+  .leaderboard-podium {
+    gap: 0.5rem;
+  }
+
+  .leaderboard-podium__card {
+    padding: 0.85rem 0.4rem 0;
+  }
+
+  .leaderboard-podium__card--p1 {
+    padding-top: 1.1rem;
+  }
+
+  .leaderboard-podium__avatar {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .leaderboard-podium__card--p1 .leaderboard-podium__avatar {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+
+  .leaderboard-podium__name {
+    font-size: 0.78rem;
   }
 
   .leaderboard-row {
