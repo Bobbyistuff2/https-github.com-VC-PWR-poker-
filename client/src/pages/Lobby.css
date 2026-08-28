@@ -252,8 +252,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  max-width: 46rem;
+  gap: 1.5rem;
+  max-width: 56rem;
   margin: 0 auto;
 }
 
@@ -262,7 +262,7 @@
   background: rgba(20, 22, 28, 0.7);
   border: 1px solid rgba(201, 169, 97, 0.25);
   border-radius: 1.25rem;
-  padding: 1.5rem 1.1rem;
+  padding: 1.85rem 1.3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -281,13 +281,13 @@
 }
 
 .lobby__mode--side {
-  flex: 0.82;
-  padding: 1.25rem 0.9rem;
+  flex: 0.88;
+  padding: 1.6rem 1.1rem;
 }
 
 .lobby__mode--main {
   flex: 1.35;
-  padding: 2.1rem 1.6rem;
+  padding: 2.6rem 2rem;
   border-color: rgba(201, 169, 97, 0.4);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(201, 169, 97, 0.12) inset;
 }
@@ -297,48 +297,48 @@
 }
 
 .lobby__mode-icon {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 4.75rem;
+  height: 4.75rem;
+  flex-shrink: 0;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(201, 169, 97, 0.14);
-  color: #d9b871;
-  margin-bottom: 0.85rem;
+  object-fit: cover;
+  border: 2px solid rgba(201, 169, 97, 0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  margin-bottom: 0.9rem;
 }
 
 .lobby__mode--main .lobby__mode-icon {
-  width: 4rem;
-  height: 4rem;
-  margin-bottom: 1.1rem;
+  width: 7rem;
+  height: 7rem;
+  margin-bottom: 1.2rem;
+  border-width: 3px;
 }
 
 .lobby__mode-title {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 0.35rem;
 }
 
 .lobby__mode--main .lobby__mode-title {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
 }
 
 .lobby__mode-text {
   color: #9a9a9a;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   margin: 0;
 }
 
 .lobby__mode--main .lobby__mode-text {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 640px) {
   .lobby__modes {
     flex-direction: column;
     align-items: stretch;
-    max-width: 24rem;
+    max-width: 26rem;
   }
 
   .lobby__mode--side,
@@ -348,7 +348,17 @@
 
   .lobby__mode--main {
     order: -1;
-    padding: 1.75rem 1.5rem;
+    padding: 2rem 1.75rem;
+  }
+
+  .lobby__mode-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .lobby__mode--main .lobby__mode-icon {
+    width: 5.5rem;
+    height: 5.5rem;
   }
 }
 

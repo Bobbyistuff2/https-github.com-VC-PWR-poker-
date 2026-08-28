@@ -6,6 +6,9 @@ import FallingWords from '../components/FallingWords.jsx';
 import RankBadge from '../components/RankBadge.jsx';
 import { api } from '../api.js';
 import { getSocket } from '../socket.js';
+import cashGamesBadge from '../assets/cash-games-badge.webp';
+import tournamentBadge from '../assets/tournament-badge.webp';
+import quickGameBadge from '../assets/quick-game-badge.webp';
 import './Lobby.css';
 
 const SUBHEADINGS = {
@@ -143,25 +146,19 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
         {view === 'main' && (
           <div className="lobby__modes">
             <button className="lobby__mode lobby__mode--side" onClick={() => goToView('cash')}>
-              <div className="lobby__mode-icon">
-                <CashIcon />
-              </div>
+              <img className="lobby__mode-icon" src={cashGamesBadge} alt="" />
               <h2 className="lobby__mode-title">Cash Games</h2>
               <p className="lobby__mode-text">Play for real stakes.</p>
             </button>
 
             <button className="lobby__mode lobby__mode--main" onClick={() => goToView('tournaments')}>
-              <div className="lobby__mode-icon">
-                <TrophyIcon />
-              </div>
+              <img className="lobby__mode-icon" src={tournamentBadge} alt="" />
               <h2 className="lobby__mode-title">Tournaments</h2>
               <p className="lobby__mode-text">Open tables anyone can join — or start your own.</p>
             </button>
 
             <button className="lobby__mode lobby__mode--side" onClick={() => goToView('quick')}>
-              <div className="lobby__mode-icon">
-                <BoltIcon />
-              </div>
+              <img className="lobby__mode-icon" src={quickGameBadge} alt="" />
               <h2 className="lobby__mode-title">Quick Game</h2>
               <p className="lobby__mode-text">You vs. the AI.</p>
             </button>
@@ -256,16 +253,6 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
   );
 }
 
-function CashIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v10" />
-      <path d="M15 9.5c0-1.1-1.34-2-3-2s-3 .9-3 2 1.34 1.6 3 2 3 .9 3 2-1.34 2-3 2-3-.9-3-2" />
-    </svg>
-  );
-}
-
 function TrophyIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -299,10 +286,3 @@ function LeaderboardIcon() {
   );
 }
 
-function BoltIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z" />
-    </svg>
-  );
-}
