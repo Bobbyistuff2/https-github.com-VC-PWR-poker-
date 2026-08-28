@@ -23,4 +23,5 @@ export const api = {
   getAchievements: () => request('/api/achievements'),
   getWheelTiers: () => request('/api/wheel'),
   spinWheel: (tier) => request('/api/wheel/spin', { method: 'POST', body: JSON.stringify({ tier }) }),
+  getLeaderboard: () => request('/api/leaderboard'),
 };

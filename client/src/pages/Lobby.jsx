@@ -124,6 +124,9 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
           <button className="lobby__icon-btn" onClick={() => navigate('/wheel')} aria-label="Spin the Wheel">
             <WheelIcon />
           </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/leaderboard')} aria-label="Leaderboard">
+            <LeaderboardIcon />
+          </button>
         </div>
         <button className="lobby__logout" onClick={handleLogout}>
           Sign out
@@ -282,6 +285,16 @@ function WheelIcon() {
       <circle cx="12" cy="12" r="9" />
       <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
       <path d="M12 3v4M12 17v4M21 12h-4M7 12H3M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8M18.4 18.4l-2.8-2.8M8.4 8.4 5.6 5.6" />
+    </svg>
+  );
+}
+
+function LeaderboardIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 20V10" />
+      <path d="M12 20V4" />
+      <path d="M18 20v-7" />
     </svg>
   );
 }

@@ -1,0 +1,206 @@
+.leaderboard-page {
+  min-height: 100vh;
+  background: #050506;
+  color: #f2f2f2;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+}
+
+.leaderboard-header__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d9b871;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.leaderboard-header__back:hover {
+  border-color: rgba(201, 169, 97, 0.6);
+  background: rgba(201, 169, 97, 0.12);
+  transform: translateY(-1px);
+}
+
+.leaderboard-header__back:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.leaderboard-header__back__arrow {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.leaderboard-header__back:hover .leaderboard-header__back__arrow {
+  transform: translateX(-3px);
+}
+
+.leaderboard-header__title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(180deg, #f3e4b8 0%, #c9a961 55%, #9c7c3b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.leaderboard-header__spacer {
+  width: 5.5rem;
+}
+
+.leaderboard-main {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.25rem 4rem;
+}
+
+.leaderboard-loading,
+.leaderboard-error {
+  text-align: center;
+  color: #9a9a9a;
+}
+
+.leaderboard-error {
+  color: #e6394a;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.leaderboard-divider {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6a6a6a;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: rgba(20, 22, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.7rem 1rem;
+}
+
+.leaderboard-row--me {
+  border-color: rgba(201, 169, 97, 0.5);
+  background: rgba(201, 169, 97, 0.08);
+  box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.1) inset;
+}
+
+.leaderboard-row__position {
+  flex-shrink: 0;
+  width: 1.75rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #9a9a9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leaderboard-row__avatar {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.leaderboard-row__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #d9b871, #9c7c3b);
+  color: #1a1108;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.leaderboard-row__name-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.leaderboard-row__name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-row__stats {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.leaderboard-row__chips {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #d9b871;
+}
+
+.leaderboard-row__chip-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f3e4b8, #9c7c3b 70%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+}
+
+.leaderboard-row__wins {
+  font-size: 0.72rem;
+  color: #9a9a9a;
+}
+
+@media (max-width: 480px) {
+  .leaderboard-header__spacer {
+    display: none;
+  }
+
+  .leaderboard-row {
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .leaderboard-row__avatar {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+}

@@ -140,6 +140,25 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
   res.json({ index: result.index, prize: result.prize, chips, segments: config.segments });
 });
 
+app.get('/api/leaderboard', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT id, name, picture, chips, hands_won FROM users').all();
+  const ranked = rows
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      picture: u.picture,
+      chips: u.chips,
+      handsWon: u.hands_won,
+      rank: ranks.getRank({ chips: u.chips, handsWon: u.hands_won }),
+    }))
+    .sort((a, b) => b.rank.score - a.rank.score)
+    .map((entry, i) => ({ ...entry, position: i + 1 }));
+
+  const top = ranked.slice(0, 50);
+  const me = ranked.find((entry) => entry.id === req.session.userId) || null;
+  res.json({ leaderboard: top, me });
+});
+
 function toPublicUser(user) {
   return {
     id: user.id,

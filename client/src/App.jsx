@@ -6,6 +6,7 @@ import Lobby from './pages/Lobby.jsx';
 import Table from './pages/Table.jsx';
 import Rewards from './pages/Rewards.jsx';
 import Wheel from './pages/Wheel.jsx';
+import Leaderboard from './pages/Leaderboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
 import { SettingsProvider } from './SettingsContext.jsx';
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/table/:code" element={<Table user={user} onUserUpdate={setUser} />} />
         <Route path="/rewards" element={<Rewards user={user} />} />
         <Route path="/wheel" element={<Wheel user={user} onUserUpdate={setUser} />} />
+        <Route path="/leaderboard" element={<Leaderboard user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <SettingsPanel />
