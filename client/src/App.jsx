@@ -39,7 +39,7 @@ export default function App() {
             user ? (
               <Navigate to={user.profileComplete ? '/lobby' : '/profile'} replace />
             ) : (
-              <Landing onSignedIn={setUser} />
+              <Landing />
             )
           }
         />

@@ -40,6 +40,39 @@ if (!existingColumns.some((c) => c.name === 'hands_won')) {
   db.exec('ALTER TABLE users ADD COLUMN hands_won INTEGER NOT NULL DEFAULT 0');
 }
 
+// Adding a new auth_type ('google') means loosening the CHECK constraint,
+// which SQLite can't do with a plain ALTER — the table has to be rebuilt.
+// Guarded on the constraint text itself so this only runs once, the first
+// time the server boots against an older database.
+const usersTableDef = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
+if (usersTableDef && !usersTableDef.sql.includes("'google'")) {
+  db.exec('ALTER TABLE users RENAME TO users_old');
+  db.exec(`
+    CREATE TABLE users (
+      id TEXT PRIMARY KEY,
+      auth_type TEXT NOT NULL CHECK (auth_type IN ('discord', 'google', 'guest')),
+      discord_id TEXT UNIQUE,
+      google_id TEXT UNIQUE,
+      name TEXT NOT NULL,
+      picture TEXT,
+      phone TEXT,
+      password_hash TEXT,
+      chips INTEGER NOT NULL DEFAULT 1000,
+      profile_complete INTEGER NOT NULL DEFAULT 0,
+      win_streak INTEGER NOT NULL DEFAULT 0,
+      hands_won INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+  db.exec(`
+    INSERT INTO users
+      (id, auth_type, discord_id, name, picture, phone, password_hash, chips, profile_complete, win_streak, hands_won, created_at)
+    SELECT id, auth_type, discord_id, name, picture, phone, password_hash, chips, profile_complete, win_streak, hands_won, created_at
+    FROM users_old
+  `);
+  db.exec('DROP TABLE users_old');
+}
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS achievements (
     user_id TEXT NOT NULL,
