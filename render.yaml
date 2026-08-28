@@ -10,7 +10,9 @@ services:
     # account is set up. Once they're set, it restores poker.db from backup
     # on boot (if the local disk came up empty) and streams live changes to
     # it from then on.
-    startCommand: sh -c 'if [ -n "$LITESTREAM_BUCKET" ]; then ./bin/litestream restore -if-replica-exists -if-db-not-exists poker.db && exec ./bin/litestream replicate -exec "node --experimental-sqlite server.js"; else exec node --experimental-sqlite server.js; fi'
+    # -config is required — litestream defaults to /etc/litestream.yml,
+    # which doesn't exist here (learned the hard way on the first deploy).
+    startCommand: sh -c 'if [ -n "$LITESTREAM_BUCKET" ]; then ./bin/litestream restore -config litestream.yml -if-replica-exists -if-db-not-exists poker.db && exec ./bin/litestream replicate -config litestream.yml -exec "node --experimental-sqlite server.js"; else exec node --experimental-sqlite server.js; fi'
     plan: free
     envVars:
       - key: NODE_ENV
