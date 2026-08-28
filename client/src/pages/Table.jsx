@@ -4,6 +4,7 @@ import Seat from '../components/Seat.jsx';
 import PlayingCard from '../components/PlayingCard.jsx';
 import Chip from '../components/Chip.jsx';
 import HandRankings from '../components/HandRankings.jsx';
+import HandHistory from '../components/HandHistory.jsx';
 import Confetti from '../components/Confetti.jsx';
 import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { getSocket } from '../socket.js';
@@ -249,10 +250,11 @@ export default function Table({ user, onUserUpdate }) {
       </header>
 
       <HandRankings />
+      <HandHistory history={room.handHistory} mySeatIndex={mySeatIndex} />
 
       {actionError && <div className="table-inline-error">{actionError}</div>}
 
-      <div className="table-surface">
+      <div className="table-surface" data-tier={user.rank?.tier}>
         {room.seats.map(
           (seat, i) =>
             seat && (

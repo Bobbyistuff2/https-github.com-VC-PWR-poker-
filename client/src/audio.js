@@ -54,6 +54,29 @@ export function playClick() {
   osc.stop(t + 0.14);
 }
 
+// Short ascending arpeggio for a rank-up moment — distinct from the click/
+// hover blips (longer, several notes, a triangle wave with a bell-ish
+// decay) so it reads as a bigger deal than routine UI feedback.
+export function playFanfare() {
+  if (!settings.sound) return;
+  const ac = getCtx();
+  const t = ac.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+  notes.forEach((freq, i) => {
+    const start = t + i * 0.09;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.22, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+    osc.connect(gain).connect(ac.destination);
+    osc.start(start);
+    osc.stop(start + 0.55);
+  });
+}
+
 export function playHover() {
   if (!settings.sound) return;
   const ac = getCtx();

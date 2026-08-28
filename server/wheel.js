@@ -20,6 +20,16 @@ const TIERS = {
     segments: [0, 15, 30, 45, 60, 80, 100],
     weights: [22, 22, 20, 14, 10, 7, 5],
   },
+  // Free once every 24h (gated server-side in server.js, not by cost — this
+  // wheel's "cost" is always 0). Never lands on 0: it's a gift, so it should
+  // always feel like one. The login-streak bonus that stacks on top of
+  // whatever this lands on is computed separately in server.js.
+  daily: {
+    cost: 0,
+    max: 40,
+    segments: [5, 10, 15, 20, 25, 30, 40],
+    weights: [24, 24, 20, 14, 10, 5, 3],
+  },
 };
 
 function weightedIndex(weights) {

@@ -3,8 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import './Wheel.css';
 
-const TIER_ORDER = ['bronze', 'silver', 'gold'];
+const TIER_ORDER = ['daily', 'bronze', 'silver', 'gold'];
 const TIER_META = {
+  daily: {
+    label: 'Daily',
+    wedgeA: '#0c2b23',
+    wedgeB: '#1f6e57',
+    text: '#bdf5e2',
+    border: 'rgba(74, 222, 176, 0.45)',
+    rim: 'linear-gradient(135deg, #7fe9c8, #1f6e57 55%, #7fe9c8)',
+    hub: 'radial-gradient(circle at 35% 30%, #bdf5e2, #1f6e57 75%)',
+    glow: 'rgba(93, 230, 180, 0.45)',
+  },
   bronze: {
     label: 'Bronze',
     wedgeA: '#3a2410',
@@ -52,9 +62,11 @@ function wheelGradient(segCount, meta) {
 export default function Wheel({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const [tiers, setTiers] = useState(null);
+  const [daily, setDaily] = useState(null);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [spinning, setSpinning] = useState(null);
-  const [rotations, setRotations] = useState({ bronze: 0, silver: 0, gold: 0 });
+  const [rotations, setRotations] = useState({ daily: 0, bronze: 0, silver: 0, gold: 0 });
   const [results, setResults] = useState({});
   const [costPops, setCostPops] = useState({});
 
@@ -65,7 +77,10 @@ export default function Wheel({ user, onUserUpdate }) {
     }
     api
       .getWheelTiers()
-      .then(({ tiers }) => setTiers(tiers))
+      .then(({ tiers, daily }) => {
+        setTiers(tiers);
+        setDaily(daily);
+      })
       .catch((err) => setError(err.message));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,11 +90,16 @@ export default function Wheel({ user, onUserUpdate }) {
   function handleSpin(key) {
     if (spinning || !tiers) return;
     const config = tiers[key];
+    if (key === 'daily' && daily && !daily.canClaim) {
+      setError("You already claimed today's daily spin. Come back tomorrow!");
+      return;
+    }
     if (user.chips < config.cost) {
       setError(`You need ${config.cost} chips to spin the ${TIER_META[key].label} wheel.`);
       return;
     }
     setError('');
+    setNotice('');
     setSpinning(key);
     setResults((prev) => ({ ...prev, [key]: null }));
 
@@ -87,13 +107,15 @@ export default function Wheel({ user, onUserUpdate }) {
     // don't wait for the spin animation to finish to show it left your
     // pocket. The prize (if any) lands on top of this once the wheel stops.
     const balanceBeforeSpin = user.chips;
-    onUserUpdate({ ...user, chips: balanceBeforeSpin - config.cost });
+    if (config.cost > 0) onUserUpdate({ ...user, chips: balanceBeforeSpin - config.cost });
 
-    const popId = `${Date.now()}-${Math.random()}`;
-    setCostPops((prev) => ({ ...prev, [key]: { id: popId, value: config.cost } }));
-    setTimeout(() => {
-      setCostPops((prev) => (prev[key]?.id === popId ? { ...prev, [key]: null } : prev));
-    }, 900);
+    if (config.cost > 0) {
+      const popId = `${Date.now()}-${Math.random()}`;
+      setCostPops((prev) => ({ ...prev, [key]: { id: popId, value: config.cost } }));
+      setTimeout(() => {
+        setCostPops((prev) => (prev[key]?.id === popId ? { ...prev, [key]: null } : prev));
+      }, 900);
+    }
 
     api
       .spinWheel(key)
@@ -105,16 +127,25 @@ export default function Wheel({ user, onUserUpdate }) {
           [key]: prev[key] - (prev[key] % 360) + 6 * 360 + (360 - targetMid),
         }));
         setTimeout(() => {
-          setResults((prev) => ({ ...prev, [key]: res.prize }));
+          setResults((prev) => ({
+            ...prev,
+            [key]: key === 'daily' ? { prize: res.prize, streakBonus: res.streakBonus } : res.prize,
+          }));
           setSpinning(null);
-          onUserUpdate({ ...user, chips: res.chips });
+          onUserUpdate({ ...user, chips: res.chips, rank: res.rank });
+          if (key === 'daily') {
+            setDaily({ claimedToday: true, canClaim: false, streak: res.streak, streakIfClaimedNow: res.streak });
+            if (res.unlockedAchievement) {
+              setNotice(`🏆 Achievement unlocked: ${res.unlockedAchievement.title} (+${res.unlockedAchievement.reward} chips)`);
+            }
+          }
         }, SPIN_MS);
       })
       .catch((err) => {
         setError(err.message);
         setSpinning(null);
         // Roll back the optimistic deduction — the spin never happened.
-        onUserUpdate({ ...user, chips: balanceBeforeSpin });
+        if (config.cost > 0) onUserUpdate({ ...user, chips: balanceBeforeSpin });
       });
   }
 
@@ -132,6 +163,7 @@ export default function Wheel({ user, onUserUpdate }) {
       </header>
 
       {error && <div className="wheel-error">{error}</div>}
+      {notice && <div className="wheel-notice">{notice}</div>}
 
       {!tiers ? (
         <p className="wheel-loading">Loading wheels…</p>
@@ -141,14 +173,23 @@ export default function Wheel({ user, onUserUpdate }) {
             const config = tiers[key];
             const meta = TIER_META[key];
             const segAngle = 360 / config.segments.length;
+            const isDaily = key === 'daily';
+            const dailyLocked = isDaily && daily && !daily.canClaim;
             return (
               <div key={key} className="wheel-card" style={{ '--tier-border': meta.border }}>
                 <h2 className="wheel-card__title" style={{ color: meta.text }}>
                   {meta.label}
                 </h2>
                 <p className="wheel-card__sub">
-                  Play for {config.cost} · Win up to {config.max}
+                  {isDaily
+                    ? `Free once a day · Win up to ${config.max}`
+                    : `Play for ${config.cost} · Win up to ${config.max}`}
                 </p>
+                {isDaily && daily && (
+                  <p className="wheel-card__streak">
+                    🔥 {daily.streak > 0 ? `${daily.streak}-day streak` : 'Start your streak today'}
+                  </p>
+                )}
 
                 <div className="wheel-dial-wrap">
                   <div className="wheel-dial-pointer" style={{ filter: `drop-shadow(0 0 6px ${meta.glow})` }} />
@@ -202,15 +243,29 @@ export default function Wheel({ user, onUserUpdate }) {
                 </div>
 
                 <div className="wheel-card__result-slot">
-                  {results[key] != null && <div className="wheel-card__result">+{results[key]} chips!</div>}
+                  {results[key] != null &&
+                    (isDaily ? (
+                      <div className="wheel-card__result">
+                        +{results[key].prize} chips
+                        {results[key].streakBonus > 0 && ` + ${results[key].streakBonus} streak bonus`}!
+                      </div>
+                    ) : (
+                      <div className="wheel-card__result">+{results[key]} chips!</div>
+                    ))}
                 </div>
 
                 <button
                   className="wheel-card__spin"
-                  disabled={!!spinning || user.chips < config.cost}
+                  disabled={!!spinning || (isDaily ? !!dailyLocked : user.chips < config.cost)}
                   onClick={() => handleSpin(key)}
                 >
-                  {spinning === key ? 'Spinning…' : `Spin (${config.cost})`}
+                  {spinning === key
+                    ? 'Spinning…'
+                    : isDaily
+                    ? dailyLocked
+                      ? 'Come back tomorrow'
+                      : 'Claim Free Spin'
+                    : `Spin (${config.cost})`}
                 </button>
               </div>
             );

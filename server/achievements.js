@@ -15,6 +15,7 @@ const ACHIEVEMENTS = [
   { id: 'royal_flush_win', title: 'Royal Treatment', description: 'Win a hand with a Royal Flush.', reward: 300 },
   { id: 'all_in_win', title: 'All-In Winner', description: 'Win a pot after going all-in.', reward: 50 },
   { id: 'grinder_10', title: 'Grinder', description: 'Win 10 hands total.', reward: 100 },
+  { id: 'week_streak', title: 'Dedicated', description: 'Claim the daily bonus 7 days in a row.', reward: 150 },
 ];
 
 const BY_ID = new Map(ACHIEVEMENTS.map((a) => [a.id, a]));

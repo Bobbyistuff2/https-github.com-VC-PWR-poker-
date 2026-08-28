@@ -127,8 +127,38 @@ app.get('/api/achievements', requireAuth, (req, res) => {
   res.json({ achievements: achievements.listForUser(req.session.userId) });
 });
 
+// Whole-calendar-day (UTC) difference between two dates — used for the
+// daily wheel's "claimed today" / streak-continues-vs-resets logic, so it
+// doesn't matter what time of day someone claims, only which UTC date.
+function utcDaysBetween(a, b) {
+  const ms =
+    Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate()) -
+    Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate());
+  return Math.round(ms / 86400000);
+}
+
+// sqlite's datetime('now') gives 'YYYY-MM-DD HH:MM:SS' (UTC, no offset) —
+// not directly Date-parseable, so it needs reshaping into real ISO first.
+function parseSqliteDatetime(s) {
+  return new Date(s.replace(' ', 'T') + 'Z');
+}
+
+function getDailyStatus(user) {
+  if (!user.last_daily_at) {
+    return { claimedToday: false, canClaim: true, streak: user.daily_streak, streakIfClaimedNow: 1 };
+  }
+  const daysSince = utcDaysBetween(new Date(), parseSqliteDatetime(user.last_daily_at));
+  if (daysSince <= 0) {
+    return { claimedToday: true, canClaim: false, streak: user.daily_streak, streakIfClaimedNow: user.daily_streak };
+  }
+  const streakIfClaimedNow = daysSince === 1 ? user.daily_streak + 1 : 1;
+  return { claimedToday: false, canClaim: true, streak: user.daily_streak, streakIfClaimedNow };
+}
+
 app.get('/api/wheel', requireAuth, (req, res) => {
-  res.json({ tiers: wheel.publicTiers() });
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  res.json({ tiers: wheel.publicTiers(), daily: getDailyStatus(user) });
 });
 
 app.post('/api/wheel/spin', requireAuth, (req, res) => {
@@ -138,12 +168,46 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
   if (!user) return res.status(401).json({ error: 'Not signed in' });
+
+  if (tier === 'daily') {
+    const status = getDailyStatus(user);
+    if (!status.canClaim) {
+      return res.status(400).json({ error: "You already claimed today's daily spin. Come back tomorrow!" });
+    }
+    const result = wheel.spin('daily');
+    const newStreak = status.streakIfClaimedNow;
+    const streakBonus = Math.min(newStreak * 5, 50);
+    const chips = user.chips + result.prize + streakBonus;
+    db.prepare("UPDATE users SET chips = ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?").run(
+      chips,
+      newStreak,
+      user.id
+    );
+    const unlockedAchievement = newStreak === 7 ? achievements.unlock(user.id, 'week_streak') : null;
+    return res.json({
+      index: result.index,
+      prize: result.prize,
+      streakBonus,
+      streak: newStreak,
+      chips,
+      segments: config.segments,
+      unlockedAchievement,
+      rank: ranks.getRank({ chips, handsWon: user.hands_won }),
+    });
+  }
+
   if (user.chips < config.cost) return res.status(400).json({ error: 'Not enough chips for this wheel' });
 
   const result = wheel.spin(tier);
   const chips = user.chips - config.cost + result.prize;
   db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
-  res.json({ index: result.index, prize: result.prize, chips, segments: config.segments });
+  res.json({
+    index: result.index,
+    prize: result.prize,
+    chips,
+    segments: config.segments,
+    rank: ranks.getRank({ chips, handsWon: user.hands_won }),
+  });
 });
 
 app.get('/api/leaderboard', requireAuth, (req, res) => {

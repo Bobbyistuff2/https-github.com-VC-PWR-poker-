@@ -31,6 +31,11 @@ class Room {
     this.lastResult = null;
     this.lastAction = null;
     this.handNumber = 0;
+    // Rolling log of recently completed hands, newest first — capped below
+    // so it stays cheap to keep in memory for the life of the room. Not
+    // persisted anywhere; it resets when the room does, same as everything
+    // else about a live table.
+    this.handHistory = [];
   }
 
   get occupiedSeats() {
@@ -394,6 +399,21 @@ class Room {
         : contenders.map((s) => ({ seatIndex: s.seatIndex, holeCards: s.holeCards }));
 
     this.lastResult = { payouts, revealed };
+
+    this.handHistory.unshift({
+      handNumber: this.handNumber,
+      pot: this.pot,
+      communityCards: [...this.communityCards],
+      payouts: payouts.map((p) => ({
+        seatIndex: p.seatIndex,
+        name: this.seats[p.seatIndex]?.name || 'Player',
+        amount: p.amount,
+        hand: p.hand,
+      })),
+      at: Date.now(),
+    });
+    if (this.handHistory.length > 10) this.handHistory.length = 10;
+
     this.stage = 'waiting';
     this.pot = 0;
     this.turnSeat = -1;
@@ -415,6 +435,7 @@ class Room {
       handNumber: this.handNumber,
       lastResult: this.lastResult,
       lastAction: this.lastAction,
+      handHistory: this.handHistory,
       canStart: this.canStartHand(),
       seats: this.seats.map((seat) => {
         if (!seat) return null;

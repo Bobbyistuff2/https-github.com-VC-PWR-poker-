@@ -1,0 +1,147 @@
+.hand-history-toggle {
+  position: fixed;
+  top: 5.5rem;
+  left: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 2rem;
+  border: none;
+  background: #ffffff;
+  color: #9c7c3b;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.3);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.hand-history-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.4);
+}
+
+.hand-history-toggle--open {
+  background: #9c7c3b;
+  color: #ffffff;
+}
+
+.hand-history-panel {
+  position: fixed;
+  top: 8.5rem;
+  left: 1rem;
+  z-index: 39;
+  width: 19rem;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  background: rgba(14, 16, 22, 0.92);
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  border-radius: 1.1rem;
+  padding: 1.1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+  transform: translateX(calc(-100% - 2rem));
+  transition: transform 0.25s ease;
+}
+
+.hand-history-panel--open {
+  transform: translateX(0);
+}
+
+.hand-history-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.hand-history-panel__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f2f2f2;
+}
+
+.hand-history-panel__hint {
+  font-size: 0.7rem;
+  color: #d9b871;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hand-history-empty {
+  color: #9a9a9a;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.hand-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.hand-history-item {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hand-history-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.hand-history-item__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.hand-history-item__num {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f2f2f2;
+}
+
+.hand-history-item__pot {
+  font-size: 0.72rem;
+  color: #d9b871;
+  font-weight: 700;
+}
+
+.hand-history-item__line {
+  font-size: 0.78rem;
+  color: #9a9a9a;
+  line-height: 1.4;
+}
+
+.hand-history-item__line--me {
+  color: #d9b871;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .hand-history-toggle span {
+    display: none;
+  }
+
+  .hand-history-toggle {
+    padding: 0.6rem;
+    top: 4.25rem;
+    left: 0.75rem;
+  }
+
+  .hand-history-panel {
+    top: 7.25rem;
+    left: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+}

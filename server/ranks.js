@@ -48,6 +48,10 @@ function getRank({ chips, handsWon }) {
     division: current.division,
     label: current.label,
     score,
+    // Position in the ladder — lets the client tell a promotion from a
+    // demotion by comparing two rank objects without knowing the ladder
+    // itself (e.g. after a chip change, was the new index bigger?).
+    index: idx,
     next: next ? { label: next.label, scoreNeeded: Math.max(0, next.minScore - score) } : null,
   };
 }

@@ -1,0 +1,70 @@
+.rankup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 6, 0.75);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: rankup-fade-in 0.2s ease-out;
+}
+
+@keyframes rankup-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rankup-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: rankup-pop 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes rankup-pop {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.rankup-card__eyebrow {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d9b871;
+  text-shadow: 0 0 20px rgba(201, 169, 97, 0.6);
+}
+
+.rankup-card__badge {
+  transform: scale(2.4);
+  margin: 1.5rem 0;
+}
+
+.rankup-card__badge .rank-badge__label {
+  font-size: 1rem;
+}
+
+@media (max-width: 480px) {
+  .rankup-card__badge {
+    transform: scale(1.9);
+    margin: 1.1rem 0;
+  }
+}

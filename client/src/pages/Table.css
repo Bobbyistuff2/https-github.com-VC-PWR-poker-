@@ -179,17 +179,29 @@
   margin: 1.25rem;
   min-height: 24rem;
   overflow: hidden;
+  /* Unlockable cosmetic: the felt's accent color reflects your current
+     rank tier (see the [data-tier] rules below), gold by default for
+     Bronze or whenever the tier is unrecognized. */
+  --tier-accent: rgba(201, 169, 97, 1);
   background:
     radial-gradient(ellipse 90% 55% at 50% 0%, rgba(90, 60, 150, 0.22), transparent 60%),
-    radial-gradient(ellipse 75% 60% at 50% 100%, rgba(201, 169, 97, 0.06), transparent 65%),
+    radial-gradient(ellipse 75% 60% at 50% 100%, color-mix(in srgb, var(--tier-accent) 6%, transparent), transparent 65%),
     linear-gradient(180deg, #14172f 0%, #0c0e20 55%, #060714 100%);
-  border: 1px solid rgba(201, 169, 97, 0.3);
+  border: 1px solid color-mix(in srgb, var(--tier-accent) 30%, transparent);
   border-radius: 2.5rem;
   box-shadow:
-    0 0 0 1px rgba(201, 169, 97, 0.06),
+    0 0 0 1px color-mix(in srgb, var(--tier-accent) 6%, transparent),
     0 30px 80px rgba(0, 0, 0, 0.55),
-    inset 0 0 90px rgba(201, 169, 97, 0.05);
+    inset 0 0 90px color-mix(in srgb, var(--tier-accent) 5%, transparent);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.table-surface[data-tier='Silver'] { --tier-accent: rgba(215, 219, 226, 1); }
+.table-surface[data-tier='Gold'] { --tier-accent: rgba(243, 228, 184, 1); }
+.table-surface[data-tier='Platinum'] { --tier-accent: rgba(143, 240, 230, 1); }
+.table-surface[data-tier='Diamond'] { --tier-accent: rgba(169, 195, 255, 1); }
+.table-surface[data-tier='Master'] { --tier-accent: rgba(227, 179, 255, 1); }
+.table-surface[data-tier='Grandmaster'] { --tier-accent: rgba(255, 178, 138, 1); }
 
 /* soft-edged arch/doorway glow, echoing the reference screenshot's portal
    shape — a solid gradient silhouette rather than a hard outline */
@@ -204,8 +216,8 @@
   transform: translateX(-50%);
   background: linear-gradient(
     180deg,
-    rgba(201, 169, 97, 0.12) 0%,
-    rgba(201, 169, 97, 0.05) 45%,
+    color-mix(in srgb, var(--tier-accent) 12%, transparent) 0%,
+    color-mix(in srgb, var(--tier-accent) 5%, transparent) 45%,
     transparent 100%
   );
   border-radius: 50% 50% 35% 35% / 22% 22% 8% 8%;

@@ -85,6 +85,16 @@
   padding: 0 1rem;
 }
 
+.wheel-notice {
+  max-width: 30rem;
+  margin: 1rem auto 0;
+  text-align: center;
+  color: #d9b871;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0 1rem;
+}
+
 .wheel-loading {
   text-align: center;
   color: #9a9a9a;
@@ -96,7 +106,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
-  max-width: 62rem;
+  max-width: 84rem;
   margin: 2rem auto;
   padding: 0 1.5rem 4rem;
 }
@@ -126,6 +136,13 @@
   color: #9a9a9a;
   font-size: 0.8rem;
   margin: 0 0 1.25rem;
+}
+
+.wheel-card__streak {
+  color: #d9b871;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin: -1rem 0 1.25rem;
 }
 
 .wheel-dial-wrap {
