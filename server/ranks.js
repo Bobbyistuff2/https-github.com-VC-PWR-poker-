@@ -1,12 +1,8 @@
-// A Fortnite/League-style competitive rank ladder. Rank is derived, not
-// stored — it's always computed fresh from a player's current chip balance
-// and lifetime hands won, so it never needs its own migration or can drift
-// out of sync with the numbers that actually earned it.
-//
-// Score formula: chips count directly (having a lot of chips matters), and
-// every lifetime hand win is worth a flat bonus on top (so a grinder who
-// wins a lot climbs faster than someone who got lucky on the wheel and is
-// just sitting on chips).
+// A Fortnite/League-style competitive rank ladder. Rank is derived from XP,
+// which only ever goes up — winning a poker hand or a wheel spin adds to it,
+// but nothing (losing a hand, spending chips in the shop, a bad Hi-Lo bust)
+// ever takes it away. XP itself isn't stored anywhere but the users.xp
+// column; rank is always just "which rung is this XP total past."
 const RANKS = [
   { key: 'bronze1', tier: 'Bronze', division: 1, label: 'Bronze I', minScore: 0 },
   { key: 'bronze2', tier: 'Bronze', division: 2, label: 'Bronze II', minScore: 800 },
@@ -27,14 +23,8 @@ const RANKS = [
   { key: 'grandmaster', tier: 'Grandmaster', division: null, label: 'Grandmaster', minScore: 75000 },
 ];
 
-const HANDS_WON_WEIGHT = 100;
-
-function computeScore({ chips = 0, handsWon = 0 }) {
-  return Math.max(0, chips) + Math.max(0, handsWon) * HANDS_WON_WEIGHT;
-}
-
-function getRank({ chips, handsWon }) {
-  const score = computeScore({ chips, handsWon });
+function getRank({ xp = 0 }) {
+  const score = Math.max(0, xp);
   let current = RANKS[0];
   for (const r of RANKS) {
     if (score >= r.minScore) current = r;
@@ -42,18 +32,27 @@ function getRank({ chips, handsWon }) {
   }
   const idx = RANKS.indexOf(current);
   const next = RANKS[idx + 1] || null;
+
+  // How far into the current band the player's XP sits — drives the XP bar
+  // client-side without it needing to know the ladder itself.
+  const bandStart = current.minScore;
+  const bandEnd = next ? next.minScore : null;
+  const progressPct = next ? Math.min(100, Math.round(((score - bandStart) / (bandEnd - bandStart)) * 100)) : 100;
+
   return {
     key: current.key,
     tier: current.tier,
     division: current.division,
     label: current.label,
     score,
+    xp: score,
     // Position in the ladder — lets the client tell a promotion from a
     // demotion by comparing two rank objects without knowing the ladder
-    // itself (e.g. after a chip change, was the new index bigger?).
+    // itself.
     index: idx,
-    next: next ? { label: next.label, scoreNeeded: Math.max(0, next.minScore - score) } : null,
+    next: next ? { label: next.label, xpNeeded: Math.max(0, bandEnd - score) } : null,
+    progressPct,
   };
 }
 
-module.exports = { RANKS, computeScore, getRank };
+module.exports = { RANKS, getRank };

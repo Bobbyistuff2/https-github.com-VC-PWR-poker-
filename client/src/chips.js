@@ -7,7 +7,7 @@ export const DENOMINATIONS = [
 ];
 
 export function formatChips(amount) {
-  return amount.toLocaleString();
+  return `$${amount.toLocaleString()}`;
 }
 
 export function decomposeChips(amount) {

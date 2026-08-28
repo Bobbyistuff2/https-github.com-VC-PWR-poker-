@@ -7,6 +7,7 @@ import Table from './pages/Table.jsx';
 import Rewards from './pages/Rewards.jsx';
 import Wheel from './pages/Wheel.jsx';
 import HiLo from './pages/HiLo.jsx';
+import Shop from './pages/Shop.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
@@ -88,6 +89,7 @@ export default function App() {
         <Route path="/rewards" element={<Rewards user={user} />} />
         <Route path="/wheel" element={<Wheel user={user} onUserUpdate={updateUser} />} />
         <Route path="/hilo" element={<HiLo user={user} onUserUpdate={updateUser} />} />
+        <Route path="/shop" element={<Shop user={user} onUserUpdate={updateUser} />} />
         <Route path="/leaderboard" element={<Leaderboard user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

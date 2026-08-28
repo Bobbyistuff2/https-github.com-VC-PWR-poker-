@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import RankBadge from '../components/RankBadge.jsx';
 import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { api } from '../api.js';
+import { formatChips } from '../chips.js';
 import './Leaderboard.css';
 
 export default function Leaderboard({ user }) {
@@ -125,10 +126,7 @@ function PodiumCard({ entry, isMe, onClick }) {
       )}
       <div className="leaderboard-podium__name">{entry.name}</div>
       <RankBadge rank={entry.rank} size="full" />
-      <div className="leaderboard-podium__chips">
-        <span className="leaderboard-row__chip-dot" />
-        {entry.chips.toLocaleString()}
-      </div>
+      <div className="leaderboard-podium__chips">{formatChips(entry.chips)}</div>
       <div className="leaderboard-podium__stand">{entry.position}</div>
     </button>
   );
@@ -152,10 +150,7 @@ function LeaderboardRow({ entry, isMe, onClick }) {
         <RankBadge rank={entry.rank} size="full" />
       </div>
       <div className="leaderboard-row__stats">
-        <span className="leaderboard-row__chips">
-          <span className="leaderboard-row__chip-dot" />
-          {entry.chips.toLocaleString()}
-        </span>
+        <span className="leaderboard-row__chips">{formatChips(entry.chips)}</span>
         <span className="leaderboard-row__wins">{entry.handsWon} wins</span>
       </div>
       </button>

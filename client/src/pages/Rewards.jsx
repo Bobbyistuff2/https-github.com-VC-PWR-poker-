@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import { formatChips } from '../chips.js';
 import './Rewards.css';
 
 export default function Rewards({ user }) {
@@ -49,9 +50,7 @@ export default function Rewards({ user }) {
                   <div className="rewards-card__title">{a.title}</div>
                   <div className="rewards-card__desc">{a.description}</div>
                 </div>
-                <div className="rewards-card__reward">
-                  <span className="rewards-card__chip-dot" />+{a.reward}
-                </div>
+                <div className="rewards-card__reward">+{formatChips(a.reward)}</div>
               </li>
             ))}
           </ul>

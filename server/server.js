@@ -22,6 +22,7 @@ const achievements = require('./achievements');
 const wheel = require('./wheel');
 const ranks = require('./ranks');
 const hilo = require('./hilo');
+const shop = require('./shop');
 const SqliteSessionStore = require('./sessionStore');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -178,12 +179,14 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
     const result = wheel.spin('daily');
     const newStreak = status.streakIfClaimedNow;
     const streakBonus = Math.min(newStreak * 5, 50);
-    const chips = user.chips + result.prize + streakBonus;
-    db.prepare("UPDATE users SET chips = ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?").run(
-      chips,
-      newStreak,
-      user.id
-    );
+    const winnings = result.prize + streakBonus;
+    const chips = user.chips + winnings;
+    // Wheel wins count toward XP same as poker wins — 1:1 with what was
+    // actually won, never subtracted for the cost of playing.
+    const xp = user.xp + winnings;
+    db.prepare(
+      "UPDATE users SET chips = ?, xp = ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?"
+    ).run(chips, xp, newStreak, user.id);
     const unlockedAchievement = newStreak === 7 ? achievements.unlock(user.id, 'week_streak') : null;
     return res.json({
       index: result.index,
@@ -193,7 +196,7 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
       chips,
       segments: config.segments,
       unlockedAchievement,
-      rank: ranks.getRank({ chips, handsWon: user.hands_won }),
+      rank: ranks.getRank({ xp }),
     });
   }
 
@@ -201,13 +204,14 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
 
   const result = wheel.spin(tier);
   const chips = user.chips - config.cost + result.prize;
-  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+  const xp = user.xp + result.prize;
+  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
   res.json({
     index: result.index,
     prize: result.prize,
     chips,
     segments: config.segments,
-    rank: ranks.getRank({ chips, handsWon: user.hands_won }),
+    rank: ranks.getRank({ xp }),
   });
 });
 
@@ -309,7 +313,64 @@ app.post('/api/hilo/cashout', requireAuth, (req, res) => {
   db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
   delete req.session.hilo;
 
-  res.json({ chips, payout, rank: ranks.getRank({ chips, handsWon: user.hands_won }) });
+  // Hi-Lo winnings are chips-only, no XP — only poker hands and wheel spins
+  // count toward rank progress.
+  res.json({ chips, payout, rank: ranks.getRank({ xp: user.xp }) });
+});
+
+app.get('/api/shop', requireAuth, (req, res) => {
+  const owned = new Set(
+    db.prepare('SELECT item_id FROM user_items WHERE user_id = ?').all(req.session.userId).map((r) => r.item_id)
+  );
+  const user = db.prepare('SELECT equipped_background, equipped_card_skin FROM users WHERE id = ?').get(
+    req.session.userId
+  );
+  res.json({
+    backgrounds: shop.BACKGROUNDS,
+    cardSkins: shop.CARD_SKINS,
+    owned: [...owned],
+    equippedBackground: user.equipped_background || shop.DEFAULT_BACKGROUND,
+    equippedCardSkin: user.equipped_card_skin || shop.DEFAULT_CARD_SKIN,
+  });
+});
+
+app.post('/api/shop/buy', requireAuth, (req, res) => {
+  const { itemId } = req.body;
+  const item = shop.getItem(itemId);
+  if (!item) return res.status(400).json({ error: 'Unknown item' });
+  if (item.price === 0) return res.status(400).json({ error: 'Already own this one' });
+
+  const already = db
+    .prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?')
+    .get(req.session.userId, itemId);
+  if (already) return res.status(400).json({ error: 'Already own this item' });
+
+  const user = db.prepare('SELECT chips FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  if (user.chips < item.price) return res.status(400).json({ error: "You can't afford that yet" });
+
+  const chips = user.chips - item.price;
+  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, req.session.userId);
+  db.prepare('INSERT INTO user_items (user_id, item_id) VALUES (?, ?)').run(req.session.userId, itemId);
+
+  res.json({ chips, itemId });
+});
+
+app.post('/api/shop/equip', requireAuth, (req, res) => {
+  const { itemId } = req.body;
+  const item = shop.getItem(itemId);
+  if (!item) return res.status(400).json({ error: 'Unknown item' });
+
+  if (item.price > 0) {
+    const owns = db
+      .prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?')
+      .get(req.session.userId, itemId);
+    if (!owns) return res.status(400).json({ error: "You don't own that item" });
+  }
+
+  const column = item.slot === 'background' ? 'equipped_background' : 'equipped_card_skin';
+  db.prepare(`UPDATE users SET ${column} = ? WHERE id = ?`).run(itemId, req.session.userId);
+  res.json({ itemId, slot: item.slot });
 });
 
 app.get('/api/leaderboard', requireAuth, (req, res) => {
@@ -317,7 +378,9 @@ app.get('/api/leaderboard', requireAuth, (req, res) => {
   // ever exist as in-memory seats inside a live Room, with a synthetic
   // `bot-<uuid>` id) — this WHERE clause is just a second, explicit
   // guarantee that one can never appear here, not a fix for a real leak.
-  const rows = db.prepare("SELECT id, name, picture, chips, hands_won FROM users WHERE id NOT LIKE 'bot-%'").all();
+  const rows = db
+    .prepare("SELECT id, name, picture, chips, hands_won, xp FROM users WHERE id NOT LIKE 'bot-%'")
+    .all();
   const ranked = rows
     .map((u) => ({
       id: u.id,
@@ -325,7 +388,7 @@ app.get('/api/leaderboard', requireAuth, (req, res) => {
       picture: u.picture,
       chips: u.chips,
       handsWon: u.hands_won,
-      rank: ranks.getRank({ chips: u.chips, handsWon: u.hands_won }),
+      rank: ranks.getRank({ xp: u.xp }),
     }))
     .sort((a, b) => b.rank.score - a.rank.score)
     .map((entry, i) => ({ ...entry, position: i + 1 }));
@@ -351,7 +414,7 @@ app.get('/api/stats/:userId', requireAuth, (req, res) => {
     name: user.name,
     picture: user.picture,
     chips: user.chips,
-    rank: ranks.getRank({ chips: user.chips, handsWon: user.hands_won }),
+    rank: ranks.getRank({ xp: user.xp }),
     handsPlayed: user.hands_played,
     handsWon: user.hands_won,
     winPct: user.hands_played > 0 ? Math.round((user.hands_won / user.hands_played) * 1000) / 10 : 0,
@@ -372,7 +435,9 @@ function toPublicUser(user) {
     profileComplete: !!user.profile_complete,
     termsAccepted: !!user.terms_accepted_at,
     termsAcceptedAt: user.terms_accepted_at,
-    rank: ranks.getRank({ chips: user.chips, handsWon: user.hands_won }),
+    rank: ranks.getRank({ xp: user.xp }),
+    equippedBackground: user.equipped_background || shop.DEFAULT_BACKGROUND,
+    equippedCardSkin: user.equipped_card_skin || shop.DEFAULT_CARD_SKIN,
   };
 }
 

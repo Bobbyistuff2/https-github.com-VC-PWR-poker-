@@ -4,8 +4,10 @@ import DealTransition from '../components/DealTransition.jsx';
 import FallingChips from '../components/FallingChips.jsx';
 import FallingWords from '../components/FallingWords.jsx';
 import RankBadge from '../components/RankBadge.jsx';
+import XpBar from '../components/XpBar.jsx';
 import { api } from '../api.js';
 import { getSocket } from '../socket.js';
+import { formatChips } from '../chips.js';
 import cashGamesBadge from '../assets/cash-games-badge.webp';
 import tournamentBadge from '../assets/tournament-badge.webp';
 import quickGameBadge from '../assets/quick-game-badge.webp';
@@ -119,13 +121,20 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
               <div className="lobby__name">{user.name}</div>
               <RankBadge rank={user.rank} size="full" />
             </div>
-            <div className="lobby__chips">{user.chips.toLocaleString()} chips</div>
+            <div className="lobby__chips">{formatChips(user.chips)}</div>
+            <XpBar rank={user.rank} />
           </div>
           <button className="lobby__icon-btn" onClick={() => navigate('/rewards')} aria-label="Rewards">
             <TrophyIcon />
           </button>
           <button className="lobby__icon-btn" onClick={() => navigate('/wheel')} aria-label="Spin the Wheel">
             <WheelIcon />
+          </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/hilo')} aria-label="Higher / Lower">
+            <HiLoIcon />
+          </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/shop')} aria-label="Shop">
+            <ShopIcon />
           </button>
           <button className="lobby__icon-btn" onClick={() => navigate('/leaderboard')} aria-label="Leaderboard">
             <LeaderboardIcon />
@@ -161,14 +170,6 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
               <img className="lobby__mode-icon" src={quickGameBadge} alt="" />
               <h2 className="lobby__mode-title">Quick Game</h2>
               <p className="lobby__mode-text">You vs. the AI.</p>
-            </button>
-
-            <button className="lobby__mode lobby__mode--side" onClick={() => navigate('/hilo')}>
-              <div className="lobby__mode-icon lobby__mode-icon--hilo">
-                <HiLoIcon />
-              </div>
-              <h2 className="lobby__mode-title">Higher / Lower</h2>
-              <p className="lobby__mode-text">Guess the next card, cash out anytime.</p>
             </button>
           </div>
         )}
@@ -290,6 +291,16 @@ function LeaderboardIcon() {
       <path d="M6 20V10" />
       <path d="M12 20V4" />
       <path d="M18 20v-7" />
+    </svg>
+  );
+}
+
+function ShopIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l1.5-5h15L21 9" />
+      <path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9Z" />
+      <path d="M9 13a3 3 0 0 0 6 0" />
     </svg>
   );
 }

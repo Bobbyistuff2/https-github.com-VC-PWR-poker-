@@ -180,11 +180,14 @@
   min-height: 24rem;
   overflow: hidden;
   /* Unlockable cosmetic: the felt's accent color reflects your current
-     rank tier (see the [data-tier] rules below), gold by default for
-     Bronze or whenever the tier is unrecognized. */
+     rank tier (see the [data-tier] rules below) by default. Buying and
+     equipping a table felt from the shop (see the [data-bg] rules further
+     down) overrides --top-wash too, so the purchase actually reads as a
+     new color, not just a faint tint layered under the usual purple. */
   --tier-accent: rgba(201, 169, 97, 1);
+  --top-wash: rgba(90, 60, 150, 0.22);
   background:
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(90, 60, 150, 0.22), transparent 60%),
+    radial-gradient(ellipse 90% 55% at 50% 0%, var(--top-wash), transparent 60%),
     radial-gradient(ellipse 75% 60% at 50% 100%, color-mix(in srgb, var(--tier-accent) 6%, transparent), transparent 65%),
     linear-gradient(180deg, #14172f 0%, #0c0e20 55%, #060714 100%);
   border: 1px solid color-mix(in srgb, var(--tier-accent) 30%, transparent);
@@ -202,6 +205,27 @@
 .table-surface[data-tier='Diamond'] { --tier-accent: rgba(169, 195, 255, 1); }
 .table-surface[data-tier='Master'] { --tier-accent: rgba(227, 179, 255, 1); }
 .table-surface[data-tier='Grandmaster'] { --tier-accent: rgba(255, 178, 138, 1); }
+
+/* Purchased table felts (see server/shop.js) — a [data-bg] attribute is
+   only ever set once a non-default background is equipped (Table.jsx), and
+   these rules come after the [data-tier] ones above so an equipped felt
+   always wins over the free rank-based color, same specificity either way. */
+.table-surface[data-bg='bg-crimson'] {
+  --tier-accent: rgba(230, 70, 80, 1);
+  --top-wash: rgba(230, 70, 80, 0.3);
+}
+.table-surface[data-bg='bg-emerald'] {
+  --tier-accent: rgba(80, 210, 140, 1);
+  --top-wash: rgba(80, 210, 140, 0.28);
+}
+.table-surface[data-bg='bg-midnight'] {
+  --tier-accent: rgba(90, 130, 235, 1);
+  --top-wash: rgba(90, 130, 235, 0.28);
+}
+.table-surface[data-bg='bg-royal'] {
+  --tier-accent: rgba(180, 110, 235, 1);
+  --top-wash: rgba(180, 110, 235, 0.3);
+}
 
 /* soft-edged arch/doorway glow, echoing the reference screenshot's portal
    shape — a solid gradient silhouette rather than a hard outline */

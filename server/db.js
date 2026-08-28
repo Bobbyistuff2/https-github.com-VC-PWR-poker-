@@ -57,6 +57,19 @@ if (!existingColumns.some((c) => c.name === 'daily_streak')) {
 if (!existingColumns.some((c) => c.name === 'last_daily_at')) {
   db.exec('ALTER TABLE users ADD COLUMN last_daily_at TEXT');
 }
+if (!existingColumns.some((c) => c.name === 'xp')) {
+  db.exec('ALTER TABLE users ADD COLUMN xp INTEGER NOT NULL DEFAULT 0');
+  // Rank used to be derived from chips + hands_won — grandfather that same
+  // value in as everyone's starting XP so switching to XP-based rank never
+  // demotes an existing account the moment this ships.
+  db.exec('UPDATE users SET xp = chips + hands_won * 100 WHERE xp = 0');
+}
+if (!existingColumns.some((c) => c.name === 'equipped_background')) {
+  db.exec('ALTER TABLE users ADD COLUMN equipped_background TEXT');
+}
+if (!existingColumns.some((c) => c.name === 'equipped_card_skin')) {
+  db.exec('ALTER TABLE users ADD COLUMN equipped_card_skin TEXT');
+}
 
 // Adding a new auth_type ('google') means loosening the CHECK constraint,
 // which SQLite can't do with a plain ALTER — the table has to be rebuilt.
@@ -97,6 +110,15 @@ db.exec(`
     achievement_id TEXT NOT NULL,
     unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY (user_id, achievement_id)
+  );
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_items (
+    user_id TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    purchased_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, item_id)
   );
 `);
 

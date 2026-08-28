@@ -254,7 +254,11 @@ export default function Table({ user, onUserUpdate }) {
 
       {actionError && <div className="table-inline-error">{actionError}</div>}
 
-      <div className="table-surface" data-tier={user.rank?.tier}>
+      <div
+        className="table-surface"
+        data-tier={user.rank?.tier}
+        data-bg={user.equippedBackground !== 'bg-classic' ? user.equippedBackground : undefined}
+      >
         {room.seats.map(
           (seat, i) =>
             seat && (
@@ -267,6 +271,7 @@ export default function Table({ user, onUserUpdate }) {
                 isMe={seat.userId === user.id}
                 actionToast={[...actionToasts].reverse().find((t) => t.seatIndex === i)}
                 onViewStats={setStatsUserId}
+                cardSkin={user.equippedCardSkin}
               />
             )
         )}
@@ -276,7 +281,7 @@ export default function Table({ user, onUserUpdate }) {
             <div className="community-cards__row community-cards__row--top">
               {Array.from({ length: 3 }).map((_, i) =>
                 room.communityCards[i] ? (
-                  <PlayingCard key={i} card={room.communityCards[i]} size="md" />
+                  <PlayingCard key={i} card={room.communityCards[i]} size="md" skin={user.equippedCardSkin} />
                 ) : (
                   <div key={`ph${i}`} className="card-placeholder card-placeholder--md" />
                 )
@@ -286,7 +291,7 @@ export default function Table({ user, onUserUpdate }) {
               {Array.from({ length: 2 }).map((_, j) => {
                 const i = j + 3;
                 return room.communityCards[i] ? (
-                  <PlayingCard key={i} card={room.communityCards[i]} size="md" />
+                  <PlayingCard key={i} card={room.communityCards[i]} size="md" skin={user.equippedCardSkin} />
                 ) : (
                   <div key={`ph${i}`} className="card-placeholder card-placeholder--md" />
                 );
@@ -340,7 +345,7 @@ export default function Table({ user, onUserUpdate }) {
         {mySeat && mySeat.holeCards.length > 0 && (
           <div className="your-cards">
             {mySeat.holeCards.map((c, i) => (
-              <PlayingCard key={i} card={c} size="lg" />
+              <PlayingCard key={i} card={c} size="lg" skin={user.equippedCardSkin} />
             ))}
           </div>
         )}
@@ -377,10 +382,7 @@ export default function Table({ user, onUserUpdate }) {
                   {room.dealerSeat === mySeatIndex && <span className="action-bar__dealer">D</span>}
                   {mySeat?.name}
                 </span>
-                <span className="action-bar__chips">
-                  <span className="action-bar__chip-dot" />
-                  {formatChips(mySeat?.chips ?? 0)}
-                </span>
+                <span className="action-bar__chips">{formatChips(mySeat?.chips ?? 0)}</span>
               </div>
 
               <div className="action-bar__buttons">

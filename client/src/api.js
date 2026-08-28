@@ -30,4 +30,7 @@ export const api = {
   startHiLo: (wager) => request('/api/hilo/start', { method: 'POST', body: JSON.stringify({ wager }) }),
   guessHiLo: (direction) => request('/api/hilo/guess', { method: 'POST', body: JSON.stringify({ direction }) }),
   cashOutHiLo: () => request('/api/hilo/cashout', { method: 'POST' }),
+  getShop: () => request('/api/shop'),
+  buyItem: (itemId) => request('/api/shop/buy', { method: 'POST', body: JSON.stringify({ itemId }) }),
+  equipItem: (itemId) => request('/api/shop/equip', { method: 'POST', body: JSON.stringify({ itemId }) }),
 };

@@ -87,3 +87,24 @@
   color: rgba(201, 169, 97, 0.35);
   font-size: 1.1em;
 }
+
+/* Purchasable card skins (see server/shop.js) — layered on top of the base
+   card by overriding just the border/glow, never the suit text colors, so
+   red/black readability never changes no matter what's equipped. Source
+   order matters: these come after the base rules above so they win on
+   equal specificity. cards-classic (the free default) needs no rule here,
+   it just is the base look. */
+.playing-card--cards-neon {
+  border-color: rgba(216, 118, 255, 0.65);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px rgba(216, 118, 255, 0.4);
+}
+
+.playing-card--cards-ice {
+  border-color: rgba(120, 220, 255, 0.65);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px rgba(120, 220, 255, 0.4);
+}
+
+.playing-card--cards-sunset {
+  border-color: rgba(255, 150, 100, 0.65);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 150, 100, 0.4);
+}

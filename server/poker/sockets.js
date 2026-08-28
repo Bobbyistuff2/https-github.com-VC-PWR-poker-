@@ -70,14 +70,14 @@ function syncSeatChipsToDb(room) {
 }
 
 // Ranks are always shown, at the table as well as the lobby — computed once
-// per broadcast (not once per viewer) from each real seat's live chip count
-// plus their lifetime hands-won from the DB. Bots don't get one.
+// per broadcast (not once per viewer) from each real seat's lifetime XP in
+// the DB. Bots don't get one.
 function computeSeatRanks(room) {
   const map = new Map();
   for (const seat of room.occupiedSeats) {
     if (seat.isBot) continue;
-    const row = db.prepare('SELECT hands_won FROM users WHERE id = ?').get(seat.userId);
-    map.set(seat.seatIndex, ranks.getRank({ chips: seat.chips, handsWon: row?.hands_won || 0 }));
+    const row = db.prepare('SELECT xp FROM users WHERE id = ?').get(seat.userId);
+    map.set(seat.seatIndex, ranks.getRank({ xp: row?.xp || 0 }));
   }
   return map;
 }

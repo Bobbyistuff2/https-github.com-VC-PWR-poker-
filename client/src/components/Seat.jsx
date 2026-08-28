@@ -3,7 +3,7 @@ import RankBadge from './RankBadge.jsx';
 import { formatChips } from '../chips.js';
 import './Seat.css';
 
-export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToast, onViewStats }) {
+export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToast, onViewStats, cardSkin }) {
   const clickable = !seat.isBot && !!onViewStats;
   const AvatarTag = clickable ? 'button' : 'div';
 
@@ -30,11 +30,11 @@ export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToa
         {seat.hasCards && (
           <div className="seat__cards">
             {seat.holeCards.length > 0 ? (
-              seat.holeCards.map((c, i) => <PlayingCard key={i} card={c} size="xs" />)
+              seat.holeCards.map((c, i) => <PlayingCard key={i} card={c} size="xs" skin={cardSkin} />)
             ) : (
               <>
-                <PlayingCard faceDown size="xs" />
-                <PlayingCard faceDown size="xs" />
+                <PlayingCard faceDown size="xs" skin={cardSkin} />
+                <PlayingCard faceDown size="xs" skin={cardSkin} />
               </>
             )}
           </div>

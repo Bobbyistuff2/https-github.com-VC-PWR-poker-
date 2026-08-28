@@ -105,10 +105,7 @@ export default function HiLo({ user, onUserUpdate }) {
           <span className="hilo-header__back__arrow">←</span> Lobby
         </button>
         <h1 className="hilo-header__title">Higher / Lower</h1>
-        <div className="hilo-header__chips">
-          <span className="hilo-header__chip-dot" />
-          {user.chips.toLocaleString()}
-        </div>
+        <div className="hilo-header__chips">{formatChips(user.chips)}</div>
       </header>
 
       {error && <div className="hilo-error">{error}</div>}
@@ -122,14 +119,14 @@ export default function HiLo({ user, onUserUpdate }) {
               {busted && (
                 <div className="hilo-result hilo-result--lose">
                   <div className="hilo-result__card">
-                    <PlayingCard card={busted.card} size="lg" />
+                    <PlayingCard card={busted.card} size="lg" skin={user.equippedCardSkin} />
                   </div>
-                  <p className="hilo-result__text">Busted — lost {formatChips(busted.wager)} chips.</p>
+                  <p className="hilo-result__text">Busted — lost {formatChips(busted.wager)}.</p>
                 </div>
               )}
               {cashedOut && (
                 <div className="hilo-result hilo-result--win">
-                  <p className="hilo-result__text">Cashed out +{formatChips(cashedOut.payout)} chips!</p>
+                  <p className="hilo-result__text">Cashed out +{formatChips(cashedOut.payout)}!</p>
                 </div>
               )}
 
@@ -144,13 +141,13 @@ export default function HiLo({ user, onUserUpdate }) {
                     disabled={v > user.chips}
                     onClick={() => setWager(v)}
                   >
-                    {v}
+                    {formatChips(v)}
                   </button>
                 ))}
               </div>
 
               <button className="hilo-deal-btn" disabled={busy || wager > user.chips} onClick={handleStart}>
-                {busy ? 'Dealing…' : `Deal In (${wager})`}
+                {busy ? 'Dealing…' : `Deal In (${formatChips(wager)})`}
               </button>
             </div>
           ) : (
@@ -169,7 +166,7 @@ export default function HiLo({ user, onUserUpdate }) {
               </div>
 
               <div className="hilo-card-slot">
-                <PlayingCard card={round.card} size="lg" />
+                <PlayingCard card={round.card} size="lg" skin={user.equippedCardSkin} />
               </div>
 
               <div className="hilo-guess-row">

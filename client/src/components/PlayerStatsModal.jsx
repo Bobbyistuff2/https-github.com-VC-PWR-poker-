@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import RankBadge from './RankBadge.jsx';
 import { api } from '../api.js';
+import { formatChips } from '../chips.js';
 import './PlayerStatsModal.css';
 
 // Pass `userId` to open (any falsy value keeps it closed) — used from both
@@ -48,13 +49,13 @@ export default function PlayerStatsModal({ userId, onClose }) {
             </div>
 
             <div className="stats-modal__grid">
-              <StatTile label="Chips" value={stats.chips.toLocaleString()} />
+              <StatTile label="Balance" value={formatChips(stats.chips)} />
               <StatTile label="Win Rate" value={`${stats.winPct}%`} accent />
               <StatTile label="Hands Won" value={stats.handsWon} />
               <StatTile label="Hands Played" value={stats.handsPlayed} />
               <StatTile label="Current Streak" value={stats.currentStreak} />
               <StatTile label="Best Streak" value={stats.bestStreak} />
-              <StatTile label="Biggest Win" value={stats.biggestWin.toLocaleString()} />
+              <StatTile label="Biggest Win" value={formatChips(stats.biggestWin)} />
               <StatTile label="Achievements" value={`${stats.achievementsUnlocked}/${stats.achievementsTotal}`} />
             </div>
           </>

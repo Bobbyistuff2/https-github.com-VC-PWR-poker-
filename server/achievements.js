@@ -62,7 +62,7 @@ function checkHandResult(userId, { won, handName, isRoyal, wasAllIn, amountWon =
     if (a) unlocked.push(a);
   };
   const user = db
-    .prepare('SELECT win_streak, hands_won, hands_played, best_streak, biggest_win FROM users WHERE id = ?')
+    .prepare('SELECT win_streak, hands_won, hands_played, best_streak, biggest_win, xp FROM users WHERE id = ?')
     .get(userId);
   if (!user) return unlocked;
 
@@ -77,9 +77,13 @@ function checkHandResult(userId, { won, handName, isRoyal, wasAllIn, amountWon =
   const newHandsWon = user.hands_won + 1;
   const newBestStreak = Math.max(user.best_streak, newStreak);
   const newBiggestWin = Math.max(user.biggest_win, amountWon);
+  // XP is scaled 1:1 with the pot won — a bigger hand is worth more
+  // progress toward the next rank. Only ever added, never subtracted, so a
+  // losing streak or a spent shop purchase can't erase rank progress.
+  const newXp = user.xp + Math.max(0, amountWon);
   db.prepare(
-    'UPDATE users SET win_streak = ?, hands_won = ?, hands_played = ?, best_streak = ?, biggest_win = ? WHERE id = ?'
-  ).run(newStreak, newHandsWon, newHandsPlayed, newBestStreak, newBiggestWin, userId);
+    'UPDATE users SET win_streak = ?, hands_won = ?, hands_played = ?, best_streak = ?, biggest_win = ?, xp = ? WHERE id = ?'
+  ).run(newStreak, newHandsWon, newHandsPlayed, newBestStreak, newBiggestWin, newXp, userId);
 
   if (newHandsWon === 1) push(unlock(userId, 'first_win'));
   if (newStreak === 2) push(unlock(userId, 'streak_2'));

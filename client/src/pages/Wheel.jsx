@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import { formatChips } from '../chips.js';
 import './Wheel.css';
 
 const TIER_ORDER = ['daily', 'bronze', 'silver', 'gold'];
@@ -95,7 +96,7 @@ export default function Wheel({ user, onUserUpdate }) {
       return;
     }
     if (user.chips < config.cost) {
-      setError(`You need ${config.cost} chips to spin the ${TIER_META[key].label} wheel.`);
+      setError(`You need ${formatChips(config.cost)} to spin the ${TIER_META[key].label} wheel.`);
       return;
     }
     setError('');
@@ -136,7 +137,7 @@ export default function Wheel({ user, onUserUpdate }) {
           if (key === 'daily') {
             setDaily({ claimedToday: true, canClaim: false, streak: res.streak, streakIfClaimedNow: res.streak });
             if (res.unlockedAchievement) {
-              setNotice(`🏆 Achievement unlocked: ${res.unlockedAchievement.title} (+${res.unlockedAchievement.reward} chips)`);
+              setNotice(`🏆 Achievement unlocked: ${res.unlockedAchievement.title} (+${formatChips(res.unlockedAchievement.reward)})`);
             }
           }
         }, SPIN_MS);
@@ -156,10 +157,7 @@ export default function Wheel({ user, onUserUpdate }) {
           <span className="wheel-header__back__arrow">←</span> Lobby
         </button>
         <h1 className="wheel-header__title">Spin the Wheel</h1>
-        <div className="wheel-header__chips">
-          <span className="wheel-header__chip-dot" />
-          {user.chips.toLocaleString()}
-        </div>
+        <div className="wheel-header__chips">{formatChips(user.chips)}</div>
       </header>
 
       {error && <div className="wheel-error">{error}</div>}
@@ -182,8 +180,8 @@ export default function Wheel({ user, onUserUpdate }) {
                 </h2>
                 <p className="wheel-card__sub">
                   {isDaily
-                    ? `Free once a day · Win up to ${config.max}`
-                    : `Play for ${config.cost} · Win up to ${config.max}`}
+                    ? `Free once a day · Win up to ${formatChips(config.max)}`
+                    : `Play for ${formatChips(config.cost)} · Win up to ${formatChips(config.max)}`}
                 </p>
                 {isDaily && daily && (
                   <p className="wheel-card__streak">
@@ -246,11 +244,11 @@ export default function Wheel({ user, onUserUpdate }) {
                   {results[key] != null &&
                     (isDaily ? (
                       <div className="wheel-card__result">
-                        +{results[key].prize} chips
-                        {results[key].streakBonus > 0 && ` + ${results[key].streakBonus} streak bonus`}!
+                        +{formatChips(results[key].prize)}
+                        {results[key].streakBonus > 0 && ` + ${formatChips(results[key].streakBonus)} streak bonus`}!
                       </div>
                     ) : (
-                      <div className="wheel-card__result">+{results[key]} chips!</div>
+                      <div className="wheel-card__result">+{formatChips(results[key])}!</div>
                     ))}
                 </div>
 
@@ -265,7 +263,7 @@ export default function Wheel({ user, onUserUpdate }) {
                     ? dailyLocked
                       ? 'Come back tomorrow'
                       : 'Claim Free Spin'
-                    : `Spin (${config.cost})`}
+                    : `Spin (${formatChips(config.cost)})`}
                 </button>
               </div>
             );
