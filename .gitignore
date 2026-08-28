@@ -3,5 +3,8 @@ dist/
 .env
 .env.local
 *.db
+*.db-wal
+*.db-shm
 *.log
 .DS_Store
+server/bin/

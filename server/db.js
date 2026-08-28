@@ -3,6 +3,14 @@ const path = require('path');
 
 const db = new DatabaseSync(path.join(__dirname, 'poker.db'));
 
+// WAL mode is required for Litestream (see server/litestream.yml) to
+// replicate this database to off-disk storage — it works by shipping WAL
+// frames as they're written, which only exist in this journal mode. It also
+// happens to allow readers and writers to work concurrently instead of
+// blocking each other, which is a nice side benefit for a busy small app.
+db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA busy_timeout = 5000;');
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,

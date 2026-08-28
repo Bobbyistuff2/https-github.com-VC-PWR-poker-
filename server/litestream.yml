@@ -1,0 +1,15 @@
+# Continuously streams poker.db (accounts, chips, sessions, achievements —
+# everything in the SQLite file) to off-disk storage, and restores it on
+# boot if Render's ephemeral disk came up empty (e.g. after a redeploy).
+# See render.yaml for how this gets invoked, and the Render dashboard env
+# vars for where these ${...} values come from.
+dbs:
+  - path: poker.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: pwr-poker-db
+        endpoint: ${LITESTREAM_ENDPOINT}
+        region: ${LITESTREAM_REGION}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}

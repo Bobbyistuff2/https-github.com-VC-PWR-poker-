@@ -3,8 +3,14 @@ services:
     name: pwr-poker-server
     runtime: node
     rootDir: server
-    buildCommand: npm install
-    startCommand: node --experimental-sqlite server.js
+    buildCommand: npm install && mkdir -p bin && curl -L https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v0.3.13-linux-amd64.tar.gz | tar -xz -C bin && chmod +x bin/litestream
+    # Falls back to plain `node server.js` (today's behavior) if the
+    # LITESTREAM_* env vars below haven't been filled in yet, so adding this
+    # config can't accidentally take the site down before the storage
+    # account is set up. Once they're set, it restores poker.db from backup
+    # on boot (if the local disk came up empty) and streams live changes to
+    # it from then on.
+    startCommand: sh -c 'if [ -n "$LITESTREAM_BUCKET" ]; then ./bin/litestream restore -if-replica-exists -if-db-not-exists poker.db && exec ./bin/litestream replicate -exec "node --experimental-sqlite server.js"; else exec node --experimental-sqlite server.js; fi'
     plan: free
     envVars:
       - key: NODE_ENV
@@ -21,3 +27,17 @@ services:
         sync: false
       - key: PORT
         value: 3000
+      # Free S3-compatible object storage (e.g. Backblaze B2) that
+      # server/litestream.yml continuously backs poker.db up to, and
+      # restores from on boot if the disk came up empty. See the deploy
+      # notes for how to get these values from your B2/R2 account.
+      - key: LITESTREAM_BUCKET
+        sync: false
+      - key: LITESTREAM_ENDPOINT
+        sync: false
+      - key: LITESTREAM_REGION
+        sync: false
+      - key: LITESTREAM_ACCESS_KEY_ID
+        sync: false
+      - key: LITESTREAM_SECRET_ACCESS_KEY
+        sync: false
