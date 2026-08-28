@@ -23,12 +23,15 @@ services:
         sync: false
       - key: DISCORD_CLIENT_SECRET
         sync: false
+      # Point this at CLIENT_URL's domain (…/auth/discord/callback), not this
+      # backend's own onrender.com domain — see server/.env.example for why.
       - key: DISCORD_REDIRECT_URI
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
+      # Same deal — must be CLIENT_URL's domain, not onrender.com.
       - key: GOOGLE_REDIRECT_URI
         sync: false
       - key: CLIENT_URL
