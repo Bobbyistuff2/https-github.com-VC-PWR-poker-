@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RankBadge from '../components/RankBadge.jsx';
+import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { api } from '../api.js';
 import './Leaderboard.css';
 
@@ -8,6 +9,7 @@ export default function Leaderboard({ user }) {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [statsUserId, setStatsUserId] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -52,7 +54,12 @@ export default function Leaderboard({ user }) {
             {podiumOrder.length > 0 && (
               <div className={`leaderboard-podium leaderboard-podium--count${podiumOrder.length}`}>
                 {podiumOrder.map((entry) => (
-                  <PodiumCard key={entry.id} entry={entry} isMe={entry.id === user.id} />
+                  <PodiumCard
+                    key={entry.id}
+                    entry={entry}
+                    isMe={entry.id === user.id}
+                    onClick={() => setStatsUserId(entry.id)}
+                  />
                 ))}
               </div>
             )}
@@ -60,7 +67,12 @@ export default function Leaderboard({ user }) {
             {rest.length > 0 && (
               <ol className="leaderboard-list" start={4}>
                 {rest.map((entry) => (
-                  <LeaderboardRow key={entry.id} entry={entry} isMe={entry.id === user.id} />
+                  <LeaderboardRow
+                    key={entry.id}
+                    entry={entry}
+                    isMe={entry.id === user.id}
+                    onClick={() => setStatsUserId(entry.id)}
+                  />
                 ))}
               </ol>
             )}
@@ -69,13 +81,15 @@ export default function Leaderboard({ user }) {
               <>
                 <div className="leaderboard-divider">Your position</div>
                 <ol className="leaderboard-list" start={data.me.position}>
-                  <LeaderboardRow entry={data.me} isMe />
+                  <LeaderboardRow entry={data.me} isMe onClick={() => setStatsUserId(data.me.id)} />
                 </ol>
               </>
             )}
           </>
         )}
       </main>
+
+      <PlayerStatsModal userId={statsUserId} onClose={() => setStatsUserId(null)} />
     </div>
   );
 }
@@ -90,14 +104,16 @@ const TIER_GLOW = {
   Grandmaster: 'rgba(255, 178, 138, 0.45)',
 };
 
-function PodiumCard({ entry, isMe }) {
+function PodiumCard({ entry, isMe, onClick }) {
   const glow = TIER_GLOW[entry.rank.tier] || TIER_GLOW.Bronze;
   return (
-    <div
+    <button
+      type="button"
       className={`leaderboard-podium__card leaderboard-podium__card--p${entry.position} ${
         isMe ? 'leaderboard-podium__card--me' : ''
       }`}
       style={{ '--tier-glow': glow }}
+      onClick={onClick}
     >
       <MedalIcon place={entry.position} size={entry.position === 1 ? 30 : 24} />
       {entry.picture ? (
@@ -114,14 +130,15 @@ function PodiumCard({ entry, isMe }) {
         {entry.chips.toLocaleString()}
       </div>
       <div className="leaderboard-podium__stand">{entry.position}</div>
-    </div>
+    </button>
   );
 }
 
-function LeaderboardRow({ entry, isMe }) {
+function LeaderboardRow({ entry, isMe, onClick }) {
   const glow = TIER_GLOW[entry.rank.tier] || TIER_GLOW.Bronze;
   return (
     <li className={`leaderboard-row ${isMe ? 'leaderboard-row--me' : ''}`} style={{ '--tier-glow': glow }}>
+      <button type="button" className="leaderboard-row__click" onClick={onClick}>
       <span className="leaderboard-row__position">#{entry.position}</span>
       {entry.picture ? (
         <img className="leaderboard-row__avatar" src={entry.picture} alt="" />
@@ -141,6 +158,7 @@ function LeaderboardRow({ entry, isMe }) {
         </span>
         <span className="leaderboard-row__wins">{entry.handsWon} wins</span>
       </div>
+      </button>
     </li>
   );
 }

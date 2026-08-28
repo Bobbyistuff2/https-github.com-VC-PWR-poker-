@@ -39,6 +39,15 @@ if (!existingColumns.some((c) => c.name === 'win_streak')) {
 if (!existingColumns.some((c) => c.name === 'hands_won')) {
   db.exec('ALTER TABLE users ADD COLUMN hands_won INTEGER NOT NULL DEFAULT 0');
 }
+if (!existingColumns.some((c) => c.name === 'hands_played')) {
+  db.exec('ALTER TABLE users ADD COLUMN hands_played INTEGER NOT NULL DEFAULT 0');
+}
+if (!existingColumns.some((c) => c.name === 'best_streak')) {
+  db.exec('ALTER TABLE users ADD COLUMN best_streak INTEGER NOT NULL DEFAULT 0');
+}
+if (!existingColumns.some((c) => c.name === 'biggest_win')) {
+  db.exec('ALTER TABLE users ADD COLUMN biggest_win INTEGER NOT NULL DEFAULT 0');
+}
 
 // Adding a new auth_type ('google') means loosening the CHECK constraint,
 // which SQLite can't do with a plain ALTER — the table has to be rebuilt.

@@ -5,6 +5,7 @@ import PlayingCard from '../components/PlayingCard.jsx';
 import Chip from '../components/Chip.jsx';
 import HandRankings from '../components/HandRankings.jsx';
 import Confetti from '../components/Confetti.jsx';
+import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { getSocket } from '../socket.js';
 import { api } from '../api.js';
 import { DENOMINATIONS, formatChips, decomposeChips } from '../chips.js';
@@ -33,6 +34,7 @@ export default function Table({ user, onUserUpdate }) {
   const [chipPop, setChipPop] = useState(null);
   const [actionToasts, setActionToasts] = useState([]);
   const [achievementToasts, setAchievementToasts] = useState([]);
+  const [statsUserId, setStatsUserId] = useState(null);
   const lastSeenResultRef = useRef(null);
   const lastSeenActionRef = useRef(null);
 
@@ -262,6 +264,7 @@ export default function Table({ user, onUserUpdate }) {
                 isTurn={i === room.turnSeat}
                 isMe={seat.userId === user.id}
                 actionToast={[...actionToasts].reverse().find((t) => t.seatIndex === i)}
+                onViewStats={setStatsUserId}
               />
             )
         )}
@@ -431,6 +434,8 @@ export default function Table({ user, onUserUpdate }) {
           </p>
         )}
       </div>
+
+      <PlayerStatsModal userId={statsUserId} onClose={() => setStatsUserId(null)} />
     </div>
   );
 }

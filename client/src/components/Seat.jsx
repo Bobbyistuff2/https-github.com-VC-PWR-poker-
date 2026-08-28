@@ -3,13 +3,21 @@ import RankBadge from './RankBadge.jsx';
 import { formatChips } from '../chips.js';
 import './Seat.css';
 
-export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToast }) {
+export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToast, onViewStats }) {
+  const clickable = !seat.isBot && !!onViewStats;
+  const AvatarTag = clickable ? 'button' : 'div';
+
   return (
     <div className={`seat seat--pos${position} ${seat.folded ? 'seat--folded' : ''} ${isTurn ? 'seat--turn' : ''}`}>
       {isDealer && <div className="seat__dealer">D</div>}
 
       <div className="seat__cluster">
-        <div className={`seat__avatar ${isMe ? 'seat__avatar--me' : ''} ${seat.isBot ? 'seat__avatar--bot' : ''}`}>
+        <AvatarTag
+          type={clickable ? 'button' : undefined}
+          className={`seat__avatar ${isMe ? 'seat__avatar--me' : ''} ${seat.isBot ? 'seat__avatar--bot' : ''} ${clickable ? 'seat__avatar--clickable' : ''}`}
+          onClick={clickable ? () => onViewStats(seat.userId) : undefined}
+          aria-label={clickable ? `View ${seat.name}'s stats` : undefined}
+        >
           {seat.isBot ? (
             <span>🤖</span>
           ) : seat.picture ? (
@@ -17,7 +25,7 @@ export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToa
           ) : (
             <span>{seat.name.charAt(0).toUpperCase()}</span>
           )}
-        </div>
+        </AvatarTag>
 
         {seat.hasCards && (
           <div className="seat__cards">

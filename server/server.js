@@ -163,6 +163,34 @@ app.get('/api/leaderboard', requireAuth, (req, res) => {
   res.json({ leaderboard: top, me });
 });
 
+app.get('/api/stats/:userId', requireAuth, (req, res) => {
+  // Same bot-exclusion guarantee as /api/leaderboard — a bot id could never
+  // actually reach this table, but a stats lookup should still 404 rather
+  // than silently succeed if one is ever passed in.
+  const user = db.prepare("SELECT * FROM users WHERE id = ? AND id NOT LIKE 'bot-%'").get(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'Player not found' });
+
+  const achievementsUnlocked = db
+    .prepare('SELECT COUNT(*) as c FROM achievements WHERE user_id = ?')
+    .get(user.id).c;
+
+  res.json({
+    id: user.id,
+    name: user.name,
+    picture: user.picture,
+    chips: user.chips,
+    rank: ranks.getRank({ chips: user.chips, handsWon: user.hands_won }),
+    handsPlayed: user.hands_played,
+    handsWon: user.hands_won,
+    winPct: user.hands_played > 0 ? Math.round((user.hands_won / user.hands_played) * 1000) / 10 : 0,
+    currentStreak: user.win_streak,
+    bestStreak: user.best_streak,
+    biggestWin: user.biggest_win,
+    achievementsUnlocked,
+    achievementsTotal: achievements.ACHIEVEMENTS.length,
+  });
+});
+
 function toPublicUser(user) {
   return {
     id: user.id,

@@ -53,22 +53,32 @@ function checkHandDealt(userId, holeCards) {
 }
 
 // Call once per finished hand for each real player who was dealt into it.
-function checkHandResult(userId, { won, handName, isRoyal, wasAllIn }) {
+// `amountWon` is that hand's payout (0 if they didn't win it), used to track
+// their biggest-ever single-hand win for the stats view.
+function checkHandResult(userId, { won, handName, isRoyal, wasAllIn, amountWon = 0 }) {
   const unlocked = [];
   const push = (a) => {
     if (a) unlocked.push(a);
   };
-  const user = db.prepare('SELECT win_streak, hands_won FROM users WHERE id = ?').get(userId);
+  const user = db
+    .prepare('SELECT win_streak, hands_won, hands_played, best_streak, biggest_win FROM users WHERE id = ?')
+    .get(userId);
   if (!user) return unlocked;
 
+  const newHandsPlayed = user.hands_played + 1;
+
   if (!won) {
-    if (user.win_streak !== 0) db.prepare('UPDATE users SET win_streak = 0 WHERE id = ?').run(userId);
+    db.prepare('UPDATE users SET win_streak = 0, hands_played = ? WHERE id = ?').run(newHandsPlayed, userId);
     return unlocked;
   }
 
   const newStreak = user.win_streak + 1;
   const newHandsWon = user.hands_won + 1;
-  db.prepare('UPDATE users SET win_streak = ?, hands_won = ? WHERE id = ?').run(newStreak, newHandsWon, userId);
+  const newBestStreak = Math.max(user.best_streak, newStreak);
+  const newBiggestWin = Math.max(user.biggest_win, amountWon);
+  db.prepare(
+    'UPDATE users SET win_streak = ?, hands_won = ?, hands_played = ?, best_streak = ?, biggest_win = ? WHERE id = ?'
+  ).run(newStreak, newHandsWon, newHandsPlayed, newBestStreak, newBiggestWin, userId);
 
   if (newHandsWon === 1) push(unlock(userId, 'first_win'));
   if (newStreak === 2) push(unlock(userId, 'streak_2'));

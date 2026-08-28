@@ -108,6 +108,17 @@
   background: linear-gradient(180deg, #4a4438, #2e2a22);
 }
 
+.seat__avatar--clickable {
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.seat__avatar--clickable:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.35);
+}
+
 .seat__cards {
   display: flex;
   gap: 0.15rem;

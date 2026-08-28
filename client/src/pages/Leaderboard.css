@@ -125,6 +125,16 @@
   padding: 1.1rem 0.75rem 0;
   box-shadow: 0 0 24px var(--tier-glow, transparent), 0 20px 40px rgba(0, 0, 0, 0.5);
   animation: podium-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  /* it's a <button> under the hood, so it can be clicked to open stats —
+     undo the browser's default button chrome */
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.leaderboard-podium__card:hover {
+  transform: translateY(-3px);
 }
 
 .leaderboard-podium--count1 .leaderboard-podium__card {
@@ -281,6 +291,21 @@
   border-left-width: 4px;
   background: rgba(201, 169, 97, 0.08);
   box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.1) inset;
+}
+
+.leaderboard-row__click {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 
 .leaderboard-row__position {

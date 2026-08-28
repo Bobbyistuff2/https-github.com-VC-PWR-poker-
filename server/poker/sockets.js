@@ -34,6 +34,7 @@ function checkResultAchievements(room) {
       handName: payout?.hand,
       isRoyal: !!payout?.royalFlush,
       wasAllIn: seat.allIn,
+      amountWon: payout?.amount || 0,
     });
     for (const a of list) {
       // achievements.unlock() already applied the reward in the DB — mirror
