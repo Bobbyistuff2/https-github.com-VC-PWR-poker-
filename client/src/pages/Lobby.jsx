@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DealTransition from '../components/DealTransition.jsx';
 import FallingChips from '../components/FallingChips.jsx';
 import FallingWords from '../components/FallingWords.jsx';
+import RankBadge from '../components/RankBadge.jsx';
 import { api } from '../api.js';
 import { getSocket } from '../socket.js';
 import './Lobby.css';
@@ -111,7 +112,10 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
             </div>
           )}
           <div>
-            <div className="lobby__name">{user.name}</div>
+            <div className="lobby__name-row">
+              <div className="lobby__name">{user.name}</div>
+              <RankBadge rank={user.rank} size="full" />
+            </div>
             <div className="lobby__chips">{user.chips.toLocaleString()} chips</div>
           </div>
           <button className="lobby__icon-btn" onClick={() => navigate('/rewards')} aria-label="Rewards">

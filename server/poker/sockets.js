@@ -2,6 +2,7 @@ const db = require('../db');
 const { createRoom, getRoom, deleteRoomIfEmpty, listOpenTournaments } = require('./rooms');
 const { decideBotAction } = require('./bot');
 const achievements = require('../achievements');
+const ranks = require('../ranks');
 
 const ROOM_TYPES = new Set(['tournament', 'quick', 'private']);
 
@@ -67,14 +68,30 @@ function syncSeatChipsToDb(room) {
   }
 }
 
+// Ranks are always shown, at the table as well as the lobby — computed once
+// per broadcast (not once per viewer) from each real seat's live chip count
+// plus their lifetime hands-won from the DB. Bots don't get one.
+function computeSeatRanks(room) {
+  const map = new Map();
+  for (const seat of room.occupiedSeats) {
+    if (seat.isBot) continue;
+    const row = db.prepare('SELECT hands_won FROM users WHERE id = ?').get(seat.userId);
+    map.set(seat.seatIndex, ranks.getRank({ chips: seat.chips, handsWon: row?.hands_won || 0 }));
+  }
+  return map;
+}
+
 function broadcastRoomState(io, room) {
   const socketIds = io.sockets.adapter.rooms.get(room.code);
   if (!socketIds) return;
+  const seatRanks = computeSeatRanks(room);
   for (const socketId of socketIds) {
     const target = io.sockets.sockets.get(socketId);
     const userId = target?.request.session?.userId;
     if (!userId) continue;
-    target.emit('room:state', room.publicState(userId));
+    const state = room.publicState(userId);
+    state.seats = state.seats.map((seat) => (seat ? { ...seat, rank: seatRanks.get(seat.seatIndex) || null } : seat));
+    target.emit('room:state', state);
   }
 }
 

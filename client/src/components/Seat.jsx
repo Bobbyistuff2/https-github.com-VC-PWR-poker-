@@ -1,4 +1,5 @@
 import PlayingCard from './PlayingCard.jsx';
+import RankBadge from './RankBadge.jsx';
 import { formatChips } from '../chips.js';
 import './Seat.css';
 
@@ -33,6 +34,7 @@ export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToa
       </div>
 
       <div className="seat__name-wrap">
+        <RankBadge rank={seat.rank} size="compact" />
         <div className="seat__name">{seat.name}</div>
         {actionToast && (
           <div key={actionToast.id} className="seat__action-toast">

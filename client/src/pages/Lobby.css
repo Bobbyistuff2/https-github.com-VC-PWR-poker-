@@ -68,6 +68,13 @@
   animation: lobby-bob-a 3.6s ease-in-out infinite;
 }
 
+.lobby__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .lobby__name {
   font-weight: 700;
   font-size: 1.1rem;
@@ -134,10 +141,20 @@
 
   .lobby__name {
     font-size: 0.9rem;
-    max-width: 6rem;
+    max-width: 5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .lobby__name-row {
+    gap: 0.3rem;
+  }
+
+  /* keep just the rank icon next to the name on narrow screens — the full
+     text label would push the sign-out button off-screen otherwise */
+  .lobby__name-row .rank-badge__label {
+    display: none;
   }
 
   .lobby__chips {

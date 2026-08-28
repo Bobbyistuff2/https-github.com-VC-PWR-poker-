@@ -115,13 +115,19 @@
 
 .seat__name-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  max-width: 7.5rem;
+  padding-bottom: 0.15rem;
 }
 
 .seat__name {
   font-size: 0.85rem;
   font-weight: 700;
   color: #f2f2f2;
-  max-width: 7.5rem;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -226,5 +232,10 @@
     max-width: 4.6rem;
     padding: 0.22rem 0.45rem;
     border-radius: 0.7rem;
+  }
+
+  .rank-badge--compact .rank-badge__icon {
+    width: 0.95rem;
+    height: 0.95rem;
   }
 }

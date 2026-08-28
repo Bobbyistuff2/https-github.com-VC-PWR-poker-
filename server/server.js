@@ -20,6 +20,7 @@ const db = require('./db');
 const { registerPokerHandlers } = require('./poker/sockets');
 const achievements = require('./achievements');
 const wheel = require('./wheel');
+const ranks = require('./ranks');
 const SqliteSessionStore = require('./sessionStore');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -146,6 +147,7 @@ function toPublicUser(user) {
     picture: user.picture,
     chips: user.chips,
     profileComplete: !!user.profile_complete,
+    rank: ranks.getRank({ chips: user.chips, handsWon: user.hands_won }),
   };
 }
 
