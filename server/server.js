@@ -354,15 +354,17 @@ app.get('/api/shop', requireAuth, (req, res) => {
   const owned = new Set(
     db.prepare('SELECT item_id FROM user_items WHERE user_id = ?').all(req.session.userId).map((r) => r.item_id)
   );
-  const user = db.prepare('SELECT equipped_background, equipped_card_skin FROM users WHERE id = ?').get(
-    req.session.userId
-  );
+  const user = db
+    .prepare('SELECT equipped_background, equipped_card_skin, equipped_celebration FROM users WHERE id = ?')
+    .get(req.session.userId);
   res.json({
     backgrounds: shop.BACKGROUNDS,
     cardSkins: shop.CARD_SKINS,
+    celebrations: shop.CELEBRATIONS,
     owned: [...owned],
     equippedBackground: user.equipped_background || shop.DEFAULT_BACKGROUND,
     equippedCardSkin: user.equipped_card_skin || shop.DEFAULT_CARD_SKIN,
+    equippedCelebration: user.equipped_celebration || shop.DEFAULT_CELEBRATION,
   });
 });
 
@@ -400,7 +402,7 @@ app.post('/api/shop/equip', requireAuth, (req, res) => {
     if (!owns) return res.status(400).json({ error: "You don't own that item" });
   }
 
-  const column = item.slot === 'background' ? 'equipped_background' : 'equipped_card_skin';
+  const column = shop.SLOT_COLUMNS[item.slot];
   db.prepare(`UPDATE users SET ${column} = ? WHERE id = ?`).run(itemId, req.session.userId);
   res.json({ itemId, slot: item.slot });
 });
@@ -501,6 +503,7 @@ function toPublicUser(user) {
     rank: ranks.getRank({ xp: user.xp }),
     equippedBackground: user.equipped_background || shop.DEFAULT_BACKGROUND,
     equippedCardSkin: user.equipped_card_skin || shop.DEFAULT_CARD_SKIN,
+    equippedCelebration: user.equipped_celebration || shop.DEFAULT_CELEBRATION,
   };
 }
 

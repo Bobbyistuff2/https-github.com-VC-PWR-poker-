@@ -6,7 +6,7 @@ import Chip from '../components/Chip.jsx';
 import HandRankings from '../components/HandRankings.jsx';
 import HandHistory from '../components/HandHistory.jsx';
 import Confetti from '../components/Confetti.jsx';
-import ChipRain from '../components/ChipRain.jsx';
+import WinCelebration from '../components/WinCelebration.jsx';
 import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { getSocket } from '../socket.js';
 import { api } from '../api.js';
@@ -391,7 +391,7 @@ export default function Table({ user, onUserUpdate }) {
           {!(foldWinner && foldWinner.profit === 0) && (
             <>
               <Confetti />
-              <ChipRain />
+              <WinCelebration celebration={user.equippedCelebration} />
             </>
           )}
           <div className="round-result-overlay__text">

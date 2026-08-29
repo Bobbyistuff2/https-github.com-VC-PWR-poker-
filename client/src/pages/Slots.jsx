@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChipRain from '../components/ChipRain.jsx';
 import Confetti from '../components/Confetti.jsx';
+import WinCelebration from '../components/WinCelebration.jsx';
 import { api } from '../api.js';
 import { formatChips } from '../chips.js';
 import './Slots.css';
@@ -136,7 +136,7 @@ export default function Slots({ user, onUserUpdate }) {
           {won && (
             <div className="slot-cabinet__celebration" aria-hidden="true">
               <Confetti count={26} />
-              {result.win !== 'pair' && <ChipRain count={30} />}
+              {result.win !== 'pair' && <WinCelebration celebration={user.equippedCelebration} count={30} />}
             </div>
           )}
 

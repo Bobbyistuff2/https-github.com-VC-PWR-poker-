@@ -70,6 +70,9 @@ if (!existingColumns.some((c) => c.name === 'equipped_background')) {
 if (!existingColumns.some((c) => c.name === 'equipped_card_skin')) {
   db.exec('ALTER TABLE users ADD COLUMN equipped_card_skin TEXT');
 }
+if (!existingColumns.some((c) => c.name === 'equipped_celebration')) {
+  db.exec('ALTER TABLE users ADD COLUMN equipped_celebration TEXT');
+}
 
 // Adding a new auth_type ('google') means loosening the CHECK constraint,
 // which SQLite can't do with a plain ALTER — the table has to be rebuilt.

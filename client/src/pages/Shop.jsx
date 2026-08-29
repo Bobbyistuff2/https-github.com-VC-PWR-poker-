@@ -39,18 +39,22 @@ export default function Shop({ user, onUserUpdate }) {
     }
   }
 
+  // Mirrors server/shop.js's SLOT_COLUMNS — which field on the user object
+  // (and in the /api/shop response) a given slot's equipped item lives in.
+  const SLOT_FIELDS = {
+    background: 'equippedBackground',
+    cardSkin: 'equippedCardSkin',
+    celebration: 'equippedCelebration',
+  };
+
   async function handleEquip(item) {
     setBusyId(item.id);
     setError('');
     try {
       await api.equipItem(item.id);
-      if (item.slot === 'background') {
-        onUserUpdate({ ...user, equippedBackground: item.id });
-        setData((prev) => ({ ...prev, equippedBackground: item.id }));
-      } else {
-        onUserUpdate({ ...user, equippedCardSkin: item.id });
-        setData((prev) => ({ ...prev, equippedCardSkin: item.id }));
-      }
+      const field = SLOT_FIELDS[item.slot];
+      onUserUpdate({ ...user, [field]: item.id });
+      setData((prev) => ({ ...prev, [field]: item.id }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -118,8 +122,85 @@ export default function Shop({ user, onUserUpdate }) {
               ))}
             </div>
           </section>
+
+          <section className="shop-section">
+            <h2 className="shop-section__title">Win Celebrations</h2>
+            <p className="shop-section__sub">What rains down over the table when you win a hand or hit big in Slots.</p>
+            <div className="shop-grid">
+              {data.celebrations.map((item) => (
+                <ShopCard
+                  key={item.id}
+                  item={item}
+                  owned={item.price === 0 || data.owned.includes(item.id)}
+                  equipped={data.equippedCelebration === item.id}
+                  busy={busyId === item.id}
+                  affordable={user.chips >= item.price}
+                  onBuy={() => handleBuy(item)}
+                  onEquip={() => handleEquip(item)}
+                >
+                  <CelebrationPreview id={item.id} />
+                </ShopCard>
+              ))}
+            </div>
+          </section>
         </main>
       )}
+    </div>
+  );
+}
+
+// A frozen mid-fall snapshot rather than a live loop — same spirit as the
+// static background swatches and card-skin previews above, just enough to
+// tell the celebrations apart at a glance without every shop card
+// animating at once.
+function CelebrationPreview({ id }) {
+  if (id === 'cele-chips') {
+    return (
+      <div className="celebration-preview">
+        <span className="celebration-preview__chip" style={{ background: '#d81e3f', left: '20%', top: '10%' }} />
+        <span className="celebration-preview__chip" style={{ background: '#2c8358', left: '55%', top: '35%' }} />
+        <span className="celebration-preview__chip" style={{ background: '#7b4fb0', left: '35%', top: '60%' }} />
+      </div>
+    );
+  }
+  if (id === 'cele-cards') {
+    return (
+      <div className="celebration-preview">
+        <span className="celebration-preview__card celebration-preview__card--red" style={{ left: '18%', top: '15%' }}>
+          A♥
+        </span>
+        <span className="celebration-preview__card celebration-preview__card--black" style={{ left: '52%', top: '40%' }}>
+          K♠
+        </span>
+        <span className="celebration-preview__card celebration-preview__card--red" style={{ left: '32%', top: '62%' }}>
+          7♦
+        </span>
+      </div>
+    );
+  }
+  if (id === 'cele-diamonds') {
+    return (
+      <div className="celebration-preview">
+        <span className="celebration-preview__emoji" style={{ left: '20%', top: '12%', fontSize: '1.6rem' }}>💎</span>
+        <span className="celebration-preview__emoji" style={{ left: '55%', top: '38%', fontSize: '1.2rem' }}>💎</span>
+        <span className="celebration-preview__emoji" style={{ left: '35%', top: '60%', fontSize: '1.9rem' }}>💎</span>
+      </div>
+    );
+  }
+  if (id === 'cele-money') {
+    return (
+      <div className="celebration-preview">
+        <span className="celebration-preview__emoji" style={{ left: '18%', top: '12%', fontSize: '1.6rem' }}>💵</span>
+        <span className="celebration-preview__emoji" style={{ left: '55%', top: '40%', fontSize: '1.3rem' }}>💰</span>
+        <span className="celebration-preview__emoji" style={{ left: '32%', top: '62%', fontSize: '1.7rem' }}>💸</span>
+      </div>
+    );
+  }
+  return (
+    <div className="celebration-preview">
+      <span className="celebration-preview__orb" style={{ left: '20%', top: '12%', width: '1.1rem', height: '1.1rem' }} />
+      <span className="celebration-preview__orb" style={{ left: '55%', top: '40%', width: '0.8rem', height: '0.8rem' }} />
+      <span className="celebration-preview__orb" style={{ left: '35%', top: '60%', width: '1.4rem', height: '1.4rem' }} />
     </div>
   );
 }
