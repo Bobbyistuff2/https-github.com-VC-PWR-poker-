@@ -262,10 +262,10 @@ class Room {
     const target = Math.min(toAmount, seat.betThisRound + seat.chips);
     const delta = target - seat.betThisRound;
     if (delta <= 0) throw new Error('Invalid raise amount');
-    const isFullRaise = target - this.currentBet >= this.minRaise;
-    if (target < seat.betThisRound + seat.chips && !isFullRaise) {
-      throw new Error('Raise too small');
-    }
+    // No minimum-raise-size rule — any raise above the current bet is
+    // allowed, down to the smallest chip denomination. (Standard no-limit
+    // hold'em requires a raise to be at least as big as the previous raise;
+    // deliberately not enforced here.)
 
     seat.chips -= delta;
     seat.betThisRound = target;
