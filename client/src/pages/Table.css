@@ -249,6 +249,48 @@
   --tier-accent: rgba(255, 224, 150, 1);
   --top-wash: rgba(255, 200, 120, 0.35);
 }
+.table-surface[data-bg='bg-cardnoir'] {
+  --tier-accent: rgba(210, 212, 218, 1);
+  --top-wash: rgba(210, 212, 218, 0.2);
+}
+.table-surface[data-bg='bg-cardpattern-ruby'] {
+  --tier-accent: rgba(230, 70, 80, 1);
+  --top-wash: rgba(230, 70, 80, 0.3);
+}
+.table-surface[data-bg='bg-cardpattern-sapphire'] {
+  --tier-accent: rgba(90, 130, 235, 1);
+  --top-wash: rgba(90, 130, 235, 0.3);
+}
+
+/* A tileable card-suit texture — hidden unless one of the three tints
+   above is equipped, and layered as its own element (not baked into
+   .table-surface's background) so its filter/tint doesn't touch the rest
+   of the felt or anything sitting on top of it. */
+.table-surface__pattern {
+  display: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url('../assets/bg-card-pattern.webp');
+  background-size: 260px;
+  background-repeat: repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.table-surface[data-bg='bg-cardnoir'] .table-surface__pattern,
+.table-surface[data-bg='bg-cardpattern-ruby'] .table-surface__pattern,
+.table-surface[data-bg='bg-cardpattern-sapphire'] .table-surface__pattern {
+  display: block;
+}
+
+.table-surface[data-bg='bg-cardpattern-ruby'] .table-surface__pattern {
+  filter: sepia(1) saturate(6) hue-rotate(-50deg) brightness(0.9);
+}
+
+.table-surface[data-bg='bg-cardpattern-sapphire'] .table-surface__pattern {
+  filter: sepia(1) saturate(6) hue-rotate(180deg) brightness(0.9);
+}
 
 /* soft-edged arch/doorway glow, echoing the reference screenshot's portal
    shape — a solid gradient silhouette rather than a hard outline */

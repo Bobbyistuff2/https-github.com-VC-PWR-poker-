@@ -18,6 +18,12 @@ const BACKGROUNDS = [
   // buying it has no bearing on rank and vice versa, same as every other
   // item here.
   { id: 'bg-unreal', slot: 'background', name: 'Unreal Prestige', price: 3000 },
+  // A textured card-suit pattern instead of a plain color wash, in three
+  // tints — same underlying texture, recolored via CSS filter client-side
+  // rather than three separate image files.
+  { id: 'bg-cardnoir', slot: 'background', name: 'Card Noir', price: 500 },
+  { id: 'bg-cardpattern-ruby', slot: 'background', name: 'Ruby Deck', price: 600 },
+  { id: 'bg-cardpattern-sapphire', slot: 'background', name: 'Sapphire Deck', price: 600 },
 ];
 
 const CARD_SKINS = [

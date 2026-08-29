@@ -266,6 +266,7 @@ export default function Table({ user, onUserUpdate }) {
         data-tier={user.rank?.tier}
         data-bg={user.equippedBackground !== 'bg-classic' ? user.equippedBackground : undefined}
       >
+        <div className="table-surface__pattern" aria-hidden="true" />
         {room.seats.map(
           (seat, i) =>
             seat && (
