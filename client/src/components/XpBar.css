@@ -34,3 +34,48 @@
     max-width: 10rem;
   }
 }
+
+/* Hero variant — a big standalone banner (e.g. above the lobby's gamemode
+   picker), not the small bar tucked next to the header avatar. */
+.xp-bar--hero {
+  max-width: 34rem;
+  width: 100%;
+  gap: 0.6rem;
+  margin: 0 auto 2rem;
+  background: rgba(20, 22, 28, 0.7);
+  border: 1px solid rgba(201, 169, 97, 0.25);
+  border-radius: 1.25rem;
+  padding: 1.1rem 1.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(201, 169, 97, 0.05) inset;
+}
+
+.xp-bar__hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.xp-bar__hero-next {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #d9b871;
+  white-space: nowrap;
+}
+
+.xp-bar__track--hero {
+  height: 0.65rem;
+}
+
+@media (max-width: 480px) {
+  .xp-bar--hero {
+    padding: 0.9rem 1.1rem;
+  }
+
+  .xp-bar__hero-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}

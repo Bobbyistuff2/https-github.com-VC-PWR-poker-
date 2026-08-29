@@ -22,6 +22,7 @@ const achievements = require('./achievements');
 const wheel = require('./wheel');
 const ranks = require('./ranks');
 const hilo = require('./hilo');
+const slots = require('./slots');
 const shop = require('./shop');
 const codes = require('./codes');
 const SqliteSessionStore = require('./sessionStore');
@@ -317,6 +318,36 @@ app.post('/api/hilo/cashout', requireAuth, (req, res) => {
   // Hi-Lo winnings are chips-only, no XP — only poker hands and wheel spins
   // count toward rank progress.
   res.json({ chips, payout, rank: ranks.getRank({ xp: user.xp }) });
+});
+
+app.get('/api/slots', requireAuth, (req, res) => {
+  res.json(slots.publicPaytable());
+});
+
+app.post('/api/slots/spin', requireAuth, (req, res) => {
+  const { bet } = req.body;
+  if (!Number.isInteger(bet) || bet <= 0) return res.status(400).json({ error: 'Invalid bet' });
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!user) return res.status(401).json({ error: 'Not signed in' });
+  if (user.chips < bet) return res.status(400).json({ error: 'Not enough chips for that bet' });
+
+  const result = slots.spin(bet);
+  const chips = user.chips - bet + result.payout;
+  // Same convention as the wheel: winnings count toward XP 1:1, never
+  // reduced for the cost of playing (and a losing spin adds nothing).
+  const xp = user.xp + result.payout;
+  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
+
+  res.json({
+    reels: result.reels,
+    multiplier: result.multiplier,
+    win: result.win,
+    payout: result.payout,
+    bet,
+    chips,
+    rank: ranks.getRank({ xp }),
+  });
 });
 
 app.get('/api/shop', requireAuth, (req, res) => {

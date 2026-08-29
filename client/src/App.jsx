@@ -7,6 +7,7 @@ import Table from './pages/Table.jsx';
 import Rewards from './pages/Rewards.jsx';
 import Wheel from './pages/Wheel.jsx';
 import HiLo from './pages/HiLo.jsx';
+import Slots from './pages/Slots.jsx';
 import Shop from './pages/Shop.jsx';
 import Codes from './pages/Codes.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="/rewards" element={<Rewards user={user} />} />
         <Route path="/wheel" element={<Wheel user={user} onUserUpdate={updateUser} />} />
         <Route path="/hilo" element={<HiLo user={user} onUserUpdate={updateUser} />} />
+        <Route path="/slots" element={<Slots user={user} onUserUpdate={updateUser} />} />
         <Route path="/shop" element={<Shop user={user} onUserUpdate={updateUser} />} />
         <Route path="/codes" element={<Codes user={user} onUserUpdate={updateUser} />} />
         <Route path="/leaderboard" element={<Leaderboard user={user} />} />

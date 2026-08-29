@@ -133,6 +133,9 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
           <button className="lobby__icon-btn" onClick={() => navigate('/hilo')} aria-label="Higher / Lower">
             <HiLoIcon />
           </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/slots')} aria-label="777 Slots">
+            <SlotsIcon />
+          </button>
           <button className="lobby__icon-btn" onClick={() => navigate('/shop')} aria-label="Shop">
             <ShopIcon />
           </button>
@@ -156,25 +159,28 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
         </div>
 
         {view === 'main' && (
-          <div className="lobby__modes">
-            <button className="lobby__mode lobby__mode--side" onClick={() => goToView('cash')}>
-              <img className="lobby__mode-icon" src={cashGamesBadge} alt="" />
-              <h2 className="lobby__mode-title">Cash Games</h2>
-              <p className="lobby__mode-text">Play for real stakes.</p>
-            </button>
+          <>
+            <XpBar rank={user.rank} size="hero" />
+            <div className="lobby__modes">
+              <button className="lobby__mode lobby__mode--side" onClick={() => goToView('cash')}>
+                <img className="lobby__mode-icon" src={cashGamesBadge} alt="" />
+                <h2 className="lobby__mode-title">Cash Games</h2>
+                <p className="lobby__mode-text">Play for real stakes.</p>
+              </button>
 
-            <button className="lobby__mode lobby__mode--main" onClick={() => goToView('tournaments')}>
-              <img className="lobby__mode-icon" src={tournamentBadge} alt="" />
-              <h2 className="lobby__mode-title">Tournaments</h2>
-              <p className="lobby__mode-text">Open tables anyone can join — or start your own.</p>
-            </button>
+              <button className="lobby__mode lobby__mode--main" onClick={() => goToView('tournaments')}>
+                <img className="lobby__mode-icon" src={tournamentBadge} alt="" />
+                <h2 className="lobby__mode-title">Tournaments</h2>
+                <p className="lobby__mode-text">Open tables anyone can join — or start your own.</p>
+              </button>
 
-            <button className="lobby__mode lobby__mode--side" onClick={() => goToView('quick')}>
-              <img className="lobby__mode-icon" src={quickGameBadge} alt="" />
-              <h2 className="lobby__mode-title">Quick Game</h2>
-              <p className="lobby__mode-text">You vs. the AI.</p>
-            </button>
-          </div>
+              <button className="lobby__mode lobby__mode--side" onClick={() => goToView('quick')}>
+                <img className="lobby__mode-icon" src={quickGameBadge} alt="" />
+                <h2 className="lobby__mode-title">Quick Game</h2>
+                <p className="lobby__mode-text">You vs. the AI.</p>
+              </button>
+            </div>
+          </>
         )}
 
         {view === 'cash' && (
@@ -313,6 +319,19 @@ function CodesIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Z" />
       <path d="M10 7v10" strokeDasharray="1.6 1.8" />
+    </svg>
+  );
+}
+
+function SlotsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="15" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M8 5v4M16 5v4" />
+      <circle cx="8" cy="14.5" r="1.5" />
+      <circle cx="12" cy="14.5" r="1.5" />
+      <circle cx="16" cy="14.5" r="1.5" />
     </svg>
   );
 }
