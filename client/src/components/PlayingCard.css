@@ -147,3 +147,54 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 224, 102, 0.5);
   }
 }
+
+/* A different kind of skin from the ones above: these replace the card's
+   fill color too, not just its border/glow, and render every suit in the
+   same gold rather than red-vs-black — an elegant/gilded look rather than
+   a tint of the usual card. Selectors combine the skin class with
+   --red/--black/--back so they win on specificity over the base rules
+   without needing source-order to do the work. */
+.playing-card--cards-gold-noir.playing-card--red,
+.playing-card--cards-gold-noir.playing-card--black,
+.playing-card--cards-gold-noir.playing-card--back {
+  background: linear-gradient(165deg, #100f0d 0%, #000000 100%);
+  border-color: rgba(232, 196, 104, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(232, 196, 104, 0.3);
+}
+.playing-card--cards-gold-noir.playing-card--red,
+.playing-card--cards-gold-noir.playing-card--black {
+  color: #e8c468;
+}
+.playing-card--cards-gold-noir.playing-card--back::after {
+  color: rgba(232, 196, 104, 0.55);
+}
+
+.playing-card--cards-gold-navy.playing-card--red,
+.playing-card--cards-gold-navy.playing-card--black,
+.playing-card--cards-gold-navy.playing-card--back {
+  background: linear-gradient(165deg, #14224a 0%, #060d24 100%);
+  border-color: rgba(232, 196, 104, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(232, 196, 104, 0.3);
+}
+.playing-card--cards-gold-navy.playing-card--red,
+.playing-card--cards-gold-navy.playing-card--black {
+  color: #e8c468;
+}
+.playing-card--cards-gold-navy.playing-card--back::after {
+  color: rgba(232, 196, 104, 0.55);
+}
+
+.playing-card--cards-gold-ruby.playing-card--red,
+.playing-card--cards-gold-ruby.playing-card--black,
+.playing-card--cards-gold-ruby.playing-card--back {
+  background: linear-gradient(165deg, #4a121c 0%, #24060a 100%);
+  border-color: rgba(232, 196, 104, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(232, 196, 104, 0.3);
+}
+.playing-card--cards-gold-ruby.playing-card--red,
+.playing-card--cards-gold-ruby.playing-card--black {
+  color: #e8c468;
+}
+.playing-card--cards-gold-ruby.playing-card--back::after {
+  color: rgba(232, 196, 104, 0.55);
+}

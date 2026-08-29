@@ -35,6 +35,13 @@ const CARD_SKINS = [
   { id: 'cards-teal', slot: 'cardSkin', name: 'Teal Dream', price: 400 },
   { id: 'cards-rose', slot: 'cardSkin', name: 'Rose Gold', price: 450 },
   { id: 'cards-unreal', slot: 'cardSkin', name: 'Unreal Prestige', price: 2500 },
+  // A genuinely different look rather than a border tint on the usual dark
+  // card — a solid-color face (black/navy/wine) with gold rank and suit,
+  // both colors, no red/black distinction. An elegant/luxury option players
+  // opt into, not the default.
+  { id: 'cards-gold-noir', slot: 'cardSkin', name: 'Gold Noir', price: 500 },
+  { id: 'cards-gold-navy', slot: 'cardSkin', name: 'Gold Navy', price: 500 },
+  { id: 'cards-gold-ruby', slot: 'cardSkin', name: 'Gold Ruby', price: 550 },
 ];
 
 const ALL_ITEMS = [...BACKGROUNDS, ...CARD_SKINS];
