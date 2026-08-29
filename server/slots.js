@@ -6,13 +6,18 @@
 // wins more, betting less risks less. Weights are tuned so cherries turn up
 // often (frequent small wins), with three-of-a-kind on the rarer symbols
 // paying much bigger, and 777 as the rare, flashy jackpot.
+// Seven's weight is deliberately much higher relative to its old value than
+// the other symbols — jackpot frequency was the one thing worth buffing on
+// its own, so its payout multiplier came down some to compensate (still by
+// far the biggest prize on the board) rather than letting the jackpot alone
+// push the whole machine's payout ratio over 100%.
 const SYMBOLS = [
   { key: 'cherry', emoji: '🍒', label: 'Cherry', weight: 32, tripleMultiplier: 5 },
   { key: 'lemon', emoji: '🍋', label: 'Lemon', weight: 24, tripleMultiplier: 10 },
-  { key: 'bell', emoji: '🔔', label: 'Bell', weight: 18, tripleMultiplier: 25 },
-  { key: 'star', emoji: '⭐', label: 'Star', weight: 13, tripleMultiplier: 50 },
-  { key: 'diamond', emoji: '💎', label: 'Diamond', weight: 8, tripleMultiplier: 100 },
-  { key: 'seven', emoji: '7️⃣', label: 'Seven', weight: 5, tripleMultiplier: 400 },
+  { key: 'bell', emoji: '🔔', label: 'Bell', weight: 17, tripleMultiplier: 25 },
+  { key: 'star', emoji: '⭐', label: 'Star', weight: 12, tripleMultiplier: 50 },
+  { key: 'diamond', emoji: '💎', label: 'Diamond', weight: 7, tripleMultiplier: 100 },
+  { key: 'seven', emoji: '7️⃣', label: 'Seven', weight: 8, tripleMultiplier: 250 },
 ];
 const BY_KEY = new Map(SYMBOLS.map((s) => [s.key, s]));
 
