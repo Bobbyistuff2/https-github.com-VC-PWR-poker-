@@ -30,6 +30,11 @@ class Room {
     this.toAct = new Set();
     this.lastResult = null;
     this.lastAction = null;
+    // Monotonic counter stamped onto every lastAction — the client compares
+    // this instead of object identity, since a broadcast round-trips
+    // through JSON and never preserves object references, so "is this the
+    // same action I already toasted" can't be answered by === alone.
+    this._actionSeq = 0;
     this.handNumber = 0;
     // Rolling log of recently completed hands, newest first — capped below
     // so it stays cheap to keep in memory for the life of the room. Not
@@ -165,6 +170,10 @@ class Room {
     this.communityCards = [];
     this.pot = 0;
     this.lastResult = null;
+    // Belt-and-suspenders alongside the seq check in handleAction — a fresh
+    // hand shouldn't still be showing an action toast for something that
+    // happened last hand, even for the brief window before anyone's acted.
+    this.lastAction = null;
 
     for (const seat of this.occupiedSeats) {
       seat.holeCards = [];
@@ -208,7 +217,8 @@ class Room {
 
     // A short-lived label describing what just happened, so clients can show
     // a transient "Checked" / "Bet 20" / "Folded" toast near the seat.
-    this.lastAction = this._describeAction(seat, action, currentBetBefore, betBefore);
+    this._actionSeq += 1;
+    this.lastAction = { ...this._describeAction(seat, action, currentBetBefore, betBefore), seq: this._actionSeq };
 
     this.toAct.delete(seat.seatIndex);
     this._advanceAfterAction();
@@ -349,47 +359,30 @@ class Room {
       winner.chips += this.pot;
       payouts.push({ seatIndex: winner.seatIndex, amount: this.pot, hand: null });
     } else {
-      const contributors = this.occupiedSeats
-        .filter((s) => s.committedThisHand > 0)
-        .map((s) => ({ seat: s, remaining: s.committedThisHand }));
-      const levels = [...new Set(contributors.map((c) => c.remaining))].sort((a, b) => a - b);
-
-      let prevLevel = 0;
-      for (const level of levels) {
-        const layerSize = level - prevLevel;
-        let layerPot = 0;
-        for (const c of contributors) {
-          if (c.remaining > 0) {
-            const contribution = Math.min(layerSize, c.remaining);
-            layerPot += contribution;
-            c.remaining -= contribution;
-          }
-        }
-        const eligible = this.occupiedSeats.filter(
-          (s) => !s.folded && s.committedThisHand >= level
-        );
-        if (eligible.length > 0 && layerPot > 0) {
-          const scored = eligible.map((s) => ({
-            seat: s,
-            score: evaluateBest([...s.holeCards, ...this.communityCards]),
-          }));
-          scored.sort((a, b) => compareScores(b.score, a.score));
-          const best = scored[0].score;
-          const winners = scored.filter((s) => compareScores(s.score, best) === 0);
-          const share = Math.floor(layerPot / winners.length);
-          let remainder = layerPot - share * winners.length;
-          for (const w of winners) {
-            const amount = share + (remainder > 0 ? 1 : 0);
-            if (remainder > 0) remainder -= 1;
-            w.seat.chips += amount;
-            // rank 9 with an Ace-high tiebreak is specifically a Royal Flush —
-            // handEval only names it "Straight Flush", so callers that care
-            // about the royal case (achievements) need this flagged here.
-            const isRoyal = w.score.rank === 9 && w.score.tiebreak[0] === 14;
-            payouts.push({ seatIndex: w.seat.seatIndex, amount, hand: w.score.name, royalFlush: isRoyal });
-          }
-        }
-        prevLevel = level;
+      // Winner takes the entire pot — no side pots. An all-in player who
+      // covered less than everyone else's bet is still evaluated against
+      // the whole pot rather than a layered slice of it: simpler to follow
+      // at the table, and it means a hand result never shows two different
+      // hand types each "winning" their own separate amount — only one
+      // hand type wins, for the full pot, unless it's an exact tie.
+      const scored = contenders.map((seat) => ({
+        seat,
+        score: evaluateBest([...seat.holeCards, ...this.communityCards]),
+      }));
+      scored.sort((a, b) => compareScores(b.score, a.score));
+      const best = scored[0].score;
+      const winners = scored.filter((s) => compareScores(s.score, best) === 0);
+      const share = Math.floor(this.pot / winners.length);
+      let remainder = this.pot - share * winners.length;
+      for (const w of winners) {
+        const amount = share + (remainder > 0 ? 1 : 0);
+        if (remainder > 0) remainder -= 1;
+        w.seat.chips += amount;
+        // rank 9 with an Ace-high tiebreak is specifically a Royal Flush —
+        // handEval only names it "Straight Flush", so callers that care
+        // about the royal case (achievements) need this flagged here.
+        const isRoyal = w.score.rank === 9 && w.score.tiebreak[0] === 14;
+        payouts.push({ seatIndex: w.seat.seatIndex, amount, hand: w.score.name, royalFlush: isRoyal });
       }
     }
 

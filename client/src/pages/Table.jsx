@@ -94,7 +94,11 @@ export default function Table({ user, onUserUpdate }) {
 
   useEffect(() => {
     if (!room?.lastAction) return;
-    if (room.lastAction === lastSeenActionRef.current) return;
+    // Compare by seq, not object identity — every broadcast round-trips
+    // through JSON, so a rebroadcast of the *same* last action (e.g. right
+    // after a new hand starts, before anyone's acted yet) would otherwise
+    // look "new" and re-toast a stale "Folded" from the previous hand.
+    if (room.lastAction.seq === lastSeenActionRef.current?.seq) return;
     lastSeenActionRef.current = room.lastAction;
 
     const toast = {
@@ -165,12 +169,15 @@ export default function Table({ user, onUserUpdate }) {
   const botCount = room.seats.filter((s) => s && s.isBot).length;
   const hasEmptySeat = room.seats.some((s) => s === null);
   const canAddBot = botCount < MAX_BOTS && hasEmptySeat;
-  // Everyone else folded before any chips were actually bet — not really a
-  // "win" worth celebrating, just say so instead of "X wins 0".
-  const isEmptyFoldWin =
-    room.lastResult?.payouts.length === 1 &&
-    room.lastResult.payouts[0].hand === null &&
-    room.lastResult.payouts[0].amount === 0;
+  // Everyone else folded — there was no showdown, so `hand` is always null
+  // for this payout (see Room.js's singleWinnerOnly branch). Worth saying
+  // plainly rather than showing it identically to a real showdown win,
+  // which reads as if the winning hand actually got compared and beat
+  // someone.
+  const foldWinner =
+    room.lastResult?.payouts.length === 1 && room.lastResult.payouts[0].hand === null
+      ? room.lastResult.payouts[0]
+      : null;
 
   function positionOf(seatIndex) {
     const base = mySeatIndex != null ? mySeatIndex : 0;
@@ -317,10 +324,18 @@ export default function Table({ user, onUserUpdate }) {
 
       {showResult && room.lastResult && (
         <div className="round-result-overlay">
-          {!isEmptyFoldWin && <Confetti />}
+          {!(foldWinner && foldWinner.amount === 0) && <Confetti />}
           <div className="round-result-overlay__text">
-            {isEmptyFoldWin ? (
-              <div className="round-result-overlay__line">Everyone folded</div>
+            {foldWinner ? (
+              <>
+                <div className="round-result-overlay__exclaim">Everyone folded</div>
+                {foldWinner.amount > 0 && (
+                  <div className="round-result-overlay__line">
+                    {room.seats.find((s) => s && s.seatIndex === foldWinner.seatIndex)?.name || 'Player'} wins{' '}
+                    {formatChips(foldWinner.amount)}
+                  </div>
+                )}
+              </>
             ) : room.lastResult.payouts.length > 0 ? (
               <>
                 <div className="round-result-overlay__exclaim">{exclamation}</div>
