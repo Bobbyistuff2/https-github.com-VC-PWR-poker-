@@ -6,6 +6,7 @@ import Chip from '../components/Chip.jsx';
 import HandRankings from '../components/HandRankings.jsx';
 import HandHistory from '../components/HandHistory.jsx';
 import Confetti from '../components/Confetti.jsx';
+import ChipRain from '../components/ChipRain.jsx';
 import PlayerStatsModal from '../components/PlayerStatsModal.jsx';
 import { getSocket } from '../socket.js';
 import { api } from '../api.js';
@@ -36,8 +37,11 @@ export default function Table({ user, onUserUpdate }) {
   const [actionToasts, setActionToasts] = useState([]);
   const [achievementToasts, setAchievementToasts] = useState([]);
   const [statsUserId, setStatsUserId] = useState(null);
+  const [flyingChips, setFlyingChips] = useState([]);
   const lastSeenResultRef = useRef(null);
   const lastSeenActionRef = useRef(null);
+  const tableSurfaceRef = useRef(null);
+  const flightIdRef = useRef(0);
 
   useEffect(() => {
     if (!user) {
@@ -113,6 +117,45 @@ export default function Table({ user, onUserUpdate }) {
     setTimeout(() => {
       setActionToasts((prev) => prev.filter((t) => t.id !== toast.id));
     }, 3200);
+
+    // Chips actually moved into the pot this action (0 for a fold/check) —
+    // animate them flying from the seat to the table center. Skipped under
+    // reduced-motion, same as the other decorative animations.
+    const contributed = room.lastAction.contributed || 0;
+    const reduceMotion =
+      typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (contributed > 0 && !reduceMotion && tableSurfaceRef.current) {
+      const seatEl = tableSurfaceRef.current.querySelector(
+        `[data-seat-index="${room.lastAction.seatIndex}"]`
+      );
+      const potEl = tableSurfaceRef.current.querySelector('.table-center');
+      if (seatEl && potEl) {
+        const from = seatEl.getBoundingClientRect();
+        const to = potEl.getBoundingClientRect();
+        const fromX = from.left + from.width / 2;
+        const fromY = from.top + from.height / 2;
+        const toX = to.left + to.width / 2;
+        const toY = to.top + to.height / 2;
+        // One flying chip per denomination present in the bet (capped so a
+        // huge all-in doesn't spawn a wall of chips), each colored to match
+        // the pot display's own chip breakdown and lightly staggered.
+        const pieces = decomposeChips(contributed).slice(0, 4);
+        const newChips = pieces.map((d, i) => ({
+          id: `${flightIdRef.current++}`,
+          color: d.color,
+          x: fromX,
+          y: fromY,
+          dx: toX - fromX,
+          dy: toY - fromY,
+          delay: i * 0.06,
+        }));
+        setFlyingChips((prev) => [...prev, ...newChips]);
+        const ids = new Set(newChips.map((c) => c.id));
+        setTimeout(() => {
+          setFlyingChips((prev) => prev.filter((c) => !ids.has(c.id)));
+        }, 700);
+      }
+    }
   }, [room?.lastAction]);
 
   useEffect(() => {
@@ -263,6 +306,7 @@ export default function Table({ user, onUserUpdate }) {
 
       <div
         className="table-surface"
+        ref={tableSurfaceRef}
         data-tier={user.rank?.tier}
         data-bg={user.equippedBackground !== 'bg-classic' ? user.equippedBackground : undefined}
       >
@@ -323,9 +367,33 @@ export default function Table({ user, onUserUpdate }) {
         </div>
       </div>
 
+      {flyingChips.length > 0 && (
+        <div className="chip-flight-layer" aria-hidden="true">
+          {flyingChips.map((c) => (
+            <div
+              key={c.id}
+              className="chip-flight"
+              style={{
+                left: `${c.x}px`,
+                top: `${c.y}px`,
+                background: c.color,
+                animationDelay: `${c.delay}s`,
+                '--dx': `${c.dx}px`,
+                '--dy': `${c.dy}px`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {showResult && room.lastResult && (
         <div className="round-result-overlay">
-          {!(foldWinner && foldWinner.profit === 0) && <Confetti />}
+          {!(foldWinner && foldWinner.profit === 0) && (
+            <>
+              <Confetti />
+              <ChipRain />
+            </>
+          )}
           <div className="round-result-overlay__text">
             {foldWinner ? (
               <>

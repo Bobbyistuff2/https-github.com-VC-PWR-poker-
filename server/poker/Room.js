@@ -226,18 +226,22 @@ class Room {
 
   _describeAction(seat, action, currentBetBefore, betBefore) {
     const seatIndex = seat.seatIndex;
-    if (action === 'fold') return { seatIndex, label: 'Folded' };
-    if (seat.allIn) return { seatIndex, label: 'All In!' };
+    // Chips this action actually pushed into the pot — 0 for a fold/check.
+    // Clients use this to animate chips flying from the seat to the pot
+    // without having to parse the amount back out of `label`.
+    const contributed = seat.betThisRound - betBefore;
+    if (action === 'fold') return { seatIndex, label: 'Folded', contributed: 0 };
+    if (seat.allIn) return { seatIndex, label: 'All In!', contributed };
 
     if (action === 'check' || action === 'call') {
-      const called = seat.betThisRound - betBefore;
-      return { seatIndex, label: called > 0 ? `Called ${called}` : 'Checked' };
+      return { seatIndex, label: contributed > 0 ? `Called ${contributed}` : 'Checked', contributed };
     }
 
     // raise/allin actions both land here via _betOrRaise
     return {
       seatIndex,
       label: currentBetBefore === 0 ? `Bet ${seat.betThisRound}` : `Raised to ${seat.betThisRound}`,
+      contributed,
     };
   }
 

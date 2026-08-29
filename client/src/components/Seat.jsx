@@ -8,7 +8,10 @@ export default function Seat({ seat, position, isDealer, isTurn, isMe, actionToa
   const AvatarTag = clickable ? 'button' : 'div';
 
   return (
-    <div className={`seat seat--pos${position} ${seat.folded ? 'seat--folded' : ''} ${isTurn ? 'seat--turn' : ''}`}>
+    <div
+      className={`seat seat--pos${position} ${seat.folded ? 'seat--folded' : ''} ${isTurn ? 'seat--turn' : ''}`}
+      data-seat-index={seat.seatIndex}
+    >
       {isDealer && <div className="seat__dealer">D</div>}
 
       <div className="seat__cluster">
