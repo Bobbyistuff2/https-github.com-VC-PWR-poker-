@@ -109,19 +109,6 @@
   transform: translateY(0) scale(0.94);
 }
 
-.lobby__logout {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f2f2f2;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
-.lobby__logout:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
 @media (max-width: 480px) {
   .lobby__header {
     padding: 0.85rem 0.9rem;
@@ -152,7 +139,7 @@
   }
 
   /* keep just the rank icon next to the name on narrow screens — the full
-     text label would push the sign-out button off-screen otherwise */
+     text label would push the icon row off-screen otherwise */
   .lobby__name-row .rank-badge__label {
     display: none;
   }
@@ -170,12 +157,6 @@
   .lobby__icon-btn svg {
     width: 16px;
     height: 16px;
-  }
-
-  .lobby__logout {
-    padding: 0.4rem 0.65rem;
-    font-size: 0.78rem;
-    flex-shrink: 0;
   }
 }
 

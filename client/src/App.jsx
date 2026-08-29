@@ -85,7 +85,7 @@ export default function App() {
         <Route path="/profile" element={<Profile user={user} onSignedIn={updateUser} />} />
         <Route
           path="/lobby"
-          element={<Lobby user={user} onSignedOut={() => setUser(null)} onUserUpdate={updateUser} />}
+          element={<Lobby user={user} onUserUpdate={updateUser} />}
         />
         <Route path="/table/:code" element={<Table user={user} onUserUpdate={updateUser} />} />
         <Route path="/rewards" element={<Rewards user={user} />} />
@@ -97,7 +97,7 @@ export default function App() {
         <Route path="/leaderboard" element={<Leaderboard user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <SettingsPanel user={user} />
+      <SettingsPanel user={user} onSignedOut={() => setUser(null)} />
       <RankUpCelebration rank={rankUpEvent} onDone={() => setRankUpEvent(null)} />
     </SettingsProvider>
   );

@@ -177,6 +177,25 @@
   transform: scale(0.95);
 }
 
+.settings-panel__logout {
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #f2f2f2;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.settings-panel__logout:hover {
+  border-color: rgba(230, 57, 74, 0.5);
+  background: rgba(230, 57, 74, 0.1);
+}
+
 @media (max-width: 480px) {
   .settings-toggle {
     bottom: 1rem;

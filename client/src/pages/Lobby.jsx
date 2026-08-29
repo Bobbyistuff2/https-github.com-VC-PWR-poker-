@@ -20,7 +20,7 @@ const SUBHEADINGS = {
   quick: 'Fill the table with the AI and jump right in.',
 };
 
-export default function Lobby({ user, onSignedOut, onUserUpdate }) {
+export default function Lobby({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const [view, setView] = useState('main');
   const [error, setError] = useState('');
@@ -53,12 +53,6 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
   }, [view]);
 
   if (!user) return null;
-
-  async function handleLogout() {
-    await api.logout();
-    onSignedOut();
-    navigate('/');
-  }
 
   function goToView(next) {
     setError('');
@@ -146,9 +140,6 @@ export default function Lobby({ user, onSignedOut, onUserUpdate }) {
             <LeaderboardIcon />
           </button>
         </div>
-        <button className="lobby__logout" onClick={handleLogout}>
-          Sign out
-        </button>
       </header>
 
       <main className="lobby__main">

@@ -1,12 +1,22 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../SettingsContext.jsx';
+import { api } from '../api.js';
 import TermsModal from './TermsModal.jsx';
 import './SettingsPanel.css';
 
-export default function SettingsPanel({ user }) {
+export default function SettingsPanel({ user, onSignedOut }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const { settings, update } = useSettings();
+
+  async function handleLogout() {
+    setOpen(false);
+    await api.logout();
+    onSignedOut();
+    navigate('/');
+  }
 
   return (
     <>
@@ -67,6 +77,12 @@ export default function SettingsPanel({ user }) {
             View
           </button>
         </div>
+
+        {user && (
+          <button className="settings-panel__logout" onClick={handleLogout}>
+            Sign out
+          </button>
+        )}
       </div>
 
       {open && <div className="settings-backdrop" onClick={() => setOpen(false)} />}
