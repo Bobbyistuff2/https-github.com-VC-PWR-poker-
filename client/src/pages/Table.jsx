@@ -324,15 +324,15 @@ export default function Table({ user, onUserUpdate }) {
 
       {showResult && room.lastResult && (
         <div className="round-result-overlay">
-          {!(foldWinner && foldWinner.amount === 0) && <Confetti />}
+          {!(foldWinner && foldWinner.profit === 0) && <Confetti />}
           <div className="round-result-overlay__text">
             {foldWinner ? (
               <>
                 <div className="round-result-overlay__exclaim">Everyone folded</div>
-                {foldWinner.amount > 0 && (
+                {foldWinner.profit > 0 && (
                   <div className="round-result-overlay__line">
                     {room.seats.find((s) => s && s.seatIndex === foldWinner.seatIndex)?.name || 'Player'} wins{' '}
-                    {formatChips(foldWinner.amount)}
+                    {formatChips(foldWinner.profit)}
                   </div>
                 )}
               </>
@@ -343,7 +343,7 @@ export default function Table({ user, onUserUpdate }) {
                   const seat = room.seats.find((s) => s && s.seatIndex === p.seatIndex);
                   return (
                     <div key={i} className="round-result-overlay__line">
-                      {seat?.name || 'Player'} wins {formatChips(p.amount)}
+                      {seat?.name || 'Player'} wins {formatChips(p.profit)}
                       {p.hand ? ` with ${p.hand}` : ''}
                     </div>
                   );

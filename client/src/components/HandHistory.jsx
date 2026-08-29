@@ -41,7 +41,7 @@ export default function HandHistory({ history, mySeatIndex }) {
                       key={i}
                       className={`hand-history-item__line ${p.seatIndex === mySeatIndex ? 'hand-history-item__line--me' : ''}`}
                     >
-                      {p.name} won {formatChips(p.amount)}
+                      {p.name} won {formatChips(p.profit)}
                       {p.hand ? ` with ${p.hand}` : ''}
                     </div>
                   ))

@@ -357,7 +357,17 @@ class Room {
     if (singleWinnerOnly && contenders.length === 1) {
       const winner = contenders[0];
       winner.chips += this.pot;
-      payouts.push({ seatIndex: winner.seatIndex, amount: this.pot, hand: null });
+      // `amount` is the whole pot (including the winner's own money coming
+      // back to them); `profit` is what they actually gained — the pot
+      // minus what they themselves put into it this hand. Display should
+      // use profit; amount stays around for anything that cares about the
+      // literal chip movement (achievements, stats).
+      payouts.push({
+        seatIndex: winner.seatIndex,
+        amount: this.pot,
+        profit: this.pot - winner.committedThisHand,
+        hand: null,
+      });
     } else {
       // Winner takes the entire pot — no side pots. An all-in player who
       // covered less than everyone else's bet is still evaluated against
@@ -382,7 +392,13 @@ class Room {
         // handEval only names it "Straight Flush", so callers that care
         // about the royal case (achievements) need this flagged here.
         const isRoyal = w.score.rank === 9 && w.score.tiebreak[0] === 14;
-        payouts.push({ seatIndex: w.seat.seatIndex, amount, hand: w.score.name, royalFlush: isRoyal });
+        payouts.push({
+          seatIndex: w.seat.seatIndex,
+          amount,
+          profit: amount - w.seat.committedThisHand,
+          hand: w.score.name,
+          royalFlush: isRoyal,
+        });
       }
     }
 
@@ -401,6 +417,7 @@ class Room {
         seatIndex: p.seatIndex,
         name: this.seats[p.seatIndex]?.name || 'Player',
         amount: p.amount,
+        profit: p.profit,
         hand: p.hand,
       })),
       at: Date.now(),
