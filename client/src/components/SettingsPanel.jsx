@@ -70,6 +70,14 @@ export default function SettingsPanel({ user, onSignedOut }) {
 
         <div className="settings-row">
           <div className="settings-row__text">
+            <div className="settings-row__label">Creative Mode 💥</div>
+            <div className="settings-row__desc">Redraws the whole app comic-book style. Everything still works the same.</div>
+          </div>
+          <Switch checked={settings.creativeMode} onChange={(v) => update({ creativeMode: v })} />
+        </div>
+
+        <div className="settings-row">
+          <div className="settings-row__text">
             <div className="settings-row__label">Terms of Service</div>
             <div className="settings-row__desc">Review what you agreed to when you signed in.</div>
           </div>

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { updateAudioSettings, unlockAudio, playClick, playHover } from './audio.js';
 
 const STORAGE_KEY = 'pwr-poker-settings';
-const DEFAULTS = { sound: true, music: true, musicVolume: 0.5 };
+const DEFAULTS = { sound: true, music: true, musicVolume: 0.5, creativeMode: false };
 
 function loadSettings() {
   try {
@@ -27,6 +27,12 @@ export function SettingsProvider({ children }) {
       // ignore write failures (private browsing, storage full, etc.)
     }
   }, [settings]);
+
+  useEffect(() => {
+    // A single attribute on <html> is all creative-theme.css keys off of —
+    // every page/component restyles instantly, no per-page wiring needed.
+    document.documentElement.setAttribute('data-theme', settings.creativeMode ? 'creative' : 'classic');
+  }, [settings.creativeMode]);
 
   useEffect(() => {
     // Browsers won't make sound until a real user gesture happens — unlock

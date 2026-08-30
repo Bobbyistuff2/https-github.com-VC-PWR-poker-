@@ -1,0 +1,524 @@
+/* ============================================================================
+   CREATIVE MODE — a comic-book reskin of the entire app.
+   ============================================================================
+   Scoped entirely behind [data-theme="creative"] on <html> (see
+   SettingsContext.jsx — one boolean, applied instantly, remembered locally
+   like the sound/music settings). Nothing here changes what anything DOES —
+   every button, form, and game screen keeps its existing markup and
+   behavior; this file only ever touches paint (color, border, shadow, font,
+   background, shape). Classic mode is completely untouched: every rule
+   below is gated on the attribute selector and nothing here is imported
+   any other way.
+
+   Approach: rather than hand-editing 30 separate component stylesheets,
+   this one file uses broad, deliberate selectors — real HTML elements
+   (button, h1-h3, input) plus attribute-substring class matches
+   (e.g. [class$="-page"], [class*="-panel"]) — to reach almost every
+   surface in the app from one place, then adds specific rules for the
+   handful of components (cards, chips, the table felt, toasts) that need
+   a bespoke comic redesign rather than a generic one. `!important` is used
+   deliberately throughout: this file's entire job is to win against
+   whatever a component's own stylesheet says, regardless of which loads
+   last in the bundle.
+   ========================================================================= */
+
+:root[data-theme='creative'] {
+  --comic-ink: #0a0a0a;
+  --comic-paper: #fff3d6;
+  --comic-paper-dark: #ffe9b8;
+  --comic-yellow: #ffd400;
+  --comic-red: #ff3b3b;
+  --comic-red-dark: #d81e2c;
+  --comic-blue: #2e6ff2;
+  --comic-blue-dark: #1a4fc4;
+  --comic-green: #2ecc71;
+  --comic-green-dark: #1f9c56;
+  --comic-purple: #a855f7;
+  --comic-orange: #ff8c1a;
+  --comic-pink: #ff5fa2;
+}
+
+/* ---------- base tokens ---------- */
+
+[data-theme='creative'] body {
+  background: var(--comic-paper) !important;
+  color: var(--comic-ink) !important;
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif !important;
+}
+
+[data-theme='creative'] h1,
+[data-theme='creative'] h2,
+[data-theme='creative'] h3 {
+  font-family: 'Bangers', cursive !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 400 !important;
+  -webkit-text-stroke: 1px var(--comic-ink);
+  text-shadow: 2px 2px 0 var(--comic-ink) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: var(--comic-yellow) !important;
+}
+
+/* ---------- page backgrounds: every *-page shell, plus the lobby/landing
+   roots that don't follow that suffix — a halftone dot field over bright
+   paper instead of the near-black luxury gradient everywhere else uses. ---------- */
+
+[data-theme='creative'] [class$='-page'],
+[data-theme='creative'] .lobby,
+[data-theme='creative'] .landing,
+[data-theme='creative'] .app-loading {
+  background-color: var(--comic-paper) !important;
+  background-image: radial-gradient(var(--comic-ink) 1.4px, transparent 1.6px) !important;
+  background-size: 16px 16px !important;
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .table-page,
+[data-theme='creative'] .hilo-page,
+[data-theme='creative'] .slots-page {
+  background-color: var(--comic-paper-dark) !important;
+}
+
+/* ---------- buttons: catches nearly every interactive control in the app
+   in one place, since almost everything clickable is a real <button>. ---------- */
+
+[data-theme='creative'] button {
+  font-family: 'Bangers', cursive !important;
+  letter-spacing: 0.03em !important;
+  font-weight: 400 !important;
+  border-radius: 0.65rem !important;
+  border: 3px solid var(--comic-ink) !important;
+  background: var(--comic-yellow) !important;
+  color: var(--comic-ink) !important;
+  text-shadow: none !important;
+  box-shadow: 4px 4px 0 var(--comic-ink) !important;
+  transition: transform 0.08s ease, box-shadow 0.08s ease !important;
+}
+
+[data-theme='creative'] button:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0 var(--comic-ink) !important;
+  filter: none !important;
+}
+
+[data-theme='creative'] button:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] button:disabled {
+  box-shadow: 2px 2px 0 var(--comic-ink) !important;
+  filter: grayscale(0.6) !important;
+}
+
+/* Semantic color swaps — same shape/shadow language, just the fill color
+   that tells a poker action or a shop state apart. */
+[data-theme='creative'] .action-btn--fold,
+[data-theme='creative'] .terms-btn--decline,
+[data-theme='creative'] .hilo-guess-btn--lower {
+  background: var(--comic-red) !important;
+  color: #fff !important;
+}
+
+[data-theme='creative'] .action-btn--call,
+[data-theme='creative'] .primary-btn,
+[data-theme='creative'] .lobby__cta,
+[data-theme='creative'] .terms-btn--accept,
+[data-theme='creative'] .hilo-guess-btn--higher,
+[data-theme='creative'] .hilo-deal-btn,
+[data-theme='creative'] .hilo-cashout-btn,
+[data-theme='creative'] .slot-spin-btn,
+[data-theme='creative'] .shop-item__btn--buy,
+[data-theme='creative'] .codes-submit,
+[data-theme='creative'] .wheel-card__spin,
+[data-theme='creative'] .profile-card__submit {
+  background: var(--comic-green) !important;
+  color: #fff !important;
+}
+
+[data-theme='creative'] .action-btn--allin {
+  background: var(--comic-orange) !important;
+  color: #fff !important;
+}
+
+[data-theme='creative'] .shop-item--equipped .shop-item__equipped,
+[data-theme='creative'] .shop-item__btn--equip,
+[data-theme='creative'] .bot-btn,
+[data-theme='creative'] .lobby__back-btn,
+[data-theme='creative'] .table-header__back,
+[data-theme='creative'] .hilo-header__back,
+[data-theme='creative'] .slots-header__back,
+[data-theme='creative'] .shop-header__back,
+[data-theme='creative'] .codes-header__back,
+[data-theme='creative'] .leaderboard-header__back,
+[data-theme='creative'] .rewards-header__back,
+[data-theme='creative'] .wheel-header__back {
+  background: var(--comic-blue) !important;
+  color: #fff !important;
+}
+
+/* Small icon-only round controls — a comic button, but round like the
+   original instead of the default rectangle. */
+[data-theme='creative'] .settings-toggle,
+[data-theme='creative'] .lobby__icon-btn,
+[data-theme='creative'] .settings-panel__close,
+[data-theme='creative'] .stats-modal__close,
+[data-theme='creative'] .terms-modal__close {
+  border-radius: 50% !important;
+  background: var(--comic-paper) !important;
+}
+
+[data-theme='creative'] .settings-toggle--open {
+  background: var(--comic-yellow) !important;
+}
+
+/* The on/off switch is its own widget, not an action button — keep the
+   pill-track shape, just ink-outline it. */
+[data-theme='creative'] .settings-switch {
+  border: 3px solid var(--comic-ink) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  background: #fff !important;
+}
+
+[data-theme='creative'] .settings-switch--on {
+  background: var(--comic-green) !important;
+}
+
+[data-theme='creative'] .settings-switch__knob {
+  border: 2px solid var(--comic-ink) !important;
+}
+
+/* The chip tray's chips are buttons too, but they get their own dedicated
+   redesign below rather than the rectangular comic-button treatment. */
+[data-theme='creative'] .chip {
+  border-radius: 50% !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Sign-in links keep their real Discord/Google brand colors (people rely
+   on recognizing these) — just pick up the ink border + hard shadow so
+   they still read as part of the comic page. */
+[data-theme='creative'] .landing__discord,
+[data-theme='creative'] .landing__google {
+  border: 3px solid var(--comic-ink) !important;
+  border-radius: 0.65rem !important;
+  box-shadow: 4px 4px 0 var(--comic-ink) !important;
+  font-family: 'Comic Neue', cursive, sans-serif !important;
+  font-weight: 700 !important;
+}
+
+/* ---------- form controls ---------- */
+
+[data-theme='creative'] input,
+[data-theme='creative'] select {
+  font-family: 'Comic Neue', cursive, sans-serif !important;
+  border: 3px solid var(--comic-ink) !important;
+  border-radius: 0.6rem !important;
+  background: #fff !important;
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .settings-slider {
+  accent-color: var(--comic-red) !important;
+}
+
+/* ---------- panels / cards / modals: the dark glass-panel look used for
+   almost every content block becomes a bold ink-outlined paper card. ---------- */
+
+[data-theme='creative'] [class*='-panel']:not(.round-result-overlay):not(.hand-history-panel):not(.hand-rankings-panel),
+[data-theme='creative'] .shop-item,
+[data-theme='creative'] .lobby__hero,
+[data-theme='creative'] .lobby__mode,
+[data-theme='creative'] .stats-modal,
+[data-theme='creative'] .terms-modal,
+[data-theme='creative'] .rankup-card,
+[data-theme='creative'] .wheel-card,
+[data-theme='creative'] .profile-card,
+[data-theme='creative'] .xp-bar--hero,
+[data-theme='creative'] .slot-cabinet,
+[data-theme='creative'] .slot-paytable,
+[data-theme='creative'] .rewards-card,
+[data-theme='creative'] .leaderboard-row,
+[data-theme='creative'] .leaderboard-podium__card {
+  background: #fff !important;
+  border: 3px solid var(--comic-ink) !important;
+  border-radius: 1rem !important;
+  box-shadow: 6px 6px 0 var(--comic-ink) !important;
+  backdrop-filter: none !important;
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .shop-item--equipped {
+  box-shadow: 6px 6px 0 var(--comic-green-dark) !important;
+  border-color: var(--comic-green-dark) !important;
+}
+
+[data-theme='creative'] .settings-panel {
+  background: #fff !important;
+  border: 3px solid var(--comic-ink) !important;
+  box-shadow: 6px 6px 0 var(--comic-ink) !important;
+  backdrop-filter: none !important;
+}
+
+[data-theme='creative'] .settings-row {
+  border-bottom: 2px dashed var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .settings-row__label,
+[data-theme='creative'] .settings-row__desc,
+[data-theme='creative'] .settings-panel__header h2,
+[data-theme='creative'] .stats-modal__name,
+[data-theme='creative'] .hilo-stat__value,
+[data-theme='creative'] .lobby__name,
+[data-theme='creative'] .lobby__mode-text,
+[data-theme='creative'] .lobby__panel-text {
+  color: var(--comic-ink) !important;
+  text-shadow: none !important;
+}
+
+/* Any text pulled dark-on-dark by a component's own rules reads fine on
+   the bright paper background by default, but a few explicit off-white/
+   grey tones need a nudge back to full-contrast ink. */
+[data-theme='creative'] p,
+[data-theme='creative'] span,
+[data-theme='creative'] div {
+  text-shadow: none;
+}
+
+/* ---------- playing cards: bold ink outline, flat color, chunky glyphs —
+   the same look regardless of which equipped skin would otherwise apply. ---------- */
+
+[data-theme='creative'] .playing-card {
+  border-radius: 0.5rem !important;
+  border: 3px solid var(--comic-ink) !important;
+  box-shadow: 3px 3px 0 var(--comic-ink) !important;
+  background: #fff !important;
+}
+
+[data-theme='creative'] .playing-card--black {
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .playing-card--red {
+  color: var(--comic-red-dark) !important;
+}
+
+[data-theme='creative'] .playing-card--back {
+  background: var(--comic-blue) !important;
+}
+
+[data-theme='creative'] .playing-card--back::after {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme='creative'] .playing-card__rank {
+  font-family: 'Bangers', cursive !important;
+}
+
+[data-theme='creative'] .card-placeholder {
+  border: 3px dashed var(--comic-ink) !important;
+  background: rgba(10, 10, 10, 0.05) !important;
+}
+
+/* ---------- chips ---------- */
+
+[data-theme='creative'] .chip,
+[data-theme='creative'] .mini-chip,
+[data-theme='creative'] .chip-rain__mini,
+[data-theme='creative'] .pot-display__chip .chip {
+  border: 3px solid var(--comic-ink) !important;
+  box-shadow: none !important;
+}
+
+[data-theme='creative'] .chip::after,
+[data-theme='creative'] .mini-chip__ring,
+[data-theme='creative'] .chip-rain__mini-ring {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ---------- table felt / seats / community cards ---------- */
+
+[data-theme='creative'] .table-surface {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--comic-green-dark),
+    var(--comic-green-dark) 12px,
+    #178047 12px,
+    #178047 24px
+  ) !important;
+  border: 4px solid var(--comic-ink) !important;
+  box-shadow: 8px 8px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .table-surface__pattern {
+  display: none !important;
+}
+
+[data-theme='creative'] .seat__avatar {
+  border: 3px solid var(--comic-ink) !important;
+  box-shadow: 3px 3px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .seat--turn .seat__avatar {
+  border-color: var(--comic-red) !important;
+  box-shadow: 0 0 0 3px var(--comic-yellow), 3px 3px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .seat__name,
+[data-theme='creative'] .seat__chips {
+  color: #fff !important;
+  text-shadow: 1px 1px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .seat__tag,
+[data-theme='creative'] .action-bar__panel,
+[data-theme='creative'] .chip-tray {
+  background: #fff !important;
+  border: 3px solid var(--comic-ink) !important;
+  color: var(--comic-ink) !important;
+  box-shadow: 3px 3px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .pot-display__total {
+  color: var(--comic-ink) !important;
+  text-shadow: none !important;
+  font-family: 'Bangers', cursive !important;
+  font-size: 1.1em;
+}
+
+/* ---------- toasts / callouts: comic speech bubbles with a little
+   pointer tail, instead of a soft glowing pill. ---------- */
+
+[data-theme='creative'] .achievement-toast,
+[data-theme='creative'] .seat__action-toast,
+[data-theme='creative'] .chip-pop {
+  background: #fff !important;
+  border: 3px solid var(--comic-ink) !important;
+  border-radius: 1rem !important;
+  box-shadow: 4px 4px 0 var(--comic-ink) !important;
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .achievement-toast__title,
+[data-theme='creative'] .achievement-toast__desc {
+  color: var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .achievement-toast__reward {
+  color: var(--comic-green-dark) !important;
+}
+
+[data-theme='creative'] .round-result-overlay {
+  background: var(--comic-paper) !important;
+  background-image: radial-gradient(var(--comic-ink) 1.6px, transparent 1.8px) !important;
+  background-size: 18px 18px !important;
+}
+
+[data-theme='creative'] .round-result-overlay__exclaim {
+  font-family: 'Bangers', cursive !important;
+  color: var(--comic-red) !important;
+  -webkit-text-stroke: 2px var(--comic-ink);
+  text-shadow: 3px 3px 0 var(--comic-ink) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  transform: rotate(-3deg);
+  display: inline-block;
+}
+
+[data-theme='creative'] .round-result-overlay__line {
+  color: var(--comic-ink) !important;
+  text-shadow: none !important;
+}
+
+/* ---------- shop swatches / previews: flatten the moody gradients into
+   bold comic color blocks so they still read as distinct choices. ---------- */
+
+[data-theme='creative'] .shop-swatch,
+[data-theme='creative'] .celebration-preview {
+  border: 3px solid var(--comic-ink) !important;
+  background-image: none !important;
+}
+
+/* ---------- rank badge / XP bar ---------- */
+
+[data-theme='creative'] .xp-bar__track {
+  border: 2px solid var(--comic-ink) !important;
+  background: #fff !important;
+}
+
+[data-theme='creative'] .xp-bar__fill {
+  background: var(--comic-green) !important;
+  box-shadow: none !important;
+}
+
+[data-theme='creative'] .xp-bar__label,
+[data-theme='creative'] .xp-bar__hero-next {
+  color: var(--comic-ink) !important;
+}
+
+/* ---------- slot machine ---------- */
+
+[data-theme='creative'] .slot-marquee__text {
+  font-family: 'Bangers', cursive !important;
+  color: var(--comic-red) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  text-shadow: 2px 2px 0 var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .slot-reels {
+  background: var(--comic-ink) !important;
+  border: 3px solid var(--comic-ink) !important;
+}
+
+[data-theme='creative'] .slot-reel {
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+[data-theme='creative'] .slot-result__amount {
+  color: var(--comic-green-dark) !important;
+  text-shadow: none !important;
+}
+
+[data-theme='creative'] .slot-paytable__mult,
+[data-theme='creative'] .slot-paytable__title,
+[data-theme='creative'] .hilo-stat__value--accent,
+[data-theme='creative'] .hilo-guess-btn__mult {
+  color: var(--comic-blue-dark) !important;
+}
+
+/* ---------- loading spinner ---------- */
+
+[data-theme='creative'] .loading-spinner__label {
+  font-family: 'Bangers', cursive !important;
+  color: var(--comic-ink) !important;
+}
+
+/* ---------- headers keep their bold color but pick up an ink underline
+   instead of a soft hairline. ---------- */
+
+[data-theme='creative'] [class$='-header'],
+[data-theme='creative'] .lobby__header {
+  border-bottom: 3px solid var(--comic-ink) !important;
+  background: var(--comic-paper) !important;
+}
+
+[data-theme='creative'] .lobby__eyebrow {
+  color: var(--comic-red-dark) !important;
+}
+
+/* ---------- scrollbar polish (webkit) ---------- */
+
+[data-theme='creative'] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-theme='creative'] ::-webkit-scrollbar-thumb {
+  background: var(--comic-ink);
+  border-radius: 999px;
+}
