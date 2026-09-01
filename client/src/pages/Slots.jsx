@@ -4,6 +4,7 @@ import Confetti from '../components/Confetti.jsx';
 import WinCelebration from '../components/WinCelebration.jsx';
 import { api } from '../api.js';
 import { formatChips } from '../chips.js';
+import { playFanfare } from '../audio.js';
 import './Slots.css';
 
 const BET_PRESETS = [10, 25, 100, 500, 1000];
@@ -56,6 +57,7 @@ export default function Slots({ user, onUserUpdate }) {
   const [spinning, setSpinning] = useState(false);
   const [reels, setReels] = useState(null);
   const [result, setResult] = useState(null);
+  const [shake, setShake] = useState(false);
   const [displayChips, setDisplayChips] = useState(user?.chips ?? 0);
   const [error, setError] = useState('');
   const spinIdRef = useRef(0);
@@ -109,6 +111,15 @@ export default function Slots({ user, onUserUpdate }) {
         setResult(res);
         setDisplayChips(res.chips);
         onUserUpdate({ ...user, chips: res.chips, rank: res.rank });
+        // Only ever fires on a real win — no fake near-misses, just make an
+        // actual win feel like a bigger deal: a fanfare plus a quick screen
+        // shake on the cabinet, scaled up a notch for the rare jackpot.
+        if (res.payout > 0) {
+          playFanfare();
+          if (res.win === 'jackpot') playFanfare();
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
       }, SETTLE_MS);
     } catch (err) {
       setSpinning(false);
@@ -132,7 +143,7 @@ export default function Slots({ user, onUserUpdate }) {
       {error && <div className="slots-error">{error}</div>}
 
       <main className="slots-main">
-        <div className="slot-cabinet">
+        <div className={`slot-cabinet ${shake ? 'slot-cabinet--shake' : ''}`}>
           {won && (
             <div className="slot-cabinet__celebration" aria-hidden="true">
               <Confetti count={26} />

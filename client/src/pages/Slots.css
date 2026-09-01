@@ -239,6 +239,80 @@
   text-shadow: 0 0 20px rgba(255, 206, 84, 0.4);
 }
 
+.slot-result--win {
+  animation: slot-result-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes slot-result-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Only ever triggered on a real win (see Slots.jsx) — a quick rattle on
+   the cabinet plus a gold flash around it, timed to the win fanfare. */
+.slot-cabinet--shake {
+  animation: slot-cabinet-shake 0.5s ease;
+}
+
+.slot-cabinet--shake::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 4px rgba(255, 206, 84, 0.6), 0 0 40px 10px rgba(255, 206, 84, 0.5);
+  animation: slot-cabinet-flash 0.5s ease;
+  pointer-events: none;
+}
+
+@keyframes slot-cabinet-shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes slot-cabinet-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-result--win,
+  .slot-cabinet--shake,
+  .slot-cabinet--shake::after {
+    animation: none;
+  }
+}
+
 .slot-controls {
   width: 100%;
   max-width: 24rem;
