@@ -61,7 +61,11 @@ function decideBotAction(room, seat) {
   }
 
   const potOdds = toCall / (room.pot + toCall);
-  const callThreshold = potOdds * 0.9;
+  // Bots stay in far more often than a "correct" pot-odds player would —
+  // a much lower multiplier here, a bigger/likelier small-bet auto-call,
+  // and a much bigger bluff-catch fallback all push the same direction:
+  // fold is the last resort, not the default response to a weak hand.
+  const callThreshold = potOdds * 0.45;
 
   if (strength >= callThreshold + 0.28 && strength > 0.55) {
     return { action: 'raise', amount: pickRaiseTarget(room, seat, 0.55 + Math.random() * 0.3) };
@@ -69,10 +73,10 @@ function decideBotAction(room, seat) {
   if (strength >= callThreshold) {
     return { action: 'call' };
   }
-  if (toCall <= seat.chips * 0.06 && Math.random() < 0.55) {
+  if (toCall <= seat.chips * 0.15 && Math.random() < 0.85) {
     return { action: 'call' };
   }
-  if (Math.random() < 0.08) {
+  if (Math.random() < 0.35) {
     return { action: 'call' };
   }
   return { action: 'fold' };
