@@ -196,6 +196,20 @@ function CelebrationPreview({ id }) {
       </div>
     );
   }
+  if (id === 'wheel-cele-fireworks') {
+    const colors = ['#ff5fa2', '#ffd400', '#2ecc71', '#2e6ff2'];
+    return (
+      <div className="celebration-preview">
+        {colors.map((c, i) => (
+          <span
+            key={c}
+            className="celebration-preview__chip"
+            style={{ background: c, left: `${18 + i * 22}%`, top: `${15 + (i % 2) * 40}%`, boxShadow: `0 0 6px 1px ${c}` }}
+          />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="celebration-preview">
       <span className="celebration-preview__orb" style={{ left: '20%', top: '12%', width: '1.1rem', height: '1.1rem' }} />
@@ -206,17 +220,21 @@ function CelebrationPreview({ id }) {
 }
 
 function ShopCard({ item, owned, equipped, busy, affordable, onBuy, onEquip, children }) {
+  // Exotic = wheel-only, never buyable — see server/shop.js's EXOTIC_ITEMS.
+  const exotic = item.price === null;
   return (
-    <div className={`shop-item ${equipped ? 'shop-item--equipped' : ''}`}>
+    <div className={`shop-item ${equipped ? 'shop-item--equipped' : ''} ${exotic ? 'shop-item--exotic' : ''}`}>
       <div className="shop-item__preview">{children}</div>
       <div className="shop-item__name">{item.name}</div>
-      {!owned && <div className="shop-item__price">{formatChips(item.price)}</div>}
+      {!owned && (exotic ? <div className="shop-item__exotic-tag">🎡 Daily Wheel</div> : <div className="shop-item__price">{formatChips(item.price)}</div>)}
       {equipped ? (
         <div className="shop-item__equipped">Equipped</div>
       ) : owned ? (
         <button className="shop-item__btn shop-item__btn--equip" disabled={busy} onClick={onEquip}>
           {busy ? '…' : 'Equip'}
         </button>
+      ) : exotic ? (
+        <div className="shop-item__btn shop-item__btn--locked">Not owned yet</div>
       ) : (
         <button className="shop-item__btn shop-item__btn--buy" disabled={busy || !affordable} onClick={onBuy}>
           {busy ? '…' : affordable ? 'Buy' : 'Not enough'}

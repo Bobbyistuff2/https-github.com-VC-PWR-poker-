@@ -159,10 +159,23 @@ function getDailyStatus(user) {
   return { claimedToday: false, canClaim: true, streak: user.daily_streak, streakIfClaimedNow };
 }
 
+// The Daily wheel's 'item' segments only ever store a shop.js item id —
+// this fills in the display name/tier for the client, in one place, so
+// both /api/wheel and /api/wheel/spin show the same thing.
+function enrichDailySegments(segments) {
+  return segments.map((seg) => {
+    if (seg.type !== 'item') return seg;
+    const item = shop.getItem(seg.item);
+    return { ...seg, itemName: item?.name || 'Mystery Item', itemTier: item?.tier || null };
+  });
+}
+
 app.get('/api/wheel', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
   if (!user) return res.status(401).json({ error: 'Not signed in' });
-  res.json({ tiers: wheel.publicTiers(), daily: getDailyStatus(user) });
+  const tiers = wheel.publicTiers();
+  tiers.daily.segments = enrichDailySegments(tiers.daily.segments);
+  res.json({ tiers, daily: getDailyStatus(user) });
 });
 
 app.post('/api/wheel/spin', requireAuth, (req, res) => {
@@ -179,24 +192,58 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
       return res.status(400).json({ error: "You already claimed today's daily spin. Come back tomorrow!" });
     }
     const result = wheel.spin('daily');
+    const seg = result.prize;
     const newStreak = status.streakIfClaimedNow;
     const streakBonus = Math.min(newStreak * 5, 50);
-    const winnings = result.prize + streakBonus;
-    const chips = user.chips + winnings;
-    // Wheel wins count toward XP same as poker wins — 1:1 with what was
-    // actually won, never subtracted for the cost of playing.
-    const xp = user.xp + winnings;
+
+    let chips = user.chips + streakBonus;
+    // Every win counts toward XP same as poker wins — 1:1 with what was
+    // actually won, never subtracted for the cost of playing. The streak
+    // bonus is chips-shaped no matter what the wheel landed on, so it
+    // always counts toward XP too.
+    let xp = user.xp + streakBonus;
+    let item = null;
+    let alreadyOwned = false;
+    let bonusChips = 0;
+
+    if (seg.type === 'chips') {
+      chips += seg.chips;
+      xp += seg.chips;
+    } else if (seg.type === 'xp') {
+      xp += seg.xp;
+    } else {
+      // 'item' — a wheel-exclusive cosmetic. Landing on one you already own
+      // still has to feel like a win, not a shrug: it converts to a flat
+      // chip bonus instead of granting nothing.
+      const owns = db.prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?').get(user.id, seg.item);
+      if (owns) {
+        alreadyOwned = true;
+        bonusChips = 150;
+        chips += bonusChips;
+        xp += bonusChips;
+      } else {
+        db.prepare('INSERT INTO user_items (user_id, item_id) VALUES (?, ?)').run(user.id, seg.item);
+        item = shop.getItem(seg.item);
+        xp += 200;
+      }
+    }
+
     db.prepare(
       "UPDATE users SET chips = ?, xp = ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?"
     ).run(chips, xp, newStreak, user.id);
     const unlockedAchievement = newStreak === 7 ? achievements.unlock(user.id, 'week_streak') : null;
     return res.json({
       index: result.index,
-      prize: result.prize,
+      prizeType: seg.type,
+      prizeChips: seg.type === 'chips' ? seg.chips : null,
+      prizeXp: seg.type === 'xp' ? seg.xp : null,
+      item: item ? { id: item.id, name: item.name, slot: item.slot, tier: item.tier } : null,
+      alreadyOwned,
+      bonusChips,
       streakBonus,
       streak: newStreak,
       chips,
-      segments: config.segments,
+      segments: enrichDailySegments(config.segments),
       unlockedAchievement,
       rank: ranks.getRank({ xp }),
     });
@@ -357,10 +404,14 @@ app.get('/api/shop', requireAuth, (req, res) => {
   const user = db
     .prepare('SELECT equipped_background, equipped_card_skin, equipped_celebration FROM users WHERE id = ?')
     .get(req.session.userId);
+  // Exotic (wheel-only) items slot into their normal section, at the end,
+  // so winning one has somewhere to go — shown to everyone (as something
+  // to chase from the Daily wheel), equippable only once actually owned.
+  const bySlot = (slotName) => shop.EXOTIC_ITEMS.filter((i) => i.slot === slotName);
   res.json({
-    backgrounds: shop.BACKGROUNDS,
-    cardSkins: shop.CARD_SKINS,
-    celebrations: shop.CELEBRATIONS,
+    backgrounds: [...shop.BACKGROUNDS, ...bySlot('background')],
+    cardSkins: [...shop.CARD_SKINS, ...bySlot('cardSkin')],
+    celebrations: [...shop.CELEBRATIONS, ...bySlot('celebration')],
     owned: [...owned],
     equippedBackground: user.equipped_background || shop.DEFAULT_BACKGROUND,
     equippedCardSkin: user.equipped_card_skin || shop.DEFAULT_CARD_SKIN,
@@ -373,6 +424,7 @@ app.post('/api/shop/buy', requireAuth, (req, res) => {
   const item = shop.getItem(itemId);
   if (!item) return res.status(400).json({ error: 'Unknown item' });
   if (item.price === 0) return res.status(400).json({ error: 'Already own this one' });
+  if (item.price === null) return res.status(400).json({ error: 'This item can only be won from the Daily wheel' });
 
   const already = db
     .prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?')
@@ -395,7 +447,11 @@ app.post('/api/shop/equip', requireAuth, (req, res) => {
   const item = shop.getItem(itemId);
   if (!item) return res.status(400).json({ error: 'Unknown item' });
 
-  if (item.price > 0) {
+  // Anything other than the slot's free default (price === 0) has to be
+  // actually owned first — `> 0` alone would let an exotic item
+  // (price === null, never buyable) slip through unowned, since
+  // `null > 0` is false.
+  if (item.price !== 0) {
     const owns = db
       .prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?')
       .get(req.session.userId, itemId);

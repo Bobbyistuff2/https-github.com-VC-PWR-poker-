@@ -176,6 +176,16 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.shop-item__btn--locked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: #6a6a6a;
+  cursor: default;
+}
+
 /* --- Table felt swatches: mirror Table.css's [data-bg] accent colors --- */
 .shop-swatch {
   width: 100%;
@@ -284,6 +294,74 @@
 
 .shop-swatch--bg-cardpattern-sapphire::after {
   filter: sepia(1) saturate(6) hue-rotate(180deg) brightness(0.9);
+}
+
+/* Wheel-exclusive felts get their real animated background in miniature,
+   not just a flat swatch — matches Table.css's [data-bg] rules. */
+.shop-swatch--wheel-bg-aurora {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(130, 90, 255, 0.35), transparent 60%),
+    linear-gradient(120deg, #0a3a34 0%, #142a5c 30%, #3a0f5c 55%, #0a2e4a 80%, #0a3a34 100%);
+  background-size: 100% 100%, 320% 320%;
+  animation: wheel-aurora-flow 14s ease-in-out infinite;
+  border-color: rgba(140, 255, 210, 0.5);
+}
+
+.shop-swatch--wheel-bg-nebula {
+  background:
+    radial-gradient(1.4px 1.4px at 15% 25%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 78% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 45% 65%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 60% 40%, #fff, transparent),
+    radial-gradient(1px 1px at 88% 75%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 28% 80%, #fff, transparent),
+    linear-gradient(180deg, #1c0e34 0%, #0a0a22 55%, #050510 100%);
+  animation: wheel-nebula-twinkle 3.2s ease-in-out infinite;
+  border-color: rgba(210, 170, 255, 0.5);
+}
+
+@keyframes wheel-aurora-flow {
+  0%,
+  100% {
+    background-position: 0% 0%, 0% 50%;
+  }
+  50% {
+    background-position: 0% 0%, 100% 50%;
+  }
+}
+
+@keyframes wheel-nebula-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-swatch--wheel-bg-aurora,
+  .shop-swatch--wheel-bg-nebula {
+    animation: none;
+  }
+}
+
+/* Exotic (wheel-only) item cards get a small ribbon instead of a price —
+   see Shop.jsx's ShopCard. */
+.shop-item--exotic {
+  border-color: rgba(216, 118, 255, 0.4);
+}
+
+.shop-item__exotic-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #e8b8ff;
+  background: rgba(168, 85, 247, 0.16);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
 }
 
 .shop-card-preview {

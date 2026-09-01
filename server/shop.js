@@ -57,7 +57,21 @@ const CELEBRATIONS = [
   { id: 'cele-orbs', slot: 'celebration', name: 'Orbs of Light', price: 850 },
 ];
 
-const ALL_ITEMS = [...BACKGROUNDS, ...CARD_SKINS, ...CELEBRATIONS];
+// Wheel-exclusive rewards — never buyable with chips, only ever granted by
+// landing on them on the Daily wheel (see wheel.js's daily segments and
+// server.js's /api/wheel/spin handler). `price: null` marks that. They
+// still equip through the exact same slot/column system as everything
+// else, and still show up in their normal Shop section once owned (tagged
+// "Wheel Exclusive" there) — winning one should feel like unlocking a real
+// shop item, not a dead end with nowhere to use it.
+const EXOTIC_ITEMS = [
+  { id: 'wheel-bg-aurora', slot: 'background', name: 'Aurora Felt', price: null, tier: 'Rare' },
+  { id: 'wheel-bg-nebula', slot: 'background', name: 'Nebula Void', price: null, tier: 'Rare' },
+  { id: 'wheel-cards-holo', slot: 'cardSkin', name: 'Holographic', price: null, tier: 'Epic' },
+  { id: 'wheel-cele-fireworks', slot: 'celebration', name: 'Fireworks', price: null, tier: 'Epic' },
+];
+
+const ALL_ITEMS = [...BACKGROUNDS, ...CARD_SKINS, ...CELEBRATIONS, ...EXOTIC_ITEMS];
 const BY_ID = new Map(ALL_ITEMS.map((i) => [i.id, i]));
 
 const DEFAULT_BACKGROUND = BACKGROUNDS[0].id;
@@ -81,6 +95,7 @@ module.exports = {
   BACKGROUNDS,
   CARD_SKINS,
   CELEBRATIONS,
+  EXOTIC_ITEMS,
   ALL_ITEMS,
   DEFAULT_BACKGROUND,
   DEFAULT_CARD_SKIN,

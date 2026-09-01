@@ -198,3 +198,47 @@
 .playing-card--cards-gold-ruby.playing-card--back::after {
   color: rgba(232, 196, 104, 0.55);
 }
+
+/* Wheel-exclusive (see server/shop.js's EXOTIC_ITEMS) — the border itself
+   is an animated rainbow foil rather than a fixed color, using the
+   two-background/border-box trick so the shimmer reads as an edge, not a
+   tint over the whole card. Suit colors stay the normal red/black. */
+.playing-card--wheel-cards-holo.playing-card--red,
+.playing-card--wheel-cards-holo.playing-card--black,
+.playing-card--wheel-cards-holo.playing-card--back {
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(165deg, #17140b 0%, #0a0904 100%),
+    linear-gradient(90deg, #ff5fa2, #ffd400, #2ecc71, #2e6ff2, #a855f7, #ff5fa2);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 300% 100%;
+  animation: holo-shimmer 3s linear infinite;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 14px rgba(255, 255, 255, 0.25);
+}
+.playing-card--wheel-cards-holo.playing-card--black {
+  color: #e8dfc8;
+}
+.playing-card--wheel-cards-holo.playing-card--red {
+  color: #ff5468;
+}
+.playing-card--wheel-cards-holo.playing-card--back::after {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes holo-shimmer {
+  0% {
+    background-position: 0 0, 0% 0;
+  }
+  100% {
+    background-position: 0 0, 300% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playing-card--wheel-cards-holo.playing-card--red,
+  .playing-card--wheel-cards-holo.playing-card--black,
+  .playing-card--wheel-cards-holo.playing-card--back {
+    animation: none;
+  }
+}

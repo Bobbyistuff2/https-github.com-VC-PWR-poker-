@@ -21,14 +21,31 @@ const TIERS = {
     weights: [22, 22, 20, 14, 10, 7, 5],
   },
   // Free once every 24h (gated server-side in server.js, not by cost — this
-  // wheel's "cost" is always 0). Never lands on 0: it's a gift, so it should
-  // always feel like one. The login-streak bonus that stacks on top of
-  // whatever this lands on is computed separately in server.js.
+  // wheel's "cost" is always 0). Never lands on nothing: it's a gift, so it
+  // should always feel like one. The login-streak bonus that stacks on top
+  // of whatever this lands on is computed separately in server.js.
+  //
+  // Unlike the paid wheels, every segment here is one of three reward
+  // types instead of a flat chip amount — see server.js's /api/wheel/spin
+  // handler for how each is actually paid out:
+  //   'chips' — straight chips (same as the paid wheels always were)
+  //   'xp'    — a pure rank-progress bump, no chips attached
+  //   'item'  — one of shop.js's EXOTIC_ITEMS, never buyable, only won here
   daily: {
     cost: 0,
-    max: 40,
-    segments: [5, 10, 15, 20, 25, 30, 40],
-    weights: [24, 24, 20, 14, 10, 5, 3],
+    segments: [
+      { type: 'chips', chips: 15 },
+      { type: 'chips', chips: 25 },
+      { type: 'xp', xp: 30 },
+      { type: 'chips', chips: 40 },
+      { type: 'xp', xp: 75 },
+      { type: 'chips', chips: 60 },
+      { type: 'item', item: 'wheel-bg-aurora' },
+      { type: 'item', item: 'wheel-bg-nebula' },
+      { type: 'item', item: 'wheel-cards-holo' },
+      { type: 'item', item: 'wheel-cele-fireworks' },
+    ],
+    weights: [22, 20, 16, 14, 10, 8, 5, 3, 1.2, 0.8],
   },
 };
 

@@ -262,6 +262,63 @@
   --top-wash: rgba(90, 130, 235, 0.3);
 }
 
+/* Wheel-exclusive felts (see server/shop.js's EXOTIC_ITEMS) — genuinely
+   animated rather than just a different accent wash, so winning one from
+   the Daily wheel reads as a real step up from anything buyable. */
+.table-surface[data-bg='wheel-bg-aurora'] {
+  --tier-accent: rgba(140, 255, 210, 1);
+  --top-wash: rgba(130, 90, 255, 0.35);
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, var(--top-wash), transparent 60%),
+    linear-gradient(120deg, #0a3a34 0%, #142a5c 30%, #3a0f5c 55%, #0a2e4a 80%, #0a3a34 100%);
+  background-size: 100% 100%, 320% 320%;
+  animation: wheel-aurora-flow 14s ease-in-out infinite;
+}
+
+@keyframes wheel-aurora-flow {
+  0%,
+  100% {
+    background-position: 0% 0%, 0% 50%;
+  }
+  50% {
+    background-position: 0% 0%, 100% 50%;
+  }
+}
+
+.table-surface[data-bg='wheel-bg-nebula'] {
+  --tier-accent: rgba(210, 170, 255, 1);
+  --top-wash: rgba(130, 70, 220, 0.32);
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, var(--top-wash), transparent 60%),
+    radial-gradient(1.6px 1.6px at 12% 22%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 82% 14%, #fff, transparent),
+    radial-gradient(1px 1px at 42% 68%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 62% 38%, #fff, transparent),
+    radial-gradient(1px 1px at 92% 78%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 24% 84%, #fff, transparent),
+    radial-gradient(1px 1px at 72% 58%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 6% 55%, #fff, transparent),
+    linear-gradient(180deg, #1c0e34 0%, #0a0a22 55%, #050510 100%);
+  animation: wheel-nebula-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes wheel-nebula-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-surface[data-bg='wheel-bg-aurora'],
+  .table-surface[data-bg='wheel-bg-nebula'] {
+    animation: none;
+  }
+}
+
 /* A tileable card-suit texture — hidden unless one of the three tints
    above is equipped, and layered as its own element (not baked into
    .table-surface's background) so its filter/tint doesn't touch the rest

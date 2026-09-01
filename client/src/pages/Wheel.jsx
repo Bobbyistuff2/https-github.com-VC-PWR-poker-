@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { formatChips } from '../chips.js';
 import './Wheel.css';
 
-const TIER_ORDER = ['daily', 'bronze', 'silver', 'gold'];
+const PAID_TIER_ORDER = ['bronze', 'silver', 'gold'];
 const TIER_META = {
   daily: {
     label: 'Daily',
@@ -58,6 +58,16 @@ function wheelGradient(segCount, meta) {
     stops.push(`${color} ${i * segAngle}deg ${(i + 1) * segAngle}deg`);
   }
   return `conic-gradient(${stops.join(', ')})`;
+}
+
+// What a Daily segment shows ON the wheel itself — has to fit in a wedge,
+// so chips/XP get short labels and an item is just a gift icon (its real
+// name only shows up in the result banner after landing on it).
+function segmentLabel(key, seg, i) {
+  if (key !== 'daily') return seg;
+  if (seg.type === 'chips') return formatChips(seg.chips);
+  if (seg.type === 'xp') return `${seg.xp} XP`;
+  return '🎁';
 }
 
 export default function Wheel({ user, onUserUpdate }) {
@@ -128,10 +138,7 @@ export default function Wheel({ user, onUserUpdate }) {
           [key]: prev[key] - (prev[key] % 360) + 6 * 360 + (360 - targetMid),
         }));
         setTimeout(() => {
-          setResults((prev) => ({
-            ...prev,
-            [key]: key === 'daily' ? { prize: res.prize, streakBonus: res.streakBonus } : res.prize,
-          }));
+          setResults((prev) => ({ ...prev, [key]: key === 'daily' ? res : { prize: res.prize } }));
           setSpinning(null);
           onUserUpdate({ ...user, chips: res.chips, rank: res.rank });
           if (key === 'daily') {
@@ -150,6 +157,35 @@ export default function Wheel({ user, onUserUpdate }) {
       });
   }
 
+  function renderDailyResult(res) {
+    if (res.prizeType === 'chips') {
+      return (
+        <div className="wheel-card__result">
+          +{formatChips(res.prizeChips)}
+          {res.streakBonus > 0 && ` + ${formatChips(res.streakBonus)} streak bonus`}!
+        </div>
+      );
+    }
+    if (res.prizeType === 'xp') {
+      return (
+        <div className="wheel-card__result">
+          +{res.prizeXp} XP
+          {res.streakBonus > 0 && ` + ${formatChips(res.streakBonus)} streak bonus`}!
+        </div>
+      );
+    }
+    // 'item'
+    if (res.alreadyOwned) {
+      return <div className="wheel-card__result">Already had that one — +{formatChips(res.bonusChips)} instead!</div>;
+    }
+    return (
+      <div className="wheel-card__result wheel-card__result--item">
+        🎁 {res.item?.name} unlocked!
+        <span className="wheel-card__result-sub">Equip it from the Shop</span>
+      </div>
+    );
+  }
+
   return (
     <div className="wheel-page">
       <header className="wheel-header">
@@ -166,109 +202,162 @@ export default function Wheel({ user, onUserUpdate }) {
       {!tiers ? (
         <p className="wheel-loading">Loading wheels…</p>
       ) : (
-        <div className="wheel-grid">
-          {TIER_ORDER.map((key) => {
-            const config = tiers[key];
-            const meta = TIER_META[key];
-            const segAngle = 360 / config.segments.length;
-            const isDaily = key === 'daily';
-            const dailyLocked = isDaily && daily && !daily.canClaim;
-            return (
-              <div key={key} className="wheel-card" style={{ '--tier-border': meta.border }}>
-                <h2 className="wheel-card__title" style={{ color: meta.text }}>
-                  {meta.label}
-                </h2>
-                <p className="wheel-card__sub">
-                  {isDaily
-                    ? `Free once a day · Win up to ${formatChips(config.max)}`
-                    : `Play for ${formatChips(config.cost)} · Win up to ${formatChips(config.max)}`}
-                </p>
-                {isDaily && daily && (
-                  <p className="wheel-card__streak">
-                    🔥 {daily.streak > 0 ? `${daily.streak}-day streak` : 'Start your streak today'}
-                  </p>
-                )}
+        <>
+          <section className="wheel-daily-section">
+            <h2 className="wheel-section-title">Daily Free Spin</h2>
+            <p className="wheel-section-sub">Chips, XP, or an exclusive item you can't buy anywhere — free once every 24 hours.</p>
+            <div className="wheel-daily-wrap">
+              {(() => {
+                const key = 'daily';
+                const config = tiers[key];
+                const meta = TIER_META[key];
+                const segAngle = 360 / config.segments.length;
+                const dailyLocked = daily && !daily.canClaim;
+                const res = results[key];
+                return (
+                  <div className="wheel-card wheel-card--daily" style={{ '--tier-border': meta.border }}>
+                    {daily && (
+                      <p className="wheel-card__streak">
+                        🔥 {daily.streak > 0 ? `${daily.streak}-day streak` : 'Start your streak today'}
+                      </p>
+                    )}
 
-                <div className="wheel-dial-wrap">
-                  <div className="wheel-dial-pointer" style={{ filter: `drop-shadow(0 0 6px ${meta.glow})` }} />
+                    <div className="wheel-dial-wrap">
+                      <div className="wheel-dial-pointer" style={{ filter: `drop-shadow(0 0 6px ${meta.glow})` }} />
 
-                  <div className="wheel-dial-bezel" style={{ background: meta.rim }}>
-                    <div className="wheel-dial-bulbs">
-                      {Array.from({ length: BULB_COUNT }).map((_, i) => (
-                        <span
-                          key={i}
-                          className="wheel-dial-bulb"
-                          style={{ transform: `rotate(${(i * 360) / BULB_COUNT}deg) translateY(-6.5rem)` }}
-                        />
-                      ))}
-                    </div>
+                      <div className="wheel-dial-bezel" style={{ background: meta.rim }}>
+                        <div className="wheel-dial-bulbs">
+                          {Array.from({ length: BULB_COUNT }).map((_, i) => (
+                            <span
+                              key={i}
+                              className="wheel-dial-bulb"
+                              style={{ transform: `rotate(${(i * 360) / BULB_COUNT}deg) translateY(-6.5rem)` }}
+                            />
+                          ))}
+                        </div>
 
-                    <div
-                      className="wheel-dial"
-                      style={{
-                        background: wheelGradient(config.segments.length, meta),
-                        transform: `rotate(${rotations[key]}deg)`,
-                        boxShadow: `0 0 28px ${meta.glow}`,
-                      }}
-                    >
-                      <div
-                        className="wheel-dial__spokes"
-                        style={{ '--segs': config.segments.length }}
-                      />
-                      <div className="wheel-dial__sheen" />
-                      {config.segments.map((val, i) => (
-                        <span
-                          key={i}
-                          className="wheel-dial__label"
+                        <div
+                          className="wheel-dial"
                           style={{
-                            color: meta.text,
-                            transform: `rotate(${i * segAngle + segAngle / 2}deg) translateY(-5.9rem)`,
+                            background: wheelGradient(config.segments.length, meta),
+                            transform: `rotate(${rotations[key]}deg)`,
+                            boxShadow: `0 0 28px ${meta.glow}`,
                           }}
                         >
-                          {val}
-                        </span>
-                      ))}
+                          <div className="wheel-dial__spokes" style={{ '--segs': config.segments.length }} />
+                          <div className="wheel-dial__sheen" />
+                          {config.segments.map((seg, i) => (
+                            <span
+                              key={i}
+                              className={`wheel-dial__label ${seg.type === 'item' ? 'wheel-dial__label--item' : ''}`}
+                              style={{
+                                color: meta.text,
+                                transform: `rotate(${i * segAngle + segAngle / 2}deg) translateY(-5.9rem)`,
+                              }}
+                            >
+                              {segmentLabel(key, seg, i)}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="wheel-dial-hub" style={{ background: meta.hub }} />
+                      </div>
                     </div>
 
-                    <div className="wheel-dial-hub" style={{ background: meta.hub }} />
+                    <div className="wheel-card__result-slot">{res != null && renderDailyResult(res)}</div>
+
+                    <button
+                      className="wheel-card__spin"
+                      disabled={!!spinning || !!dailyLocked}
+                      onClick={() => handleSpin(key)}
+                    >
+                      {spinning === key ? 'Spinning…' : dailyLocked ? 'Come back tomorrow' : 'Claim Free Spin'}
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          </section>
+
+          <h2 className="wheel-section-title wheel-section-title--paid">Paid Wheels</h2>
+          <div className="wheel-grid">
+            {PAID_TIER_ORDER.map((key) => {
+              const config = tiers[key];
+              const meta = TIER_META[key];
+              const segAngle = 360 / config.segments.length;
+              return (
+                <div key={key} className="wheel-card" style={{ '--tier-border': meta.border }}>
+                  <h2 className="wheel-card__title" style={{ color: meta.text }}>
+                    {meta.label}
+                  </h2>
+                  <p className="wheel-card__sub">
+                    Play for {formatChips(config.cost)} · Win up to {formatChips(config.max)}
+                  </p>
+
+                  <div className="wheel-dial-wrap">
+                    <div className="wheel-dial-pointer" style={{ filter: `drop-shadow(0 0 6px ${meta.glow})` }} />
+
+                    <div className="wheel-dial-bezel" style={{ background: meta.rim }}>
+                      <div className="wheel-dial-bulbs">
+                        {Array.from({ length: BULB_COUNT }).map((_, i) => (
+                          <span
+                            key={i}
+                            className="wheel-dial-bulb"
+                            style={{ transform: `rotate(${(i * 360) / BULB_COUNT}deg) translateY(-6.5rem)` }}
+                          />
+                        ))}
+                      </div>
+
+                      <div
+                        className="wheel-dial"
+                        style={{
+                          background: wheelGradient(config.segments.length, meta),
+                          transform: `rotate(${rotations[key]}deg)`,
+                          boxShadow: `0 0 28px ${meta.glow}`,
+                        }}
+                      >
+                        <div className="wheel-dial__spokes" style={{ '--segs': config.segments.length }} />
+                        <div className="wheel-dial__sheen" />
+                        {config.segments.map((val, i) => (
+                          <span
+                            key={i}
+                            className="wheel-dial__label"
+                            style={{
+                              color: meta.text,
+                              transform: `rotate(${i * segAngle + segAngle / 2}deg) translateY(-5.9rem)`,
+                            }}
+                          >
+                            {val}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="wheel-dial-hub" style={{ background: meta.hub }} />
+                    </div>
+
+                    {costPops[key] && (
+                      <div key={costPops[key].id} className="wheel-cost-pop">
+                        -{costPops[key].value}
+                      </div>
+                    )}
                   </div>
 
-                  {costPops[key] && (
-                    <div key={costPops[key].id} className="wheel-cost-pop">
-                      -{costPops[key].value}
-                    </div>
-                  )}
-                </div>
+                  <div className="wheel-card__result-slot">
+                    {results[key] != null && <div className="wheel-card__result">+{formatChips(results[key].prize)}!</div>}
+                  </div>
 
-                <div className="wheel-card__result-slot">
-                  {results[key] != null &&
-                    (isDaily ? (
-                      <div className="wheel-card__result">
-                        +{formatChips(results[key].prize)}
-                        {results[key].streakBonus > 0 && ` + ${formatChips(results[key].streakBonus)} streak bonus`}!
-                      </div>
-                    ) : (
-                      <div className="wheel-card__result">+{formatChips(results[key])}!</div>
-                    ))}
+                  <button
+                    className="wheel-card__spin"
+                    disabled={!!spinning || user.chips < config.cost}
+                    onClick={() => handleSpin(key)}
+                  >
+                    {spinning === key ? 'Spinning…' : `Spin (${formatChips(config.cost)})`}
+                  </button>
                 </div>
-
-                <button
-                  className="wheel-card__spin"
-                  disabled={!!spinning || (isDaily ? !!dailyLocked : user.chips < config.cost)}
-                  onClick={() => handleSpin(key)}
-                >
-                  {spinning === key
-                    ? 'Spinning…'
-                    : isDaily
-                    ? dailyLocked
-                      ? 'Come back tomorrow'
-                      : 'Claim Free Spin'
-                    : `Spin (${formatChips(config.cost)})`}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
