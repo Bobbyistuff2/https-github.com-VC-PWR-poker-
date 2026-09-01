@@ -14,6 +14,13 @@ const BOT_NAMES = [
   'Cassius', 'Wolf', 'Blaze', 'Duchess', 'Knox', 'Vegas', 'Cash', 'Shark',
 ];
 
+// A different stack every time a bot sits down — somewhere between 10k and
+// 20k, rounded to the nearest 100 so it still reads like a real buy-in
+// rather than an arbitrary number.
+function randomBotChips() {
+  return 10000 + Math.floor(Math.random() * 101) * 100;
+}
+
 class Room {
   constructor(code, type = 'private') {
     this.code = code;
@@ -92,7 +99,7 @@ class Room {
     // Each bot needs a distinct userId — addPlayer no-ops if one already
     // exists for the given id, which a shared fixed id would trigger.
     this.addPlayer(
-      { id: `bot-${crypto.randomUUID()}`, name, picture: null, chips: 1000 },
+      { id: `bot-${crypto.randomUUID()}`, name, picture: null, chips: randomBotChips() },
       { isBot: true }
     );
   }

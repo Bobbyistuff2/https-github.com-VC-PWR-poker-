@@ -2,6 +2,11 @@ const crypto = require('crypto');
 const db = require('./db');
 
 const DISCORD_API = 'https://discord.com/api/v10';
+// What a brand-new account starts with — passed explicitly on insert rather
+// than relying on the users.chips column's schema default, since that
+// default only ever applies to a fresh install's CREATE TABLE, not to an
+// existing production database.
+const STARTING_CHIPS = 12000;
 
 function getDiscordAuthUrl() {
   const params = new URLSearchParams({
@@ -54,8 +59,8 @@ function findOrCreateDiscordUser(discordUser) {
 
   const id = crypto.randomUUID();
   db.prepare(
-    'INSERT INTO users (id, auth_type, discord_id, name, picture) VALUES (?, ?, ?, ?, ?)'
-  ).run(id, 'discord', discordUser.id, discordUser.username, discordAvatarUrl(discordUser));
+    'INSERT INTO users (id, auth_type, discord_id, name, picture, chips) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(id, 'discord', discordUser.id, discordUser.username, discordAvatarUrl(discordUser), STARTING_CHIPS);
 
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
 }
@@ -105,8 +110,15 @@ function findOrCreateGoogleUser(googleUser) {
 
   const id = crypto.randomUUID();
   db.prepare(
-    'INSERT INTO users (id, auth_type, google_id, name, picture) VALUES (?, ?, ?, ?, ?)'
-  ).run(id, 'google', googleUser.id, googleUser.name || googleUser.email || 'Player', googleUser.picture || null);
+    'INSERT INTO users (id, auth_type, google_id, name, picture, chips) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(
+    id,
+    'google',
+    googleUser.id,
+    googleUser.name || googleUser.email || 'Player',
+    googleUser.picture || null,
+    STARTING_CHIPS
+  );
 
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
 }
