@@ -39,14 +39,12 @@ function buildReel(result, direction, keys) {
       strip: [...filler, result, randomKey(keys)],
       start: 0,
       end: -(FILLER_COUNT - 1) * SYMBOL_H,
-      bounce: -10,
     };
   }
   return {
     strip: [randomKey(keys), result, ...filler],
     start: -FILLER_COUNT * SYMBOL_H,
     end: 0,
-    bounce: 10,
   };
 }
 
@@ -62,6 +60,10 @@ export default function Slots({ user, onUserUpdate }) {
   const [reels, setReels] = useState(null);
   const [result, setResult] = useState(null);
   const [shake, setShake] = useState(false);
+  // Which reels have finished spinning and lit up — turned off the moment
+  // a new spin starts, lit one at a time as each reel's own stop timer
+  // fires, in the same 1st/2nd/3rd order they actually stop in.
+  const [litReels, setLitReels] = useState([false, false, false]);
   const [displayChips, setDisplayChips] = useState(user?.chips ?? 0);
   const [error, setError] = useState('');
   const spinIdRef = useRef(0);
@@ -98,6 +100,7 @@ export default function Slots({ user, onUserUpdate }) {
     setError('');
     setResult(null);
     setSpinning(true);
+    setLitReels([false, false, false]);
     // The bet is "at risk" the moment the handle gets pulled — deduct it
     // immediately, same feel as a real machine's credit meter dropping
     // before the reels even stop.
@@ -109,6 +112,19 @@ export default function Slots({ user, onUserUpdate }) {
       setReels(
         res.reels.map((key, i) => ({ ...buildReel(key, DIRECTIONS[i], symbolKeys), id: `${id}-${i}` }))
       );
+      // Each reel gets its own stop light, lit the instant that reel's
+      // animation actually ends — same 1st/2nd/3rd cascade as the stops
+      // themselves, not all three at once.
+      DURATIONS.forEach((duration, i) => {
+        setTimeout(() => {
+          if (spinIdRef.current !== id) return;
+          setLitReels((prev) => {
+            const next = [...prev];
+            next[i] = true;
+            return next;
+          });
+        }, duration * 1000);
+      });
       setTimeout(() => {
         if (spinIdRef.current !== id) return;
         setSpinning(false);
@@ -164,7 +180,8 @@ export default function Slots({ user, onUserUpdate }) {
           <div className="slot-reels">
             <div className="slot-payline" aria-hidden="true" />
             {(reels || [null, null, null]).map((reel, i) => (
-              <div className="slot-reel" key={i}>
+              <div className={`slot-reel ${litReels[i] ? 'slot-reel--lit' : ''}`} key={i}>
+                <div className="slot-reel__light" aria-hidden="true" />
                 {reel ? (
                   <div
                     key={reel.id}
@@ -172,7 +189,6 @@ export default function Slots({ user, onUserUpdate }) {
                     style={{
                       '--reel-start': `${reel.start}px`,
                       '--reel-end': `${reel.end}px`,
-                      '--reel-bounce': `${reel.bounce}px`,
                       animationDuration: `${DURATIONS[i]}s`,
                     }}
                   >

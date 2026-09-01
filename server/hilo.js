@@ -27,12 +27,18 @@ function drawCard() {
 // at least one rank could make it true — you can't call "higher" on an
 // Ace or "lower" on a 2, so those come back null and the client should
 // disable that button.
+// Never exactly 1x (break-even) or below — a guess that's almost certain to
+// land (e.g. calling "higher" on a 2) still has to pay a little something
+// for being right, so every correct guess is a real, if sometimes tiny,
+// win.
+const MIN_MULTIPLIER = 1.1;
+
 function multipliers(value) {
   const higherCount = 14 - value;
   const lowerCount = value - 2;
   return {
-    higher: higherCount > 0 ? round2((13 / higherCount) * HOUSE_EDGE) : null,
-    lower: lowerCount > 0 ? round2((13 / lowerCount) * HOUSE_EDGE) : null,
+    higher: higherCount > 0 ? Math.max(MIN_MULTIPLIER, round2((13 / higherCount) * HOUSE_EDGE)) : null,
+    lower: lowerCount > 0 ? Math.max(MIN_MULTIPLIER, round2((13 / lowerCount) * HOUSE_EDGE)) : null,
   };
 }
 
