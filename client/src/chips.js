@@ -10,6 +10,23 @@ export function formatChips(amount) {
   return `$${amount.toLocaleString()}`;
 }
 
+// Lets a player type "10k" / "2.5m" instead of spelling out every zero.
+// Returns an integer chip amount, or null if the text isn't a parseable
+// number (with an optional k/m/b suffix) at all — callers should leave
+// whatever the player typed on screen either way, this is just "did it
+// resolve to a usable amount".
+const SUFFIX_MULTIPLIERS = { k: 1e3, m: 1e6, b: 1e9 };
+
+export function parseChipsInput(raw) {
+  const s = String(raw).trim().toLowerCase().replace(/,/g, '');
+  if (!s) return null;
+  const match = s.match(/^(\d+(?:\.\d+)?)\s*(k|m|b)?$/);
+  if (!match) return null;
+  const value = parseFloat(match[1]) * (SUFFIX_MULTIPLIERS[match[2]] || 1);
+  if (!Number.isFinite(value) || value < 0) return null;
+  return Math.round(value);
+}
+
 export function decomposeChips(amount) {
   const result = [];
   let remaining = amount;

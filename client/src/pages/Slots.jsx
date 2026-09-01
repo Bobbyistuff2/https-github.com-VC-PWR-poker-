@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Confetti from '../components/Confetti.jsx';
 import WinCelebration from '../components/WinCelebration.jsx';
 import { api } from '../api.js';
-import { formatChips } from '../chips.js';
+import { formatChips, parseChipsInput } from '../chips.js';
 import { playFanfare } from '../audio.js';
 import './Slots.css';
 
@@ -54,6 +54,10 @@ export default function Slots({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const [paytable, setPaytable] = useState(null);
   const [bet, setBet] = useState(25);
+  // What's actually shown in the bet field — kept separate from `bet` so
+  // typing "10k" can sit on screen as-is while `bet` (the real number
+  // used everywhere else) updates the moment it parses.
+  const [betText, setBetText] = useState('25');
   const [spinning, setSpinning] = useState(false);
   const [reels, setReels] = useState(null);
   const [result, setResult] = useState(null);
@@ -210,7 +214,10 @@ export default function Slots({ user, onUserUpdate }) {
                 key={v}
                 className={`slot-bet-btn ${bet === v ? 'slot-bet-btn--active' : ''}`}
                 disabled={spinning || v > user.chips}
-                onClick={() => setBet(v)}
+                onClick={() => {
+                  setBet(v);
+                  setBetText(String(v));
+                }}
               >
                 {formatChips(v)}
               </button>
@@ -218,7 +225,10 @@ export default function Slots({ user, onUserUpdate }) {
             <button
               className="slot-bet-btn"
               disabled={spinning || user.chips <= 0}
-              onClick={() => setBet(user.chips)}
+              onClick={() => {
+                setBet(user.chips);
+                setBetText(String(user.chips));
+              }}
             >
               Max
             </button>
@@ -227,13 +237,25 @@ export default function Slots({ user, onUserUpdate }) {
           <div className="slot-bet-custom">
             <span className="slot-bet-custom__label">Bet</span>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
+              placeholder="e.g. 10k"
               className="slot-bet-input"
-              min={1}
-              max={user.chips}
-              value={bet}
+              value={betText}
               disabled={spinning}
-              onChange={(e) => setBet(Math.max(0, parseInt(e.target.value, 10) || 0))}
+              onChange={(e) => {
+                const text = e.target.value;
+                setBetText(text);
+                const parsed = parseChipsInput(text);
+                if (parsed !== null) setBet(Math.max(0, parsed));
+              }}
+              onBlur={() => {
+                // Leaving the field with something unparseable ("10kk",
+                // empty, etc.) snaps the text back to match the last good
+                // bet, so the field never gets stuck showing a value that
+                // doesn't match what Spin would actually wager.
+                if (parseChipsInput(betText) === null) setBetText(String(bet));
+              }}
             />
           </div>
 
