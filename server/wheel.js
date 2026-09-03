@@ -31,21 +31,32 @@ const TIERS = {
   //   'chips' — straight chips (same as the paid wheels always were)
   //   'xp'    — a pure rank-progress bump, no chips attached
   //   'item'  — one of shop.js's EXOTIC_ITEMS, never buyable, only won here
+  // Segment order is deliberately interleaved (item, chips, xp, item,
+  // chips, xp, ...) rather than grouped by type — with all 4 items sitting
+  // next to each other (as an earlier version had them), one glance at the
+  // wheel reads as "chips over here, items over there" instead of genuine
+  // variety at every stop. Every type is at least 2 wedges from its own
+  // kind going either direction around the circle, wrap-around included.
+  //
+  // Chip/XP values are ~10x what they were before — bots now sit down
+  // with 10k-20k instead of a flat 1,000, and new accounts start with
+  // 12k instead of 1,000, so the old 15-75 range read as pocket change
+  // next to that. The streak bonus (server.js) scaled the same way.
   daily: {
     cost: 0,
     segments: [
-      { type: 'chips', chips: 15 },
-      { type: 'chips', chips: 25 },
-      { type: 'xp', xp: 30 },
-      { type: 'chips', chips: 40 },
-      { type: 'xp', xp: 75 },
-      { type: 'chips', chips: 60 },
       { type: 'item', item: 'wheel-bg-aurora' },
+      { type: 'chips', chips: 150 },
+      { type: 'xp', xp: 300 },
       { type: 'item', item: 'wheel-bg-nebula' },
+      { type: 'chips', chips: 250 },
+      { type: 'xp', xp: 750 },
       { type: 'item', item: 'wheel-cards-holo' },
+      { type: 'chips', chips: 400 },
       { type: 'item', item: 'wheel-cele-fireworks' },
+      { type: 'chips', chips: 600 },
     ],
-    weights: [22, 20, 16, 14, 10, 8, 5, 3, 1.2, 0.8],
+    weights: [5, 22, 16, 3, 20, 10, 1.2, 14, 0.8, 8],
   },
 };
 

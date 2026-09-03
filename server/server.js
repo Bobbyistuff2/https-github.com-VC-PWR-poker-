@@ -194,7 +194,10 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
     const result = wheel.spin('daily');
     const seg = result.prize;
     const newStreak = status.streakIfClaimedNow;
-    const streakBonus = Math.min(newStreak * 5, 50);
+    // Scaled up 10x alongside the wheel's own chip/XP segments (see
+    // wheel.js) — a max-$50 bonus would look like a rounding error next
+    // to a $600 spin.
+    const streakBonus = Math.min(newStreak * 50, 500);
 
     let chips = user.chips + streakBonus;
     // Every win counts toward XP same as poker wins — 1:1 with what was
@@ -218,13 +221,13 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
       const owns = db.prepare('SELECT 1 FROM user_items WHERE user_id = ? AND item_id = ?').get(user.id, seg.item);
       if (owns) {
         alreadyOwned = true;
-        bonusChips = 150;
+        bonusChips = 300;
         chips += bonusChips;
         xp += bonusChips;
       } else {
         db.prepare('INSERT INTO user_items (user_id, item_id) VALUES (?, ?)').run(user.id, seg.item);
         item = shop.getItem(seg.item);
-        xp += 200;
+        xp += 400;
       }
     }
 
