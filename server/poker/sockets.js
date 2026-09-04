@@ -62,10 +62,31 @@ function notifyAchievements(io, room, unlockedList) {
 
 const userRoomMap = new Map();
 
+// Writes only the *change* in a seat's stack since the last sync, applied
+// as a relative SQL update (chips = chips + delta) rather than overwriting
+// the account's chips outright with the table's tracked total.
+//
+// This used to be a flat `SET chips = seat.chips`, which is exactly the
+// kind of bug that made a big win vanish: a seat's in-memory chip count is
+// a snapshot from whenever the player sat down, and this function runs
+// after every single hand at the table (including ones resolved by bots
+// while the player is elsewhere). If the player won chips through any
+// other path in the meantime — Slots, the Wheel, Hi-Lo, a gift, a code —
+// the very next hand finishing at this table would flatten the account
+// back down to the table's stale number, silently discarding that win the
+// next time anyone reloaded. Writing only the delta means this can never
+// clobber a balance change that happened somewhere else, no matter how
+// large — the "billions" case included, since chips = chips + delta reads
+// the row's current value at write time rather than trusting a JS-cached
+// one, so nothing about the size of a jackpot payout ever makes this
+// route slower or riskier.
 function syncSeatChipsToDb(room) {
   for (const seat of room.occupiedSeats) {
     if (seat.isBot) continue;
-    db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(seat.chips, seat.userId);
+    const delta = seat.chips - seat.syncedChips;
+    if (delta === 0) continue;
+    db.prepare('UPDATE users SET chips = chips + ? WHERE id = ?').run(delta, seat.userId);
+    seat.syncedChips = seat.chips;
   }
 }
 
@@ -200,8 +221,14 @@ function registerPokerHandlers(io, socket) {
     if (!room) return callback?.();
     if (room.stage !== 'waiting') return callback?.({ error: 'Cannot leave mid-hand' });
 
-    const chips = room.removePlayer(userId);
-    if (chips != null) db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, userId);
+    const seat = room.removePlayer(userId);
+    // Same delta-not-overwrite fix as syncSeatChipsToDb — leaving a table
+    // must never flatten the account back to what it had when the player
+    // sat down, discarding any chips won elsewhere in the meantime.
+    if (seat) {
+      const delta = seat.chips - seat.syncedChips;
+      if (delta !== 0) db.prepare('UPDATE users SET chips = chips + ? WHERE id = ?').run(delta, userId);
+    }
     userRoomMap.delete(userId);
     socket.leave(code);
     callback?.();

@@ -247,9 +247,13 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
       }
     }
 
+    // Relative, not absolute — chips/xp = the column's own current value
+    // plus what was actually won this spin, so this can never clobber a
+    // balance change from anywhere else (see syncSeatChipsToDb in
+    // poker/sockets.js for the bug this convention exists to avoid).
     db.prepare(
-      "UPDATE users SET chips = ?, xp = ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?"
-    ).run(chips, xp, newStreak, user.id);
+      "UPDATE users SET chips = chips + ?, xp = xp + ?, daily_streak = ?, last_daily_at = datetime('now') WHERE id = ?"
+    ).run(chips - user.chips, xp - user.xp, newStreak, user.id);
     const unlockedAchievement = newStreak === 7 ? achievements.unlock(user.id, 'week_streak') : null;
     return res.json({
       index: result.index,
@@ -273,7 +277,11 @@ app.post('/api/wheel/spin', requireAuth, (req, res) => {
   const result = wheel.spin(tier);
   const chips = user.chips - config.cost + result.prize;
   const xp = user.xp + result.prize;
-  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
+  db.prepare('UPDATE users SET chips = chips + ?, xp = xp + ? WHERE id = ?').run(
+    chips - user.chips,
+    xp - user.xp,
+    user.id
+  );
   res.json({
     index: result.index,
     prize: result.prize,
@@ -309,7 +317,7 @@ app.post('/api/hilo/start', requireAuth, (req, res) => {
   if (user.chips < wager) return res.status(400).json({ error: 'Not enough chips for that wager' });
 
   const chips = user.chips - wager;
-  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+  db.prepare('UPDATE users SET chips = chips - ? WHERE id = ?').run(wager, user.id);
 
   const card = hilo.drawCard();
   req.session.hilo = { wager, card, cumulativeMultiplier: 1 };
@@ -378,7 +386,7 @@ app.post('/api/hilo/cashout', requireAuth, (req, res) => {
 
   const payout = Math.floor(round.wager * round.cumulativeMultiplier);
   const chips = user.chips + payout;
-  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, user.id);
+  db.prepare('UPDATE users SET chips = chips + ? WHERE id = ?').run(payout, user.id);
   delete req.session.hilo;
 
   // Hi-Lo winnings are chips-only, no XP — only poker hands and wheel spins
@@ -404,8 +412,15 @@ app.post('/api/slots/spin', requireAuth, (req, res) => {
   // reduced for the cost of playing (and a losing spin adds nothing).
   const xp = user.xp + result.payout;
   // Only ever fires once per "6767" redemption — clear it the moment it's
-  // used, win or (impossible here, but defensively) not.
-  db.prepare('UPDATE users SET chips = ?, xp = ?, pending_jackpot = 0 WHERE id = ?').run(chips, xp, user.id);
+  // used, win or (impossible here, but defensively) not. Relative chips/xp
+  // writes (not the absolute new totals) so a huge jackpot payout can
+  // never race or get clobbered — see poker/sockets.js's
+  // syncSeatChipsToDb for the bug this convention exists to avoid.
+  db.prepare('UPDATE users SET chips = chips + ?, xp = xp + ?, pending_jackpot = 0 WHERE id = ?').run(
+    result.payout - bet,
+    result.payout,
+    user.id
+  );
 
   res.json({
     reels: result.reels,
@@ -457,7 +472,7 @@ app.post('/api/shop/buy', requireAuth, (req, res) => {
   if (user.chips < item.price) return res.status(400).json({ error: "You can't afford that yet" });
 
   const chips = user.chips - item.price;
-  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, req.session.userId);
+  db.prepare('UPDATE users SET chips = chips - ? WHERE id = ?').run(item.price, req.session.userId);
   db.prepare('INSERT INTO user_items (user_id, item_id) VALUES (?, ?)').run(req.session.userId, itemId);
 
   res.json({ chips, itemId });
@@ -513,7 +528,11 @@ app.post('/api/codes/redeem', requireAuth, (req, res) => {
 
   const chips = user.chips + (def.money || 0);
   const xp = user.xp + (def.xp || 0);
-  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
+  db.prepare('UPDATE users SET chips = chips + ?, xp = xp + ? WHERE id = ?').run(
+    def.money || 0,
+    def.xp || 0,
+    user.id
+  );
   db.prepare('INSERT INTO redeemed_codes (user_id, code) VALUES (?, ?)').run(user.id, normalized);
 
   res.json({
@@ -612,7 +631,7 @@ app.post('/api/gift', requireAuth, (req, res) => {
   // exist, it doesn't create new value the way winning a hand or a wheel
   // spin does. Granting XP here would let two accounts collude, gifting
   // back and forth, to farm rank for free.
-  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, sender.id);
+  db.prepare('UPDATE users SET chips = chips - ? WHERE id = ?').run(amount, sender.id);
   db.prepare('UPDATE users SET chips = chips + ? WHERE id = ?').run(amount, recipient.id);
 
   res.json({ chips, amount, recipientName: recipient.name });

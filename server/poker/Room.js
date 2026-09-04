@@ -68,6 +68,12 @@ class Room {
       name: user.name,
       picture: user.picture,
       chips: user.chips,
+      // What the DB already reflects as of the last sync (see sockets.js's
+      // syncSeatChipsToDb) — starts equal to `chips` since sitting down IS
+      // the sync point. Never used for game logic, only so a later sync can
+      // write the *change* since then instead of overwriting the account's
+      // current balance outright.
+      syncedChips: user.chips,
       holeCards: [],
       betThisRound: 0,
       committedThisHand: 0,
@@ -109,9 +115,11 @@ class Room {
   removePlayer(userId) {
     const seat = this.findSeatByUserId(userId);
     if (!seat) return null;
-    const chips = seat.chips;
     this.seats[seat.seatIndex] = null;
-    return chips;
+    // The whole seat, not just seat.chips — the caller needs syncedChips
+    // too, to write the change since the last sync rather than overwrite
+    // the account's current balance outright (see syncSeatChipsToDb).
+    return seat;
   }
 
   removeBot() {
