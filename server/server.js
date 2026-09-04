@@ -566,6 +566,47 @@ app.get('/api/stats/:userId', requireAuth, (req, res) => {
   });
 });
 
+app.get('/api/users/search', requireAuth, (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json({ users: [] });
+
+  // SQLite's LIKE is case-insensitive for ASCII by default, no COLLATE
+  // needed. Same bot-exclusion guarantee as /api/leaderboard, and never
+  // returns the searcher themselves — gifting yourself isn't a real option.
+  const rows = db
+    .prepare("SELECT id, name, picture, xp FROM users WHERE name LIKE ? AND id NOT LIKE 'bot-%' AND id != ? LIMIT 10")
+    .all(`%${q}%`, req.session.userId);
+
+  res.json({
+    users: rows.map((u) => ({ id: u.id, name: u.name, picture: u.picture, rank: ranks.getRank({ xp: u.xp }) })),
+  });
+});
+
+app.post('/api/gift', requireAuth, (req, res) => {
+  const { recipientId, amount } = req.body;
+  if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'Enter a valid amount' });
+  if (!recipientId || recipientId === req.session.userId) {
+    return res.status(400).json({ error: 'Pick someone else to gift' });
+  }
+
+  const sender = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
+  if (!sender) return res.status(401).json({ error: 'Not signed in' });
+  if (sender.chips < amount) return res.status(400).json({ error: "You don't have that many chips" });
+
+  const recipient = db.prepare("SELECT * FROM users WHERE id = ? AND id NOT LIKE 'bot-%'").get(recipientId);
+  if (!recipient) return res.status(400).json({ error: 'Player not found' });
+
+  const chips = sender.chips - amount;
+  // No XP for either side — a gift only ever moves chips that already
+  // exist, it doesn't create new value the way winning a hand or a wheel
+  // spin does. Granting XP here would let two accounts collude, gifting
+  // back and forth, to farm rank for free.
+  db.prepare('UPDATE users SET chips = ? WHERE id = ?').run(chips, sender.id);
+  db.prepare('UPDATE users SET chips = chips + ? WHERE id = ?').run(amount, recipient.id);
+
+  res.json({ chips, amount, recipientName: recipient.name });
+});
+
 function toPublicUser(user) {
   return {
     id: user.id,

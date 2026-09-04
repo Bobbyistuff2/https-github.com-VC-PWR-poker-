@@ -36,4 +36,7 @@ export const api = {
   buyItem: (itemId) => request('/api/shop/buy', { method: 'POST', body: JSON.stringify({ itemId }) }),
   equipItem: (itemId) => request('/api/shop/equip', { method: 'POST', body: JSON.stringify({ itemId }) }),
   redeemCode: (code) => request('/api/codes/redeem', { method: 'POST', body: JSON.stringify({ code }) }),
+  searchUsers: (q) => request(`/api/users/search?q=${encodeURIComponent(q)}`),
+  sendGift: (recipientId, amount) =>
+    request('/api/gift', { method: 'POST', body: JSON.stringify({ recipientId, amount }) }),
 };

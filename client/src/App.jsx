@@ -10,6 +10,7 @@ import HiLo from './pages/HiLo.jsx';
 import Slots from './pages/Slots.jsx';
 import Shop from './pages/Shop.jsx';
 import Codes from './pages/Codes.jsx';
+import Gift from './pages/Gift.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import SettingsPanel from './components/SettingsPanel.jsx';
@@ -94,6 +95,7 @@ export default function App() {
         <Route path="/slots" element={<Slots user={user} onUserUpdate={updateUser} />} />
         <Route path="/shop" element={<Shop user={user} onUserUpdate={updateUser} />} />
         <Route path="/codes" element={<Codes user={user} onUserUpdate={updateUser} />} />
+        <Route path="/gift" element={<Gift user={user} onUserUpdate={updateUser} />} />
         <Route path="/leaderboard" element={<Leaderboard user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

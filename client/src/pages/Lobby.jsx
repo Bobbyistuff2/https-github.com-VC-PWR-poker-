@@ -136,6 +136,9 @@ export default function Lobby({ user, onUserUpdate }) {
           <button className="lobby__icon-btn" onClick={() => navigate('/codes')} aria-label="Redeem Code">
             <CodesIcon />
           </button>
+          <button className="lobby__icon-btn" onClick={() => navigate('/gift')} aria-label="Gift Chips">
+            <GiftIcon />
+          </button>
           <button className="lobby__icon-btn" onClick={() => navigate('/leaderboard')} aria-label="Leaderboard">
             <LeaderboardIcon />
           </button>
@@ -314,6 +317,18 @@ function CodesIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Z" />
       <path d="M10 7v10" strokeDasharray="1.6 1.8" />
+    </svg>
+  );
+}
+
+function GiftIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="9" width="18" height="4" rx="1" />
+      <rect x="5" y="13" width="14" height="8" rx="1" />
+      <path d="M12 9v12" />
+      <path d="M12 9c-1.2-3.2-3.2-5-5-5a2.2 2.2 0 0 0 0 4.4c1.2 0 3-.6 5 .6Z" />
+      <path d="M12 9c1.2-3.2 3.2-5 5-5a2.2 2.2 0 0 1 0 4.4c-1.2 0-3-.6-5 .6Z" />
     </svg>
   );
 }
