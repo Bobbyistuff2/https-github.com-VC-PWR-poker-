@@ -398,12 +398,14 @@ app.post('/api/slots/spin', requireAuth, (req, res) => {
   if (!user) return res.status(401).json({ error: 'Not signed in' });
   if (user.chips < bet) return res.status(400).json({ error: 'Not enough chips for that bet' });
 
-  const result = slots.spin(bet);
+  const result = user.pending_jackpot ? slots.forcedJackpot(bet) : slots.spin(bet);
   const chips = user.chips - bet + result.payout;
   // Same convention as the wheel: winnings count toward XP 1:1, never
   // reduced for the cost of playing (and a losing spin adds nothing).
   const xp = user.xp + result.payout;
-  db.prepare('UPDATE users SET chips = ?, xp = ? WHERE id = ?').run(chips, xp, user.id);
+  // Only ever fires once per "6767" redemption — clear it the moment it's
+  // used, win or (impossible here, but defensively) not.
+  db.prepare('UPDATE users SET chips = ?, xp = ?, pending_jackpot = 0 WHERE id = ?').run(chips, xp, user.id);
 
   res.json({
     reels: result.reels,
@@ -485,6 +487,15 @@ app.post('/api/shop/equip', requireAuth, (req, res) => {
 app.post('/api/codes/redeem', requireAuth, (req, res) => {
   const raw = (req.body.code || '').trim();
   if (!raw) return res.status(400).json({ error: 'Enter a code' });
+
+  // A secret, not a real code — looks exactly like any other wrong code (same
+  // error, no reward, nothing recorded in redeemed_codes so it can be
+  // "redeemed" again), but quietly arms the player's next Slots spin to
+  // land the jackpot for real.
+  if (raw === '6767') {
+    db.prepare('UPDATE users SET pending_jackpot = 1 WHERE id = ?').run(req.session.userId);
+    return res.status(400).json({ error: "That code isn't valid" });
+  }
 
   const def = codes.getCode(raw);
   if (!def) return res.status(400).json({ error: "That code isn't valid" });

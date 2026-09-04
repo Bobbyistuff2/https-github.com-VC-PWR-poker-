@@ -63,6 +63,20 @@ function spin(bet) {
   };
 }
 
+// Same shape as spin(), but always the jackpot — used for the secret "6767"
+// code (see server.js's /api/codes/redeem) rather than any real RNG. Reuses
+// the seven symbol's own tripleMultiplier so it always matches whatever the
+// real jackpot currently pays, even if that multiplier changes later.
+function forcedJackpot(bet) {
+  const seven = BY_KEY.get('seven');
+  return {
+    reels: ['seven', 'seven', 'seven'],
+    multiplier: seven.tripleMultiplier,
+    win: 'jackpot',
+    payout: Math.floor(bet * seven.tripleMultiplier),
+  };
+}
+
 // What the client is allowed to see: the symbol set and what each pays,
 // never the weights behind them.
 function publicPaytable() {
@@ -76,4 +90,4 @@ function symbolEmoji(key) {
   return BY_KEY.get(key)?.emoji || '❔';
 }
 
-module.exports = { spin, publicPaytable, symbolEmoji };
+module.exports = { spin, forcedJackpot, publicPaytable, symbolEmoji };

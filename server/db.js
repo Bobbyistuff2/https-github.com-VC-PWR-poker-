@@ -73,6 +73,12 @@ if (!existingColumns.some((c) => c.name === 'equipped_card_skin')) {
 if (!existingColumns.some((c) => c.name === 'equipped_celebration')) {
   db.exec('ALTER TABLE users ADD COLUMN equipped_celebration TEXT');
 }
+// Armed by the secret "6767" code (server.js's /api/codes/redeem) — the
+// player's next Slots spin lands the jackpot for real, then this clears
+// itself. Not a real code reward, so it lives here rather than in codes.js.
+if (!existingColumns.some((c) => c.name === 'pending_jackpot')) {
+  db.exec('ALTER TABLE users ADD COLUMN pending_jackpot INTEGER NOT NULL DEFAULT 0');
+}
 
 // Adding a new auth_type ('google') means loosening the CHECK constraint,
 // which SQLite can't do with a plain ALTER — the table has to be rebuilt.
