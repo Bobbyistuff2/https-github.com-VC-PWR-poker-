@@ -14,6 +14,7 @@ const {
   exchangeGoogleCode,
   getGoogleUser,
   findOrCreateGoogleUser,
+  getOrResetGuestUser,
   updateDisplayName,
 } = require('./auth');
 const db = require('./db');
@@ -99,6 +100,21 @@ app.get('/auth/google/callback', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect(`${process.env.CLIENT_URL}/?error=google`);
+  }
+});
+
+// No external provider round-trip needed — unlike Discord/Google this is a
+// single synchronous step, so it's one route rather than a start+callback
+// pair. See auth.js's getOrResetGuestUser for why this always lands on the
+// same account instead of creating a new one.
+app.get('/auth/guest', (req, res) => {
+  try {
+    const user = getOrResetGuestUser();
+    req.session.userId = user.id;
+    res.redirect(`${process.env.CLIENT_URL}/lobby`);
+  } catch (err) {
+    console.error(err);
+    res.redirect(`${process.env.CLIENT_URL}/?error=guest`);
   }
 });
 
@@ -556,6 +572,7 @@ function toPublicUser(user) {
     name: user.name,
     picture: user.picture,
     chips: user.chips,
+    isGuest: user.auth_type === 'guest',
     profileComplete: !!user.profile_complete,
     termsAccepted: !!user.terms_accepted_at,
     termsAcceptedAt: user.terms_accepted_at,

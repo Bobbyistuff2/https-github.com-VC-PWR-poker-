@@ -7,6 +7,14 @@ const DISCORD_API = 'https://discord.com/api/v10';
 // default only ever applies to a fresh install's CREATE TABLE, not to an
 // existing production database.
 const STARTING_CHIPS = 12000;
+// There is exactly one guest account, ever — everyone who clicks "Continue
+// as Guest" lands on this same row (see getOrResetGuestUser below), not a
+// fresh one each time. It starts smaller than a real account and resets
+// back to this every time someone (re)enters as the guest, so it's always
+// a known, predictable amount rather than whatever the last person who
+// used it left behind.
+const GUEST_NAME = 'Guest';
+const GUEST_STARTING_CHIPS = 5000;
 
 function getDiscordAuthUrl() {
   const params = new URLSearchParams({
@@ -123,6 +131,27 @@ function findOrCreateGoogleUser(googleUser) {
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
 }
 
+// Finds the one shared guest account, resetting its chips/XP back to the
+// starting point every time (so a previous guest's session never carries
+// over into the next), or creates it the very first time anyone ever
+// clicks "Continue as Guest". profile_complete is set up front — there's
+// no name to pick, it's always "Guest" — so this goes straight to the
+// lobby, same as a returning signed-in player.
+function getOrResetGuestUser() {
+  const existing = db.prepare("SELECT * FROM users WHERE auth_type = 'guest'").get();
+  if (existing) {
+    db.prepare('UPDATE users SET chips = ?, xp = 0 WHERE id = ?').run(GUEST_STARTING_CHIPS, existing.id);
+    return db.prepare('SELECT * FROM users WHERE id = ?').get(existing.id);
+  }
+
+  const id = crypto.randomUUID();
+  db.prepare(
+    'INSERT INTO users (id, auth_type, name, chips, profile_complete) VALUES (?, ?, ?, ?, 1)'
+  ).run(id, 'guest', GUEST_NAME, GUEST_STARTING_CHIPS);
+
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+}
+
 function updateDisplayName(userId, name) {
   db.prepare('UPDATE users SET name = ?, profile_complete = 1 WHERE id = ?').run(name, userId);
   return db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
@@ -137,5 +166,6 @@ module.exports = {
   exchangeGoogleCode,
   getGoogleUser,
   findOrCreateGoogleUser,
+  getOrResetGuestUser,
   updateDisplayName,
 };

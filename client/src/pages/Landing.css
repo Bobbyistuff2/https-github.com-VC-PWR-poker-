@@ -132,6 +132,35 @@
   box-shadow: 0 6px 20px rgba(201, 169, 97, 0.3);
 }
 
+.landing__guest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #d9d9d9;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.landing__guest:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.landing__guest-note {
+  color: #7a7a7a;
+  font-size: 0.72rem;
+  margin: 0.6rem 0 0;
+  max-width: 20rem;
+}
+
 .landing__error {
   color: #e6394a;
   font-size: 0.85rem;

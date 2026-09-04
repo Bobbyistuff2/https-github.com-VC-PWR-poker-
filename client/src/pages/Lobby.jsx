@@ -153,10 +153,14 @@ export default function Lobby({ user, onUserUpdate }) {
           <>
             <XpBar rank={user.rank} size="hero" />
             <div className="lobby__modes">
-              <button className="lobby__mode lobby__mode--side" onClick={() => goToView('cash')}>
+              <button
+                className={`lobby__mode lobby__mode--side ${user.isGuest ? 'lobby__mode--locked' : ''}`}
+                disabled={user.isGuest}
+                onClick={() => goToView('cash')}
+              >
                 <img className="lobby__mode-icon" src={cashGamesBadge} alt="" />
                 <h2 className="lobby__mode-title">Cash Games</h2>
-                <p className="lobby__mode-text">Play for real stakes.</p>
+                <p className="lobby__mode-text">{user.isGuest ? 'Sign in to play Cash Games.' : 'Play for real stakes.'}</p>
               </button>
 
               <button className="lobby__mode lobby__mode--main" onClick={() => goToView('tournaments')}>

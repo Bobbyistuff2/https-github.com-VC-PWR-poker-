@@ -261,6 +261,16 @@
   transform: translateY(-2px);
 }
 
+.lobby__mode--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lobby__mode--locked:hover {
+  border-color: rgba(201, 169, 97, 0.25);
+  transform: none;
+}
+
 .lobby__mode--side {
   flex: 0.88;
   padding: 1.6rem 1.1rem;

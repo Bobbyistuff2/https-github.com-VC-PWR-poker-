@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import FallingCards from '../components/FallingCards.jsx';
+import { formatChips } from '../chips.js';
 import './Landing.css';
 
 // Empty when unset, so the link is relative to the current origin — used in
@@ -25,6 +26,7 @@ export default function Landing() {
 
         {authError === 'discord' && <p className="landing__error">Discord sign-in failed. Please try again.</p>}
         {authError === 'google' && <p className="landing__error">Google sign-in failed. Please try again.</p>}
+        {authError === 'guest' && <p className="landing__error">Couldn't start a guest session. Please try again.</p>}
 
         <a className="landing__discord" href={`${API_URL}/auth/discord`}>
           <DiscordIcon />
@@ -35,6 +37,13 @@ export default function Landing() {
           <GoogleIcon />
           Sign in with Google
         </a>
+
+        <a className="landing__guest" href={`${API_URL}/auth/guest`}>
+          Continue as Guest
+        </a>
+        <p className="landing__guest-note">
+          One shared account for everyone who plays as a guest — starts at {formatChips(5000)}, no Cash Games.
+        </p>
       </div>
     </div>
   );
